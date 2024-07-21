@@ -12,15 +12,24 @@
         font-family: 'Courier New', monospace;
       }
       body {
+        color: white;
         background-color: black;
+      }
+      #terminal {
+        font-size: 12px;
       }
     </style>
     <script>
       class Game {
+        terminalBuffer = [];
+        prompt = '';
+        state = 'init';
+
         constructor() {}
 
         openFullscreen() {
           // https://www.w3schools.com/howto/howto_js_fullscreen.asp
+          console.debug("Opening fullscreen");
           if (document.requestFullscreen) {
             document.requestFullscreen();
           } else if (document.webkitRequestFullscreen) { /* Safari */
@@ -35,9 +44,24 @@
 
       document.addEventListener("DOMContentLoaded", () => {
         game.openFullscreen();
+
+        switch (game.state) {
+          case 'init':
+            game.prompt = 'You are sitting at your desk, in front of your home computer. It is currently shut down.<br />Possible actions: [boot inspect stand]<br />Action: ';
+            break;
+          case 'boot':
+            break;
+          case 'inspect':
+            break;
+          case 'stand':
+            break;
+        }
+        game.terminalBuffer.push(game.prompt);
+
+        document.getElementById('terminal').innerHTML = game.terminalBuffer.join('');
       });
     </script>
   </head>
-  <body>
+  <body id="terminal">
   </body>
 </html>
