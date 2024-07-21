@@ -16,18 +16,25 @@
       }
     </style>
     <script>
-      function openFullscreen() {
-        if (elem.requestFullscreen) {
-          elem.requestFullscreen();
-        } else if (elem.webkitRequestFullscreen) { /* Safari */
-          elem.webkitRequestFullscreen();
-        } else if (elem.msRequestFullscreen) { /* IE11 */
-          elem.msRequestFullscreen();
+      class Game {
+        constructor() {}
+
+        openFullscreen() {
+          // https://www.w3schools.com/howto/howto_js_fullscreen.asp
+          if (document.requestFullscreen) {
+            document.requestFullscreen();
+          } else if (document.webkitRequestFullscreen) { /* Safari */
+            document.webkitRequestFullscreen();
+          } else if (document.msRequestFullscreen) { /* IE11 */
+            document.msRequestFullscreen();
+          }
         }
       }
 
+      const game = new Game();
+
       document.addEventListener("DOMContentLoaded", () => {
-        openFullscreen();
+        game.openFullscreen();
       });
     </script>
   </head>
