@@ -80,8 +80,9 @@
         if (e.key === 'Enter') {
           game.terminalState = 'exec';
         } else {
+          const kev = new KeyboardEvent('keypress', { ...e });
           game.inputElem.value = game.input;
-          game.inputElem.dispatchEvent(e);
+          game.inputElem.dispatchEvent(kev);
           game.input = game.inputElem.value;
         }
         game.refresh();
