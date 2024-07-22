@@ -23,7 +23,9 @@
       class Game {
         terminalBuffer = [];
         prompt = '';
+        input = '';
         state = 'init';
+        terminalState = 'output';
 
         constructor() {}
 
@@ -38,27 +40,51 @@
             document.msRequestFullscreen();
           }
         }
+
+        refresh() {
+          switch (game.state) {
+            case 'init':
+              if (game.terminalState === 'output') {
+                game.prompt = 'You are sitting at your desk, in front of your home computer. It is currently shut down.<br />Possible actions: [boot inspect stand]<br />Action: ';
+                game.terminalState = 'input';
+              }
+              break;
+            case 'boot':
+              break;
+            case 'inspect':
+              break;
+            case 'stand':
+              break;
+          }
+
+          if (game.terminalState === 'exec') {
+            game.terminalBuffer.push(game.prompt + game.input + '<br />');
+            game.prompt = '';
+            game.input = '';
+            game.terminalState = 'output';
+          }
+
+          document.getElementById('terminal').innerHTML = game.terminalBuffer.join('') + game.prompt + game.input;
+        }
       }
 
       const game = new Game();
 
       document.addEventListener("DOMContentLoaded", () => {
         game.openFullscreen();
+        game.refresh();
+      });
 
-        switch (game.state) {
-          case 'init':
-            game.prompt = 'You are sitting at your desk, in front of your home computer. It is currently shut down.<br />Possible actions: [boot inspect stand]<br />Action: ';
-            break;
-          case 'boot':
-            break;
-          case 'inspect':
-            break;
-          case 'stand':
-            break;
+      document.addEventListener("keypress", (e) => {
+        if (e.key === 'Enter') {
+          game.terminalState = 'exec';
+        } else {
+          const inputElem = document.createElement('input');
+          inputElem.value = game.input;
+          inputElem.dispatchEvent(e);
+          game.input = inputElem.value;
         }
-        game.terminalBuffer.push(game.prompt);
-
-        document.getElementById('terminal').innerHTML = game.terminalBuffer.join('');
+        game.refresh();
       });
     </script>
   </head>
