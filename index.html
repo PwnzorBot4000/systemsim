@@ -11,14 +11,19 @@
         margin: 0;
         font-family: 'Courier New', monospace;
       }
-      body {
-        color: white;
+      html, body {
         background-color: black;
+        color: white;
+        height: 100%;
+        width: 100%;
       }
       #terminal {
         font-size: 12px;
         padding: 1em;
         white-space: pre-wrap;
+      }
+      .nocursor {
+        cursor: none;
       }
     </style>
     <script>
@@ -154,6 +159,7 @@
           await sleep(100);
           document.getElementById('terminal').innerHTML = 'Entering fullscreen mode...<br /><br />';
           await sleep(3000);
+          document.getElementById('terminal').classList.add('nocursor');
           document.getElementById('terminal').innerHTML += 'No player data found. Starting new game.';
           await sleep(1500);
           document.getElementById('terminal').innerHTML = '';
