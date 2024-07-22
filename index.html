@@ -17,6 +17,7 @@
       }
       #terminal {
         font-size: 12px;
+        white-space: pre-wrap;
       }
     </style>
     <script>
@@ -25,7 +26,7 @@
         prompt = '';
         input = '';
         state = 'init';
-        terminalState = 'output';
+        terminalState = 'exec';
 
         constructor() {}
 
@@ -42,26 +43,65 @@
         }
 
         refresh() {
-          switch (game.state) {
-            case 'init':
-              if (game.terminalState === 'output') {
-                game.prompt = 'You are sitting at your desk, in front of your home computer. It is currently shut down.<br />Possible actions: [boot inspect stand]<br />Action: ';
-                game.terminalState = 'input';
-              }
-              break;
-            case 'boot':
-              break;
-            case 'inspect':
-              break;
-            case 'stand':
-              break;
-          }
-
           if (game.terminalState === 'exec') {
-            game.terminalBuffer.push(game.prompt + game.input + '<br />');
-            game.prompt = '';
-            game.input = '';
-            game.terminalState = 'output';
+            switch (game.state) {
+              case 'init':
+                switch (game.input) {
+                  case '':
+                    game.prompt = 'You are sitting at your desk, in front of your home computer. It is currently shut down.<br />Possible actions: [boot inspect stand]<br /><br />Action: ';
+                    game.input = '';
+                    game.terminalState = 'input';
+                    break;
+                  case 'boot':
+                    game.state = 'boot';
+                    game.terminalBuffer = [];
+                    game.input = '';
+                    return this.refresh();
+                  case 'inspect':
+                    game.state = 'inspect';
+                    game.input = '';
+                    return this.refresh();
+                  case 'stand':
+                    game.state = 'stand';
+                    game.input = '';
+                    return this.refresh();
+                  default:
+                    game.prompt = 'Invalid action. Possible actions: [boot inspect stand]<br /><br />Action: ';
+                    game.input = '';
+                    game.terminalState = 'input';
+                    break;
+                }
+                break;
+              case 'boot':
+
+                switch (game.input) {
+                  case '':
+                    game.prompt = '&gt; Loading kernel... OK<br />' +
+                            '&gt; Loading boot image... OK<br />' +
+                            '&gt; System initialized.<br />For a list of commands, type \'help\'.<br /><br />' +
+                            '/root # ';
+                    game.input = '';
+                    game.terminalState = 'input';
+                    break;
+                  case 'help':
+                    game.prompt =
+                            'help [command]    - Display help for a command<br />' +
+                            'ls                - List files in current directory<br />' +
+                            'cd [path]         - Change directory. Use \'..\' to go up a directory<br />' +
+                            '<br />' +
+                            'All binaries located in /bin can also be executed as commands.<br /><br />' +
+                            '/root # ';
+                    game.input = '';
+                    game.terminalState = 'input';
+                    break;
+                  default:
+                    game.prompt = 'Unknown command: ' + game.input + '<br />For a list of commands, type \'help\'.<br /><br />/root # ';
+                    game.input = '';
+                    game.terminalState = 'input';
+                    break;
+                }
+                break;
+            }
           }
 
           document.getElementById('terminal').innerHTML = game.terminalBuffer.join('') + game.prompt + game.input;
@@ -76,12 +116,12 @@
       });
 
       document.addEventListener("keydown", (e) => {
-        e.preventDefault();
         if (/^[\w !@#$%^&*()\-+{}|~=`<>,.?/\\;:"']$/.test(e.key)) {
           game.input = game.input + e.key;
         } else {
           switch (e.key) {
             case 'Enter':
+              game.terminalBuffer.push(game.prompt + game.input + '<br />');
               game.terminalState = 'exec';
               break;
             case 'Backspace':
