@@ -88,12 +88,18 @@
                             'help [command]    - Display help for a command<br />' +
                             'ls                - List files in current directory<br />' +
                             'cd [path]         - Change directory. Use \'..\' to go up a directory<br />' +
+                            'poweroff          - Shut down the computer<br />' +
                             '<br />' +
                             'All binaries located in /bin can also be executed as commands.<br /><br />' +
                             '/root # ';
                     game.input = '';
                     game.terminalState = 'input';
                     break;
+                  case 'poweroff':
+                    game.state = 'init';
+                    game.terminalBuffer = [];
+                    game.input = '';
+                    return this.refresh();
                   default:
                     game.prompt = 'Unknown command: ' + game.input + '<br />For a list of commands, type \'help\'.<br /><br />/root # ';
                     game.input = '';
