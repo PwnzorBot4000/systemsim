@@ -22,6 +22,10 @@
       }
     </style>
     <script>
+      async function sleep(ms) {
+        return await new Promise(resolve => setTimeout(resolve, ms));
+      }
+
       class Game {
         terminalBuffer = [];
         prompt = '';
@@ -31,19 +35,33 @@
 
         constructor() {}
 
-        openFullscreen() {
-          // https://www.w3schools.com/howto/howto_js_fullscreen.asp
-          console.debug("Opening fullscreen");
-          if (document.requestFullscreen) {
-            document.requestFullscreen();
-          } else if (document.webkitRequestFullscreen) { /* Safari */
-            document.webkitRequestFullscreen();
-          } else if (document.msRequestFullscreen) { /* IE11 */
-            document.msRequestFullscreen();
-          }
+        async init() {
+          document.addEventListener('keydown', async (e) => {
+            if (this.terminalState !== 'input') return;
+
+            if (/^[\w !@#$%^&*()\-+{}|~=`<>,.?/\\;:"']$/.test(e.key)) {
+              this.input = this.input + e.key;
+            } else {
+              switch (e.key) {
+                case 'Enter':
+                  this.terminalBuffer.push(this.prompt + this.input + '<br />');
+                  this.terminalState = 'exec';
+                  break;
+                case 'Backspace':
+                  this.input = this.input.slice(0, -1);
+                  break;
+                default:
+                  break;
+              }
+            }
+
+            await this.refresh();
+          });
+
+          await this.refresh();
         }
 
-        refresh() {
+        async refresh() {
           if (game.terminalState === 'exec') {
             switch (game.state) {
               case 'init':
@@ -55,6 +73,7 @@
                     break;
                   case 'boot':
                     game.state = 'boot';
+                    document.getElementById('terminal').innerHTML = '';
                     game.terminalBuffer = [];
                     game.input = '';
                     return this.refresh();
@@ -77,6 +96,7 @@
 
                 switch (game.input) {
                   case '':
+                    await sleep(300);
                     game.prompt = '&gt; Loading kernel... OK<br />' +
                             '&gt; Loading boot image... OK<br />' +
                             '&gt; System initialized.<br />For a list of commands, type \'help\'.<br /><br />' +
@@ -117,31 +137,33 @@
 
       const game = new Game();
 
-      document.addEventListener("DOMContentLoaded", () => {
-        game.openFullscreen();
-        game.refresh();
-      });
-
-      document.addEventListener("keydown", (e) => {
-        if (/^[\w !@#$%^&*()\-+{}|~=`<>,.?/\\;:"']$/.test(e.key)) {
-          game.input = game.input + e.key;
-        } else {
-          switch (e.key) {
-            case 'Enter':
-              game.terminalBuffer.push(game.prompt + game.input + '<br />');
-              game.terminalState = 'exec';
-              break;
-            case 'Backspace':
-              game.input = game.input.slice(0, -1);
-              break;
-            default:
-              break;
+      document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('fullscreen').addEventListener('click', async () => {
+          const docElm = document.documentElement;
+          if (docElm.requestFullscreen) {
+            docElm.requestFullscreen();
+          } else if (docElm.msRequestFullscreen) {
+            docElm.msRequestFullscreen();
+          } else if (docElm.mozRequestFullScreen) {
+            docElm.mozRequestFullScreen();
+          } else if (docElm.webkitRequestFullScreen) {
+            docElm.webkitRequestFullScreen();
           }
-        }
-        game.refresh();
+
+          document.getElementById('terminal').innerHTML = '';
+          await sleep(100);
+          document.getElementById('terminal').innerHTML = 'Entering fullscreen mode...<br /><br />';
+          await sleep(3000);
+          document.getElementById('terminal').innerHTML += 'No player data found. Starting new game.';
+          await sleep(1500);
+          document.getElementById('terminal').innerHTML = '';
+          await sleep(1500);
+          await game.init();
+        });
       });
     </script>
   </head>
   <body id="terminal">
+    <button id="fullscreen">Launch Game</button>
   </body>
 </html>
