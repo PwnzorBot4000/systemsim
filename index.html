@@ -24,6 +24,7 @@
         terminalBuffer = [];
         prompt = '';
         input = '';
+        inputElem = document.createElement('input');
         state = 'init';
         terminalState = 'output';
 
@@ -79,10 +80,9 @@
         if (e.key === 'Enter') {
           game.terminalState = 'exec';
         } else {
-          const inputElem = document.createElement('input');
-          inputElem.value = game.input;
-          inputElem.dispatchEvent(e);
-          game.input = inputElem.value;
+          game.inputElem.value = game.input;
+          game.inputElem.dispatchEvent(e);
+          game.input = game.inputElem.value;
         }
         game.refresh();
       });
