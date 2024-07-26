@@ -17,7 +17,6 @@
         width: 100%;
       }
       #terminal {
-        font-size: 12px;
         padding: 1em;
         white-space: pre-wrap;
       }
@@ -26,6 +25,9 @@
       }
       .monospace {
         font-family: 'Courier New', monospace;
+      }
+      .terminal12px {
+        font-size: 12px;
       }
     </style>
     <script>
@@ -52,6 +54,7 @@
             } else {
               switch (e.key) {
                 case 'Enter':
+                  if (this.input.length <= 0) return;
                   this.terminalBuffer.push(this.prompt + this.input + '<br />');
                   this.terminalState = 'exec';
                   await this.refresh();
@@ -76,8 +79,8 @@
               case 'init':
                 switch (this.input) {
                   case '':
-                    this.waitInput('You are sitting at your desk, in front of your home computer. It is currently shut down.<br />' +
-                      'Possible actions: [boot inspect stand]<br /><br />Action: ');
+                    this.print('You are sitting at your desk, in front of your home computer. It is currently shut down.<br />');
+                    this.waitInput('Possible actions: [boot inspect stand]<br /><br />Action: ');
                     break;
                   case 'boot':
                     return this.switchState('boot', { cls: true });
@@ -86,48 +89,54 @@
                   case 'stand':
                     return this.switchState('inspect-room');
                   default:
-                    this.waitInput('Invalid action. Possible actions: [boot inspect stand]<br /><br />Action: ');
+                    this.print('Invalid action. ');
+                    this.waitInput();
                     break;
                 }
                 break;
               case 'inspect-desk':
                 switch (game.input) {
                   case '':
-                    this.waitInput('You look at the desk.<br />' +
-                      'On top of it, from left to right, there is a family picture, a small pile of memory sticks, a pile of electronics, and a large notepad with a pen.<br />'
-                      'It has three drawers in one side, and the computer tower on the other one. Next to it a few paper bags are leaning on its side.<br />'
-                      'Possible actions: [picture memorysticks electronics notepad drawer1/2/3 tower bags boot stand]<br /><br />Action: ');
+                    this.print('You look at the desk.<br />' +
+                      'On top of it, from left to right, there is a family picture, a small pile of memory sticks, a pile of electronics, and a large notepad with a pen.<br />' +
+                      'It has three drawers in one side, and the computer tower on the other one. Next to it a few paper bags are leaning on its side.<br />');
+                    this.waitInput('Possible actions: [picture memorysticks electronics notepad drawer1/2/3 tower bags boot stand]<br /><br />Action: ');
                     break;
                   case 'boot':
                     return this.switchState('boot', { cls: true });
                   case 'stand':
                     return this.switchState('inspect-room');
+                  default:
+                    this.print('Invalid action. ');
+                    this.waitInput();
+                    break;
                 }
                 break;
               case 'boot':
                 switch (game.input) {
                   case '':
                     await sleep(300);
-                    this.waitInput(
+                    this.print(
                       '&gt; Loading kernel... OK<br />' +
                       '&gt; Loading boot image... OK<br />' +
-                      '&gt; System initialized.<br />For a list of commands, type \'help\'.<br /><br />' +
-                      '/root # ');
+                      '&gt; System initialized.<br />For a list of commands, type \'help\'.<br /><br />');
+                    this.waitInput('/root # ');
                     break;
                   case 'help':
-                    this.waitInput(
+                    this.print(
                       'help [command]    - Display help for a command<br />' +
                       'ls                - List files in current directory<br />' +
                       'cd [path]         - Change directory. Use \'..\' to go up a directory<br />' +
                       'poweroff          - Shut down the computer<br />' +
                       '<br />' +
-                      'All binaries located in /bin can also be executed as commands.<br /><br />' +
-                      '/root # ');
+                      'All binaries located in /bin can also be executed as commands.<br /><br />');
+                    this.waitInput();
                     break;
                   case 'poweroff':
                     return this.switchState('init', { cls: true });
                   default:
-                    this.waitInput('Unknown command: ' + game.input + '<br />For a list of commands, type \'help\'.<br /><br />/root # ');
+                    this.print(`Unknown command: ${game.input}<br />For a list of commands, type 'help'.<br /><br />`);
+                    this.waitInput();
                     break;
                 }
                 break;
@@ -137,6 +146,11 @@
 
         render() {
           document.getElementById('terminal').innerHTML = game.terminalBuffer.join('') + game.prompt + game.input;
+        }
+
+        print(text) {
+          this.terminalBuffer.push(text);
+          this.render();
         }
 
         async switchState(state, options = { cls: false }) {
@@ -156,9 +170,9 @@
 
           if (prompt) {
             this.prompt = prompt;
-            this.render();
           }
-          
+          this.render();
+
           this.terminalState = 'input';
         }
       }
@@ -181,10 +195,13 @@
           document.getElementById('terminal').innerHTML = '';
           await sleep(100);
           document.getElementById('terminal').innerHTML = 'Entering fullscreen mode...<br /><br />';
-          await sleep(1000);
+          await sleep(400);
           document.getElementById('terminal').classList.add('monospace');
-          await sleep(2000);
+          await sleep(1000);
+          document.getElementById('terminal').classList.add('terminal12px');
+          await sleep(1000);
           document.getElementById('terminal').classList.add('nocursor');
+          await sleep(500);
           document.getElementById('terminal').innerHTML += 'No player data found. Starting new game.';
           await sleep(1500);
           document.getElementById('terminal').innerHTML = '';
