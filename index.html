@@ -45,6 +45,24 @@
         constructor() {}
 
         async init() {
+          // Game init sequence
+          const terminalElem = document.getElementById('terminal');
+          terminalElem.innerHTML = '';
+          await sleep(100);
+          terminalElem.innerHTML = 'Entering fullscreen mode...<br /><br />';
+          await sleep(400);
+          terminalElem.classList.add('monospace');
+          await sleep(1000);
+          terminalElem.classList.add('terminal12px');
+          await sleep(1000);
+          terminalElem.classList.add('nocursor');
+          await sleep(500);
+          terminalElem.innerHTML += 'No player data found. Starting new game.';
+          await sleep(1500);
+          terminalElem.innerHTML = '';
+          await sleep(1500);
+
+          // Bind events
           document.addEventListener('keydown', async (e) => {
             if (this.terminalState !== 'input') return;
 
@@ -70,6 +88,7 @@
             }
           });
 
+          // Main game loop
           await this.refresh();
         }
 
@@ -179,35 +198,29 @@
 
       const game = new Game();
 
-      document.addEventListener('DOMContentLoaded', () => {
-        document.getElementById('fullscreen').addEventListener('click', async () => {
-          const docElm = document.documentElement;
-          if (docElm.requestFullscreen) {
-            docElm.requestFullscreen();
-          } else if (docElm.msRequestFullscreen) {
-            docElm.msRequestFullscreen();
-          } else if (docElm.mozRequestFullScreen) {
-            docElm.mozRequestFullScreen();
-          } else if (docElm.webkitRequestFullScreen) {
-            docElm.webkitRequestFullScreen();
-          }
+      document.addEventListener('DOMContentLoaded', async () => {
+        const isFullscreen = !!(document.fullscreenElement || document.mozFullScreenElement ||
+          document.webkitFullscreenElement || document.msFullscreenElement);
 
-          document.getElementById('terminal').innerHTML = '';
-          await sleep(100);
-          document.getElementById('terminal').innerHTML = 'Entering fullscreen mode...<br /><br />';
-          await sleep(400);
-          document.getElementById('terminal').classList.add('monospace');
-          await sleep(1000);
-          document.getElementById('terminal').classList.add('terminal12px');
-          await sleep(1000);
-          document.getElementById('terminal').classList.add('nocursor');
-          await sleep(500);
-          document.getElementById('terminal').innerHTML += 'No player data found. Starting new game.';
-          await sleep(1500);
-          document.getElementById('terminal').innerHTML = '';
-          await sleep(1500);
+        if (isFullscreen) {
+          document.getElementById('fullscreen').remove();
           await game.init();
-        });
+        } else {
+          document.getElementById('fullscreen').addEventListener('click', async () => {
+            const docElm = document.documentElement;
+            if (docElm.requestFullscreen) {
+              docElm.requestFullscreen();
+            } else if (docElm.msRequestFullscreen) {
+              docElm.msRequestFullscreen();
+            } else if (docElm.mozRequestFullScreen) {
+              docElm.mozRequestFullScreen();
+            } else if (docElm.webkitRequestFullScreen) {
+              docElm.webkitRequestFullScreen();
+            }
+
+            await game.init();
+          });
+        }
       });
     </script>
   </head>
