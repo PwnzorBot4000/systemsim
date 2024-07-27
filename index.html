@@ -10,16 +10,42 @@
       * {
         margin: 0;
       }
-      html, body {
-        background-color: black;
-        color: white;
+      html, body, .layer {
         height: 100%;
         width: 100%;
       }
+      .layer {
+        position: absolute;
+      }
+      /* layers */
       #terminal {
+        background-color: black;
+        color: white;
         padding: 1em;
         white-space: pre-wrap;
       }
+      #UI {
+        align-items: center;
+        display: flex;
+        justify-content: center;
+      }
+      #UI button {
+        background-color: black;
+        border: 3px lightgray double;
+        color: lightgray;
+        font-family: 'Courier New', monospace;
+        font-size: 1.5em;
+        text-shadow: 0 0 2px white;
+        padding: 0.5em;
+        text-align: center;
+        text-decoration: none;
+      }
+      #UI button:hover {
+        background-color: lightgray;
+        color: black;
+        text-shadow: 0 0 2px black;
+      }
+      /* layer overrides */
       .nocursor {
         cursor: none;
       }
@@ -116,9 +142,11 @@
               case 'inspect-desk':
                 switch (game.input) {
                   case '':
-                    this.print('You look at the desk.<br />' +
-                      'On top of it, from left to right, there is a family picture, a small pile of memory sticks, a pile of electronics, and a large notepad with a pen.<br />' +
+                    this.print('You look at the desk.<br />');
+                    await sleep(600);
+                    this.print('On top of it, from left to right, there is a family picture, a small pile of memory sticks, a pile of electronics, and a large notepad with a pen.<br />' +
                       'It has three drawers in one side, and the computer tower on the other one. Next to it a few paper bags are leaning on its side.<br />');
+                    await sleep(600);
                     this.waitInput('Possible actions: [picture memorysticks electronics notepad drawer1/2/3 tower bags boot stand]<br /><br />Action: ');
                     break;
                   case 'boot':
@@ -135,10 +163,14 @@
                 switch (game.input) {
                   case '':
                     await sleep(300);
-                    this.print(
-                      '&gt; Loading kernel... OK<br />' +
-                      '&gt; Loading boot image... OK<br />' +
+                    this.print('&gt; Loading kernel... ');
+                    await sleep(700);
+                    this.print('OK<br />' +
+                      '&gt; Loading boot image... ');
+                    await sleep(1000);
+                    this.print('OK<br />' +
                       '&gt; System initialized.<br />For a list of commands, type \'help\'.<br /><br />');
+                    await sleep(500);
                     this.waitInput('/root # ');
                     break;
                   case 'help':
@@ -152,7 +184,10 @@
                     this.waitInput();
                     break;
                   case 'poweroff':
-                    return this.switchState('init', { cls: true });
+                    await sleep(600);
+                    this.cls();
+                    await sleep(1000);
+                    return this.switchState('init');
                   default:
                     this.print(`Unknown command: ${game.input}<br />For a list of commands, type 'help'.<br /><br />`);
                     this.waitInput();
@@ -163,8 +198,17 @@
           }
         }
 
+        cls() {
+          document.getElementById('terminal').innerHTML = '';
+          this.terminalBuffer = [];
+        }
+
         render() {
-          document.getElementById('terminal').innerHTML = game.terminalBuffer.join('') + game.prompt + game.input;
+          if (this.terminalState === 'input') {
+            document.getElementById('terminal').innerHTML = game.terminalBuffer.join('') + game.prompt + game.input;
+          } else {
+            document.getElementById('terminal').innerHTML = game.terminalBuffer.join('');
+          }
         }
 
         print(text) {
@@ -177,8 +221,7 @@
           this.input = '';
 
           if (options.cls) {
-            document.getElementById('terminal').innerHTML = '';
-            this.terminalBuffer = [];
+            this.cls();
           }
 
           return this.refresh();
@@ -186,45 +229,42 @@
 
         waitInput(prompt) {
           this.input = '';
-
           if (prompt) {
             this.prompt = prompt;
           }
-          this.render();
 
           this.terminalState = 'input';
+
+          this.render();
         }
       }
 
       const game = new Game();
 
       document.addEventListener('DOMContentLoaded', async () => {
-        const isFullscreen = !!(document.fullscreenElement || document.mozFullScreenElement ||
-          document.webkitFullscreenElement || document.msFullscreenElement);
+        document.getElementById('fullscreen-btn').addEventListener('click', async () => {
+          const docElm = document.documentElement;
+          if (docElm.requestFullscreen) {
+            docElm.requestFullscreen();
+          } else if (docElm.msRequestFullscreen) {
+            docElm.msRequestFullscreen();
+          } else if (docElm.mozRequestFullScreen) {
+            docElm.mozRequestFullScreen();
+          } else if (docElm.webkitRequestFullScreen) {
+            docElm.webkitRequestFullScreen();
+          }
+          document.getElementById('fullscreen-btn').remove();
 
-        if (isFullscreen) {
-          document.getElementById('fullscreen').remove();
           await game.init();
-        } else {
-          document.getElementById('fullscreen').addEventListener('click', async () => {
-            const docElm = document.documentElement;
-            if (docElm.requestFullscreen) {
-              docElm.requestFullscreen();
-            } else if (docElm.msRequestFullscreen) {
-              docElm.msRequestFullscreen();
-            } else if (docElm.mozRequestFullScreen) {
-              docElm.mozRequestFullScreen();
-            } else if (docElm.webkitRequestFullScreen) {
-              docElm.webkitRequestFullScreen();
-            }
-
-            await game.init();
-          });
-        }
+        });
       });
     </script>
   </head>
-  <body id="terminal">
-    <button id="fullscreen">Launch Game</button>
+  <body>
+    <div id="terminal" class="layer">
+    </div>
+    <div id="UI" class="layer" style="z-index: 1;">
+      <button id="fullscreen-btn">Launch Game</button>
+    </div>
   </body>
 </html>
