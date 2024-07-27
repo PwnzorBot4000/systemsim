@@ -149,9 +149,91 @@
                     await sleep(600);
                     this.waitInput('Possible actions: [picture memorysticks electronics notepad drawer1/2/3 tower bags boot stand]<br /><br />Action: ');
                     break;
+                  case 'picture':
+                    this.print('You look at the picture.<br />');
+                    await sleep(600);
+                    this.print(
+                      'It is a picture of your parents, with you in the middle. They are holding you from the hands, one hand each.<br />' +
+                      'The date on the photo is 2006 May 16.<br />');
+                    await sleep(600);
+                    this.waitInput();
+                    break;
+                  case 'memorysticks':
+                    this.print(
+                      'There are 3 memory sticks in the pile:<br />' +
+                      'Stick 1 (16GB, USB-A 3.0) is a live USB with a Linux distribution on it. It was used to originally set up the computer.<br />' +
+                      'Sticks 2 (8GB, USB-A 3.0) and 3 (32GB, USB-C 3.1) are empty.<br />');
+                    this.waitInput();
+                    break;
+                  case 'electronics':
+                    this.print(
+                      'The pile of electronics contains:<br />' +
+                      '- 2 RFID tags, opened with their contacts exposed.<br />' +
+                      '- A soldering iron, solder and flux.<br />' +
+                      '- 1.5 meter of USB 3.0 cable.<br />' +
+                      '- 2 meters of low voltage cable, solid core.<br />' +
+                      '- A sachel of about 10 MOSFETs.<br />');
+                    this.waitInput();
+                    break;
+                  case 'notepad':
+                    this.print(
+                      'A large notepad with a pen is on the desk.<br />' +
+                      'It is currently empty, with a few doodles on it.<br />');
+                    this.waitInput();
+                    break;
+                  case 'drawer1':
+                    this.print(
+                      'You open the first drawer. It contains:<br />' +
+                      '- A book about the history of the computer industry.<br />' +
+                      '- A USB-A to USB-C 3.0 cable.<br />' +
+                      '- A TV remote control for your monitor, unused.<br />' +
+                      '- 3 AAA batteries.<br />' +
+                      '- A box of paper clips.<br />');
+                    this.waitInput();
+                    break;
+                  case 'drawer2':
+                    this.print(
+                      'You open the second drawer. It contains:<br />' +
+                      '- 2 AA batteries, expired.<br />' +
+                      '- A spoon.<br />' +
+                      '- A stack of sticky notes.<br />' +
+                      '- A syringe of thermal paste.<br />' +
+                      '- An old low-performance CPU cooler.<br />');
+                    this.waitInput();
+                    break;
+                  case 'drawer3':
+                    this.print(
+                      'You open the third drawer. It contains:<br />' +
+                      '- A pair of over-ear headphones. The plastic coating of the muffs is chipped.<br />' +
+                      '- A pair of trousers.<br />' +
+                      '- A fork with some steel wire wrapped around it.<br />' +
+                      '- A bottle of cologne.<br />' +
+                      '- A packet of tissues.<br />');
+                    this.waitInput();
+                    break;
+                  case 'tower':
+                    this.print(
+                      'You open the computer tower. It is equipped with:<br />' +
+                      '- 512 MB of DDR3 RAM @800 MHz.<br />' +
+                      '- A dual-core 4th generation CPU @2.7 GHz w/ 2MB cache, overclocked to 3.3 GHz.<br />' +
+                      '- A 4-5th gen chipset motherboard with support for up to 16GB of RAM @1.6 GHz.<br />' +
+                      '- A 1TB HDD with a SATA interface.<br />' +
+                      '- No graphics card.<br />' +
+                      '- A 300 W power supply.<br />');
+                    this.waitInput();
+                    break;
+                  case 'bags':
+                    this.print(
+                      'You search the bags. There is:<br />' +
+                      '- A small bag containing the empty packaging of a cologne bottle.<br />' +
+                      '- A large bag containing the empty packaging of a CPU cooler.<br />');
+                    this.waitInput();
+                    break;
                   case 'boot':
                     return this.switchState('boot', { cls: true });
                   case 'stand':
+                    this.print('You stand up.<br />');
+                    await sleep(600);
                     return this.switchState('inspect-room');
                   default:
                     this.print('Invalid action. ');
@@ -190,6 +272,87 @@
                     return this.switchState('init');
                   default:
                     this.print(`Unknown command: ${game.input}<br />For a list of commands, type 'help'.<br /><br />`);
+                    this.waitInput();
+                    break;
+                }
+                break;
+              case 'inspect-room':
+                switch (game.input) {
+                  case '':
+                    this.waitInput('Possible actions: [bookcase desk outside]<br /><br />Action: ');
+                    break;
+                  case 'bookcase':
+                    this.print('You look at the bookcase.<br />' +
+                      'It is a small bookcase with a few books on it, and a couple of cabinets at the bottom.<br />' +
+                      'The first cabinet contains monitor cables and a pair of shoes.<br />' +
+                      'The second cabinet contains clothes.<br />' +
+                      'The bookcase itself contains books about programming languages, and some novels.<br />');
+                    await sleep(600);
+                    this.waitInput();
+                    break;
+                  case 'desk':
+                    return this.switchState('init');
+                  case 'outside':
+                    this.print('You exit the room.<br />');
+                    await sleep(1000);
+                    return this.switchState('outside', { cls: true });
+                  default:
+                    this.print('Invalid action. ');
+                    this.waitInput();
+                    break;
+                }
+                break;
+              case 'outside':
+                switch (game.input) {
+                  case '':
+                    this.waitInput('Go where? [home convenience-store bills-computer-shop coffee-shop home-depot]<br /><br />Action: ');
+                    break;
+                  case 'home':
+                    this.print('You return to your home.<br />');
+                    await sleep(1000);
+                    return this.switchState('inspect-room', { cls: true });
+                  case 'convenience-store':
+                    return this.switchState('convenience-store');
+                  case 'bills-computer-shop':
+                    this.print('You don\'t need anything from the computer shop right now.<br />');
+                    this.waitInput();
+                    break;
+                    // return this.switchState('bills-computer-shop');
+                  case 'coffee-shop':
+                    this.print('You don\'t need anything from the coffee shop right now.<br />');
+                    this.waitInput();
+                    break;
+                    // return this.switchState('coffee-shop');
+                  case 'home-depot':
+                    this.print('You don\'t need anything from the home depot right now.<br />');
+                    this.waitInput();
+                    break;
+                    // return this.switchState('home-depot');
+                  default:
+                    this.print('Invalid action. ');
+                    this.waitInput();
+                    break;
+                }
+                break;
+              case 'convenience-store':
+                switch (game.input) {
+                  case '':
+                    this.waitInput('Possible actions: [newspapers outside]<br /><br />Action: ');
+                    break;
+                  case 'newspapers':
+                    this.print('You look at the newspapers. The headlines are:<br />' +
+                      '- The ePhone to replace all ePhones: Meet the new eGalaxy Cluster<br />' +
+                      '- Heist at the central bank: Cyber-criminals covering tracks of the perpetrators? - Thousands of private keys stolen<br />' +
+                      '- EnvyTech to invest up to $100 million in cryptocurrency - stock markets worried<br />' +
+                      '- Metaspace AR: Get your own digital flower with only $6/mo!<br />');
+                    await sleep(600);
+                    this.waitInput();
+                    break;
+                  case 'outside':
+                    this.print('You exit the convenience store.<br />');
+                    return this.switchState('outside');
+                  default:
+                    this.print('Invalid action. ');
                     this.waitInput();
                     break;
                 }
