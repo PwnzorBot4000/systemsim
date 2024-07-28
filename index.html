@@ -91,6 +91,8 @@
 
           // Bind events
           document.addEventListener('keydown', async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             if (this.terminalState !== 'input') return;
 
             if (/^[\w !@#$%^&*()\-+{}|~=`<>,.?/\\;:"']$/.test(e.key)) {
@@ -112,6 +114,12 @@
                   console.warn(`Unhandled key: ${e.key}`);
                   break;
               }
+            }
+          });
+
+          document.getElementById('terminal').addEventListener('click', (e) => {
+            if (e.target.id === 'terminal' && this.terminalState === 'input') {
+              document.getElementById('input-capture').focus();
             }
           });
 
@@ -341,9 +349,9 @@
                     this.waitInput('Possible actions: [newspapers outside]<br /><br />Action: ');
                     break;
                   case 'newspapers':
-                    this.print('You look at the newspapers. The headlines are:<br />' +
+                    this.print('You look at the digital newspaper subscription ads. The headlines are:<br />' +
                       '- The ePhone to replace all ePhones: Meet the new eGalaxy Cluster<br />' +
-                      '- Heist at the central bank: Cyber-criminals covering tracks of the perpetrators? - Thousands of private keys stolen<br />' +
+                      '- Ablue vault heist - Thousands of private keys stolen - Macrosoft urges users to generate new keys<br />' +
                       '- EnvyTech to invest up to $100 million in cryptocurrency - stock markets worried<br />' +
                       '- Metaspace AR: Get your own digital flower with only $6/mo!<br />');
                     await sleep(600);
@@ -398,6 +406,7 @@
           }
 
           this.terminalState = 'input';
+          document.getElementById('input-capture').focus();
 
           this.render();
         }
@@ -418,6 +427,7 @@
             docElm.webkitRequestFullScreen();
           }
           document.getElementById('fullscreen-btn').remove();
+          document.getElementById('UI').style.display = 'none';
 
           await game.init();
         });
@@ -425,6 +435,10 @@
     </script>
   </head>
   <body>
+    <div id="hidden-controls" class="layer" style="z-index: -10; visibility: hidden">
+      <label for="input-capture">User input capture field:</label>
+      <input id="input-capture" name="input-capture" type="text" autocomplete="off" spellcheck="false" />
+    </div>
     <div id="terminal" class="layer">
     </div>
     <div id="UI" class="layer" style="z-index: 1;">
