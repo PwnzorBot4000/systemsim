@@ -63,10 +63,18 @@
       }
 
       class Game {
+        // Persistent state
+        memorySticks = [
+          { size: '16GB', type: 'USB-A 3.0', readOnly: true, description: 'a live USB with a Linux distribution on it. It was used to originally set up the computer.', mounted: false },
+          { size: '8GB', type: 'USB-A 3.0', readOnly: false, description: 'empty.', mounted: false },
+          { size: '32GB', type: 'USB-C 3.1', readOnly: false, description: 'labeled \'Files\', and is mostly empty.', mounted: false },
+        ];
+        state = 'init';
+
+        // Transient state
         terminalBuffer = [];
         prompt = '';
         input = '';
-        state = 'init';
         terminalState = 'exec';
 
         constructor() {}
@@ -162,12 +170,7 @@
                     this.waitInput();
                     break;
                   case 'memorysticks':
-                    this.print(
-                      'There are 3 memory sticks in the pile:<br />' +
-                      'Stick 1 (16GB, USB-A 3.0) is a live USB with a Linux distribution on it. It was used to originally set up the computer.<br />' +
-                      'Sticks 2 (8GB, USB-A 3.0) and 3 (32GB, USB-C 3.1) are empty.<br />');
-                    this.waitInput();
-                    break;
+                    return this.switchState('inspect-memorysticks');
                   case 'electronics':
                     this.print(
                       'The pile of electronics contains:<br />' +
@@ -238,6 +241,54 @@
                     this.print('You stand up.<br />');
                     await sleep(600);
                     return this.switchState('inspect-room');
+                  default:
+                    this.print('Invalid action. ');
+                    this.waitInput();
+                    break;
+                }
+                break;
+              case 'inspect-memorysticks':
+                switch (game.input?.split(' ')[0] ?? '') {
+                  case '':
+                    this.print(
+                      `There are ${this.memorySticks.length} memory sticks in the pile:<br />` +
+                      this.memorySticks.map((stick, i) => `- Stick ${i + 1} (${stick.size}, ${stick.type}) is ${stick.description}${stick.mounted ? ' Currently mounted.' : ''}<br />`).join(''));
+                    this.waitInput('Possible actions: [eject [x], mount [x], back]<br /><br />Action: ');
+                    break;
+                  case 'eject': {
+                    const index = parseInt(game.input.split(' ')[1] ?? '1') - 1;
+                    if (index <= 0 || index > this.memorySticks.length) {
+                      this.print(`Invalid memory stick index: ${index}<br />`);
+                    } else {
+                      const memoryStick = this.memorySticks[index];
+                      if (memoryStick.mounted) {
+                        memoryStick.mounted = false;
+                        this.print(`You eject memory stick ${index + 1}.<br />`);
+                      } else {
+                        this.print(`Memory stick ${index + 1} is not mounted.<br />`);
+                      }
+                    }
+                    this.waitInput();
+                    break;
+                  }
+                  case 'mount': {
+                    const index = parseInt(game.input.split(' ')[1] ?? '1') - 1;
+                    if (index <= 0 || index > this.memorySticks.length) {
+                      this.print(`Invalid memory stick index: ${index}<br />`);
+                    } else {
+                      const memoryStick = this.memorySticks[index];
+                      if (!memoryStick.mounted) {
+                        memoryStick.mounted = true;
+                        this.print(`You mount memory stick ${index + 1}.<br />`);
+                      } else {
+                        this.print(`Memory stick ${index + 1} is already mounted.<br />`);
+                      }
+                    }
+                    this.waitInput();
+                    break;
+                  }
+                  case 'back':
+                    return this.switchState('inspect-desk');
                   default:
                     this.print('Invalid action. ');
                     this.waitInput();
