@@ -67,39 +67,63 @@
         fsMap = new Map();
         pwd = '/';
 
-        constructor(options = { pwd: '/', fsMap: null, contents: null}) {
+        constructor(options = { pwd: '/', fsMap: undefined, contents: undefined}) {
           if (options?.pwd) this.pwd = options.pwd;
           if (options?.fsMap) this.fsMap = options.fsMap;
           // TODO contents sugar
         }
 
-        goIn(dir, options = { onerror: () => {})) {
-          const target = this.pwd + '/' + dir;
-          if (!fsMap.has(target)) {
-            onerror();
-            return;
+        abspath(path) {
+          if (path.startsWith('/')) return path;
+          return this.joinpath(this.pwd, path);
+        }
+
+        get(path) {
+          return this.fsMap.get(this.abspath(path));
+        }
+
+        goIn(dir, options = { onerror: () => {} }) {
+          const target = this.joinpath(this.pwd, dir);
+          if (!this.fsMap.has(target) || this.fsMap.get(target) !== 'dir') {
+            options.onerror?.();
+            return false;
           }
 
           // Add a level
           this.pwd = target;
+          return true;
         }
 
-        goUp(options = { onerror: () => {})) {
+        goUp(options = { onerror: () => {} }) {
           if (this.pwd === '/') {
-            onerror();
-            return;
+            options.onerror?.();
+            return false;
           }
 
           // Remove a level
-          this.pwd = this.pwd.split('/').slice(0, -1).join('/');
+          this.pwd = '/' + this.pwd.split('/').slice(0, -1).join('/');
+          return true;
+        }
+
+        joinpath(base, rel) {
+          return base + (base.endsWith('/') ? '' : '/') + rel;
+        }
+
+        ls(path) {
+          const prefix = path ? this.joinpath(this.pwd, path) : this.pwd;
+
+          return [...this.fsMap.keys()]
+            .filter(key => key.startsWith(prefix))
+            .map(key => key.replace(prefix, ''))
+            .filter(key => key.match(/^\/?[^\/]+$/))
+            .map(key => key.replace(/^\/?/, ''));
         }
       }
       
       class Notepad {
         notes = [['[Page contains a few doodles at the top.]',
                  'exploit-db.com - known vulnerabilities and vulnerable site search',
-                 '(must install links smh, browsing with curl is torture)',
-                 '104.122.199.11 - local high school']];
+                 '(must install links smh, browsing with curl is torture)']];
         page = 0;
 
         goto(index, options = { onerror: () => {}}) {
@@ -123,9 +147,19 @@
       class Game {
         // Persistent state
         filesystems = {
-          'localhost': new Filesystem({ pwd: '/root', fsMap = new Map([
+          'localhost': new Filesystem({ pwd: '/root', fsMap: new Map([
             ['/bin', 'dir'],
+            ['/bin/curl', 'exe'],
+            ['/boot', 'dir'],
+            ['/boot/kernel', 'bin'],
+            ['/boot/initrd', 'bin'],
+            ['/etc', 'dir'],
+            ['/etc/passwd', {}],
+            ['/mnt', 'dir'],
             ['/root', 'dir'],
+            ['/root/notes.txt', { contents: '104.122.199.11 - local high school' }],
+            ['/share', 'dir'],
+            ['/share/wordlists', 'dir'],
           ]) })
         };
         memorySticks = [
@@ -310,7 +344,7 @@
                 }
                 break;
               case 'inspect-memorysticks':
-                switch (game.input?.split(' ')[0] ?? '') {
+                switch (this.getArgv(0)) {
                   case '':
                     this.print(
                       `There are ${this.memorySticks.length} memory sticks in the pile:<br />` +
@@ -318,9 +352,9 @@
                     this.waitInput('Possible actions: [eject [x], mount [x], back]<br /><br />Action: ');
                     break;
                   case 'eject': {
-                    const index = parseInt(game.input.split(' ')[1] ?? '1') - 1;
-                    if (index <= 0 || index > this.memorySticks.length) {
-                      this.print(`Invalid memory stick index: ${index}<br />`);
+                    const index = this.getArgvInt(1) - 1;
+                    if (index < 0 || index >= this.memorySticks.length) {
+                      this.print(`Invalid memory stick index: ${index + 1}<br />`);
                     } else {
                       const memoryStick = this.memorySticks[index];
                       if (memoryStick.mounted) {
@@ -334,9 +368,9 @@
                     break;
                   }
                   case 'mount': {
-                    const index = parseInt(game.input.split(' ')[1] ?? '1') - 1;
-                    if (index <= 0 || index > this.memorySticks.length) {
-                      this.print(`Invalid memory stick index: ${index}<br />`);
+                    const index = this.getArgvInt(1) - 1;
+                    if (index < 0 || index >= this.memorySticks.length) {
+                      this.print(`Invalid memory stick index: ${index + 1}<br />`);
                     } else {
                       const memoryStick = this.memorySticks[index];
                       if (!memoryStick.mounted) {
@@ -358,7 +392,7 @@
                 }
                 break;
               case 'inspect-notepad':
-                switch (game.input?.split(' ')[0] ?? '') {
+                switch (this.getArgv(0)) {
                   case '':
                     this.print(this.notepad.render());
                     this.waitInput('Possible actions: [page [x], next prev back]<br /><br />Action: ');
@@ -374,7 +408,7 @@
                     this.waitInput();
                     break;
                   case 'page': {
-                    const index = parseInt(game.input.split(' ')[1] ?? '1') - 1;
+                    const index = this.getArgvInt(1) - 1;
                     this.notepad.goto(index, { onerror: () => this.print(`Invalid page: ${index + 1}<br />`) });
                     this.print(this.notepad.render());
                     this.waitInput();
@@ -389,7 +423,7 @@
                 }
                 break;
               case 'boot':
-                switch (game.input) {
+                switch (this.getArgv(0)) {
                   case '':
                     await sleep(300);
                     this.print('&gt; Loading kernel... ');
@@ -402,14 +436,41 @@
                     await sleep(500);
                     this.waitInput(`${this.filesystems['localhost'].pwd} # `);
                     break;
+                  case 'cat': {
+                    const path = this.getArgv(1);
+                    if (!path) {
+                      this.print('cat: missing operand<br />');
+                    } else {
+                      this.print((this.filesystems['localhost'].get(path)?.contents ?? '') + '<br />');
+                    }
+                    this.waitInput();
+                    break;
+                  }
                   case 'help':
                     this.print(
+                      'cat [path]        - Display contents of a file<br />' +
+                      'cd [path]         - Change directory. Use \'..\' to go up a directory<br />' +
                       'help [command]    - Display help for a command<br />' +
                       'ls                - List files in current directory<br />' +
-                      'cd [path]         - Change directory. Use \'..\' to go up a directory<br />' +
                       'poweroff          - Shut down the computer<br />' +
                       '<br />' +
                       'All binaries located in /bin can also be executed as commands.<br /><br />');
+                    this.waitInput();
+                    break;
+                  case 'cd': {
+                    const dir = this.getArgv(1);
+                    if (!dir) {
+                      this.print('cd: missing operand<br />');
+                    } else if (dir === '..') {
+                      this.filesystems['localhost'].goUp({onerror: () => this.print(`${dir}: No such directory<br />`)});
+                    } else {
+                      this.filesystems['localhost'].goIn(dir, {onerror: () => this.print(`${dir}: No such directory<br />`)});
+                    }
+                    this.waitInput(`${this.filesystems['localhost'].pwd} # `);
+                    break;
+                  }
+                  case 'ls':
+                    this.print(this.filesystems['localhost'].ls(this.getArgv(1)).join(' ') + '<br />');
                     this.waitInput();
                     break;
                   case 'poweroff':
@@ -511,6 +572,14 @@
         cls() {
           document.getElementById('terminal').innerHTML = '';
           this.terminalBuffer = [];
+        }
+
+        getArgv(index, defaultValue = '') {
+          return this.input?.split(' ')?.[index] ?? defaultValue;
+        }
+
+        getArgvInt(index, defaultValue = 0) {
+          return parseInt(this.getArgv(index, defaultValue.toString()));
         }
 
         render() {
