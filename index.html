@@ -23,6 +23,7 @@
         color: white;
         padding: 1em;
         white-space: pre-wrap;
+        overflow: hidden;
       }
       #UI {
         align-items: center;
@@ -472,11 +473,16 @@
         }
 
         render() {
+          const terminalElem = document.getElementById('terminal');
+
           if (this.terminalState === 'input') {
-            document.getElementById('terminal').innerHTML = game.terminalBuffer.join('') + game.prompt + game.input;
+            terminalElem.innerHTML = game.terminalBuffer.join('') + game.prompt + game.input;
           } else {
-            document.getElementById('terminal').innerHTML = game.terminalBuffer.join('');
+            terminalElem.innerHTML = game.terminalBuffer.join('');
           }
+
+          // Scroll to bottom
+          terminalElem.scroll(0, terminalElem.scrollHeight);
         }
 
         print(text) {
@@ -513,7 +519,7 @@
         document.getElementById('fullscreen-btn').addEventListener('click', async () => {
           const docElm = document.documentElement;
           if (docElm.requestFullscreen) {
-            docElm.requestFullscreen();
+            await docElm.requestFullscreen();
           } else if (docElm.msRequestFullscreen) {
             docElm.msRequestFullscreen();
           } else if (docElm.mozRequestFullScreen) {
