@@ -62,6 +62,26 @@
         return await new Promise(resolve => setTimeout(resolve, ms));
       }
 
+      class Notepad {
+        notes = [['(Page contains a few doodles at the top.)']];
+        page = 0;
+
+        goto(index, options = { onerror: () => {}}) {
+          if (index < 0 || index >= this.notes.length) {
+            options.onerror?.();
+            return false;
+          }
+
+          this.page = index;
+          return true;
+        }
+        
+        render() {
+          return `The notepad is open on page ${this.page + 1}. Its contents are: <br />` +
+              this.notes[this.page].join('<br />'));
+        }
+      }
+
       class Game {
         // Persistent state
         memorySticks = [
@@ -69,12 +89,13 @@
           { size: '8GB', type: 'USB-A 3.0', readOnly: false, description: 'empty.', mounted: false },
           { size: '32GB', type: 'USB-C 3.1', readOnly: false, description: 'labeled \'Files\', and is mostly empty.', mounted: false },
         ];
+        notepad = new Notepad();
         state = 'init';
 
         // Transient state
-        terminalBuffer = [];
-        prompt = '';
         input = '';
+        prompt = '';
+        terminalBuffer = [];
         terminalState = 'exec';
 
         constructor() {}
@@ -285,6 +306,34 @@
                       }
                     }
                     this.waitInput();
+                    break;
+                  }
+                  case 'back':
+                    return this.switchState('inspect-desk');
+                  default:
+                    this.print('Invalid action. ');
+                    this.waitInput();
+                    break;
+                }
+                break;
+              case 'inspect-notepad':
+                switch (game.input?.split(' ')[0] ?? '') {
+                  case '':
+                    this.print(this.notepad.render());
+                    this.waitInput('Possible actions: [page [x], next prev back]<br /><br />Action: ');
+                    break;
+                  case 'next':
+                    this.notepad.goto(this.notepad.page + 1, { onerror: () => this.print('This is the last page.<br />') });
+                    this.print(this.notepad.render());
+                    break;
+                  case 'prev':
+                    this.notepad.goto(this.notepad.page - 1, { onerror: () => this.print('This is the first page.<br />') });
+                    this.print(this.notepad.render());
+                    break;
+                  case 'page': {
+                    const index = parseInt(game.input.split(' ')[1] ?? '1') - 1;
+                    this.notepad.goto(index, { onerror: () => this.print(`Invalid page: ${index + 1}<br />`) });
+                    this.print(this.notepad.render());
                     break;
                   }
                   case 'back':
