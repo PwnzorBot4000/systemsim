@@ -63,8 +63,43 @@
         return await new Promise(resolve => setTimeout(resolve, ms));
       }
 
+      class Filesystem {
+        fsMap = new Map();
+        pwd = '/';
+
+        constructor(options = { pwd: '/', fsMap: null, contents: null}) {
+          if (options?.pwd) this.pwd = options.pwd;
+          if (options?.fsMap) this.fsMap = options.fsMap;
+          // TODO contents sugar
+        }
+
+        goIn(dir, options = { onerror: () => {})) {
+          const target = this.pwd + '/' + dir;
+          if (!fsMap.has(target)) {
+            onerror();
+            return;
+          }
+
+          // Add a level
+          this.pwd = target;
+        }
+
+        goUp(options = { onerror: () => {})) {
+          if (this.pwd === '/') {
+            onerror();
+            return;
+          }
+
+          // Remove a level
+          this.pwd = this.pwd.split('/').slice(0, -1).join('/');
+        }
+      }
+      
       class Notepad {
-        notes = [['(Page contains a few doodles at the top.)']];
+        notes = [['[Page contains a few doodles at the top.]',
+                 'exploit-db.com - known vulnerabilities and vulnerable site search',
+                 '(must install links smh, browsing with curl is torture)',
+                 '104.122.199.11 - local high school']];
         page = 0;
 
         goto(index, options = { onerror: () => {}}) {
@@ -87,6 +122,12 @@
 
       class Game {
         // Persistent state
+        filesystems = {
+          'localhost': new Filesystem({ pwd: '/root', fsMap = new Map([
+            ['/bin', 'dir'],
+            ['/root', 'dir'],
+          ]) })
+        };
         memorySticks = [
           { size: '16GB', type: 'USB-A 3.0', readOnly: true, description: 'a live USB with a Linux distribution on it. It was used to originally set up the computer.', mounted: false },
           { size: '8GB', type: 'USB-A 3.0', readOnly: false, description: 'empty.', mounted: false },
@@ -359,7 +400,7 @@
                     this.print('OK<br />' +
                       '&gt; System initialized.<br />For a list of commands, type \'help\'.<br /><br />');
                     await sleep(500);
-                    this.waitInput('/root # ');
+                    this.waitInput(`${this.filesystems['localhost'].pwd} # `);
                     break;
                   case 'help':
                     this.print(
