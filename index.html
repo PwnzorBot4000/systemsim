@@ -78,7 +78,9 @@
         
         render() {
           return `The notepad is open on page ${this.page + 1}. Its contents are: <br />` +
-              this.notes[this.page].join('<br />'));
+            '<br />' +
+            this.notes[this.page].join('<br />') + '<br />' +
+            '<br />';
         }
       }
 
@@ -203,11 +205,8 @@
                     this.waitInput();
                     break;
                   case 'notepad':
-                    this.print(
-                      'A large notepad with a pen is on the desk.<br />' +
-                      'It is currently empty, with a few doodles on it.<br />');
-                    this.waitInput();
-                    break;
+                    this.print('A large notepad with a pen is on the desk.<br />');
+                    return this.switchState('inspect-notepad');
                   case 'drawer1':
                     this.print(
                       'You open the first drawer. It contains:<br />' +
@@ -325,15 +324,18 @@
                   case 'next':
                     this.notepad.goto(this.notepad.page + 1, { onerror: () => this.print('This is the last page.<br />') });
                     this.print(this.notepad.render());
+                    this.waitInput();
                     break;
                   case 'prev':
                     this.notepad.goto(this.notepad.page - 1, { onerror: () => this.print('This is the first page.<br />') });
                     this.print(this.notepad.render());
+                    this.waitInput();
                     break;
                   case 'page': {
                     const index = parseInt(game.input.split(' ')[1] ?? '1') - 1;
                     this.notepad.goto(index, { onerror: () => this.print(`Invalid page: ${index + 1}<br />`) });
                     this.print(this.notepad.render());
+                    this.waitInput();
                     break;
                   }
                   case 'back':
