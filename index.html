@@ -63,6 +63,17 @@
         return await new Promise(resolve => setTimeout(resolve, ms));
       }
 
+      function longestCommonPrefixSorted(strings, position = 0) {
+        // recursive, sorted by length
+        if (strings.length === 0) return '';
+        if (strings.length === 1) return strings[0];
+        const [first, ...rest] = strings;
+        const commonPrefix = position >= 0 ? first : first.slice(0, position);
+        if (commonPrefix.length === 0) return '';
+        if (rest.every(s => s.startsWith(commonPrefix))) return commonPrefix;
+        return longestCommonPrefixSorted(strings, position - 1);
+      }
+
       class Filesystem {
         fsMap = new Map();
         pwd = '/';
@@ -218,6 +229,20 @@
                   this.input = this.input.slice(0, -1);
                   await this.render();
                   break;
+                case 'Tab': {
+                  const matches = this.possibleActions
+                    .flatMap(action => typeof action === 'string' ? [action] : action.actions)
+                    .filter(action => action.startsWith(this.input))
+                    .map(action => action.split(' ')[0])
+                    .sort((a, b) => b.length - a.length);
+                  const commonPrefix = longestCommonPrefixSorted(matches);
+
+                  if (commonPrefix.length > 0) {
+                    this.input = commonPrefix.split(' ')[0];
+                    await this.render();
+                  }
+                  break;
+                }
                 default:
                   console.warn(`Unhandled key: ${e.key}`);
                   break;
