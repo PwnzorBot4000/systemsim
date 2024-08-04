@@ -130,7 +130,66 @@
             .map(key => key.replace(/^\/?/, ''));
         }
       }
-      
+
+      class InputHistory {
+        enabled = false;
+        index = -1;
+        history = [''];
+
+        type(input) {
+          if (!this.enabled) return;
+
+          this.index = -1;
+          this.set(this.index, input);
+        }
+
+        push(input) {
+          if (!this.enabled) return;
+
+          this.type(input);
+          this.history.push('');
+        }
+
+        retrieve(offset = -1) {
+          if (!this.enabled || !this.assertIndex(this.index + offset)) {
+            return undefined;
+          }
+
+          // Lookup
+          const prefix = this.get(-1);
+          if (prefix) {
+            let testIndex = this.index + offset;
+            while (this.assertIndex(testIndex)) {
+              const possibleMatch = this.get(testIndex);
+              if (possibleMatch?.startsWith(prefix)) {
+                this.index = testIndex;
+                return possibleMatch;
+              }
+              testIndex += offset;
+            }
+            return undefined;
+          }
+
+          this.index += offset;
+          return this.get(this.index);
+        }
+
+        // Private methods
+
+        assertIndex(index) {
+          // Negative indexes only
+          return index < 0 && Math.abs(index) <= this.history.length;
+        }
+
+        get(index) {
+          return this.history[this.history.length + index];
+        }
+
+        set(index, value) {
+          this.history[this.history.length + index] = value;
+        }
+      }
+
       class Notepad {
         notes = [['[Page contains a few doodles at the top.]',
                  'exploit-db.com - known vulnerabilities and vulnerable site search',
@@ -183,6 +242,7 @@
 
         // Transient state
         input = '';
+        inputHistory = new InputHistory();
         possibleActions = [];
         prompt = '';
         terminalBuffer = [];
@@ -216,17 +276,20 @@
 
             if (/^[\w !@#$%^&*()\-+{}|~=`<>,.?/\\;:"']$/.test(e.key)) {
               this.input = this.input + e.key;
+              this.inputHistory.type(this.input);
               await this.render();
             } else {
               switch (e.key) {
                 case 'Enter':
                   if (this.input.length <= 0) return;
                   this.terminalBuffer.push(this.renderPrompt() + this.input + '<br />');
+                  this.inputHistory.push(this.input);
                   this.terminalState = 'exec';
                   await this.refresh();
                   break;
                 case 'Backspace':
                   this.input = this.input.slice(0, -1);
+                  this.inputHistory.type(this.input);
                   await this.render();
                   break;
                 case 'Tab': {
@@ -239,10 +302,19 @@
 
                   if (commonPrefix.length > 0) {
                     this.input = commonPrefix.split(' ')[0];
+                    this.inputHistory.type(this.input);
                     await this.render();
                   }
                   break;
                 }
+                case 'ArrowUp':
+                  this.input = this.inputHistory.retrieve(-1) ?? this.input;
+                  await this.render();
+                  break;
+                case 'ArrowDown':
+                  this.input = this.inputHistory.retrieve(1) ?? this.input;
+                  await this.render();
+                  break;
                 default:
                   console.warn(`Unhandled key: ${e.key}`);
                   break;
@@ -461,6 +533,7 @@
                     this.print('OK<br />' +
                       '&gt; Loading boot image... ');
                     await sleep(1000);
+                    this.inputHistory.enabled = true;
                     this.print('OK<br />' +
                       '&gt; System initialized.<br />For a list of commands, type \'help\'.<br /><br />');
                     await sleep(500);
@@ -507,6 +580,7 @@
                   case 'poweroff':
                     await sleep(600);
                     this.cls();
+                    this.inputHistory.enabled = false;
                     await sleep(1000);
                     return this.switchState('init');
                   default:
