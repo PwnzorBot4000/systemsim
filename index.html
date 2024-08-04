@@ -464,6 +464,7 @@
                     this.print('OK<br />' +
                       '&gt; System initialized.<br />For a list of commands, type \'help\'.<br /><br />');
                     await sleep(500);
+                    this.possibleActions = ['cat [path]', 'cd [path]', 'help [command]', 'ls [path]', 'poweroff'];
                     this.waitInput(`${this.filesystems['localhost'].pwd} # `);
                     break;
                   case 'cat': {
