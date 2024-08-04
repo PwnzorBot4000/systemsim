@@ -172,6 +172,7 @@
 
         // Transient state
         input = '';
+        possibleActions = [];
         prompt = '';
         terminalBuffer = [];
         terminalState = 'exec';
@@ -209,7 +210,7 @@
               switch (e.key) {
                 case 'Enter':
                   if (this.input.length <= 0) return;
-                  this.terminalBuffer.push(this.prompt + this.input + '<br />');
+                  this.terminalBuffer.push(this.renderPrompt() + this.input + '<br />');
                   this.terminalState = 'exec';
                   await this.refresh();
                   break;
@@ -235,7 +236,8 @@
                 switch (this.input) {
                   case '':
                     this.print('You are sitting at your desk, in front of your home computer. It is currently shut down.<br />');
-                    this.waitInput('Possible actions: [boot inspect stand]<br /><br />Action: ');
+                    this.possibleActions = ['boot', 'inspect', 'stand'];
+                    this.waitInput('Possible actions: [%actions%]<br /><br />Action: ');
                     break;
                   case 'boot':
                     return this.switchState('boot', { cls: true });
@@ -257,7 +259,8 @@
                     this.print('On top of it, from left to right, there is a family picture, a small pile of memory sticks, a pile of electronics, and a large notepad with a pen.<br />' +
                       'It has three drawers in one side, and the computer tower on the other one. Next to it a few paper bags are leaning on its side.<br />');
                     await sleep(600);
-                    this.waitInput('Possible actions: [picture memorysticks electronics notepad drawer1/2/3 tower bags boot stand]<br /><br />Action: ');
+                    this.possibleActions = ['picture', 'memorysticks', 'electronics', 'notepad', { render: 'drawer1/2/3', actions: ['drawer1', 'drawer2', 'drawer3'] }, 'tower', 'bags', 'boot', 'stand'];
+                    this.waitInput('Possible actions: [%actions%]<br /><br />Action: ');
                     break;
                   case 'picture':
                     this.print('You look at the picture.<br />');
@@ -349,7 +352,8 @@
                     this.print(
                       `There are ${this.memorySticks.length} memory sticks in the pile:<br />` +
                       this.memorySticks.map((stick, i) => `- Stick ${i + 1} (${stick.size}, ${stick.type}) is ${stick.description}${stick.mounted ? ' Currently mounted.' : ''}<br />`).join(''));
-                    this.waitInput('Possible actions: [eject [x], mount [x], back]<br /><br />Action: ');
+                    this.possibleActions = ['eject [x]', 'mount [x]', 'back'];
+                    this.waitInput('Possible actions: [%actions%]<br /><br />Action: ');
                     break;
                   case 'eject': {
                     const index = this.getArgvInt(1) - 1;
@@ -395,7 +399,8 @@
                 switch (this.getArgv(0)) {
                   case '':
                     this.print(this.notepad.render());
-                    this.waitInput('Possible actions: [page [x], next prev back]<br /><br />Action: ');
+                    this.possibleActions = ['page [x]', 'next', 'prev', 'back'];
+                    this.waitInput('Possible actions: [%actions%]<br /><br />Action: ');
                     break;
                   case 'next':
                     this.notepad.goto(this.notepad.page + 1, { onerror: () => this.print('This is the last page.<br />') });
@@ -487,7 +492,8 @@
               case 'inspect-room':
                 switch (game.input) {
                   case '':
-                    this.waitInput('Possible actions: [bookcase desk outside]<br /><br />Action: ');
+                    this.possibleActions = ['bookcase', 'desk', 'outside'];
+                    this.waitInput('Possible actions: [%actions%]<br /><br />Action: ');
                     break;
                   case 'bookcase':
                     this.print('You look at the bookcase.<br />' +
@@ -513,7 +519,8 @@
               case 'outside':
                 switch (game.input) {
                   case '':
-                    this.waitInput('Go where? [home convenience-store bills-computer-shop coffee-shop home-depot]<br /><br />Action: ');
+                    this.possibleActions = ['home', 'convenience-store', 'bills-computer-shop', 'coffee-shop', 'home-depot'];
+                    this.waitInput('Go where? [%actions%]<br /><br />Action: ');
                     break;
                   case 'home':
                     this.print('You return to your home.<br />');
@@ -545,7 +552,8 @@
               case 'convenience-store':
                 switch (game.input) {
                   case '':
-                    this.waitInput('Possible actions: [newspapers outside]<br /><br />Action: ');
+                    this.possibleActions = ['newspapers', 'outside'];
+                    this.waitInput('Possible actions: [%actions%]<br /><br />Action: ');
                     break;
                   case 'newspapers':
                     this.print('You look at the digital newspaper subscription ads. The headlines are:<br />' +
@@ -586,13 +594,30 @@
           const terminalElem = document.getElementById('terminal');
 
           if (this.terminalState === 'input') {
-            terminalElem.innerHTML = game.terminalBuffer.join('') + game.prompt + game.input;
+            terminalElem.innerHTML = game.terminalBuffer.join('') + this.renderPrompt() + game.input;
           } else {
             terminalElem.innerHTML = game.terminalBuffer.join('');
           }
 
           // Scroll to bottom
           terminalElem.scroll(0, terminalElem.scrollHeight);
+        }
+
+        renderPrompt() {
+          let promptActions = '';
+          for (let i = 0; i < this.possibleActions.length; i++) {
+            const action = typeof this.possibleActions[i] === 'string' ? this.possibleActions[i] : this.possibleActions[i].render;
+            promptActions += action;
+            if (i < this.possibleActions.length - 1) {
+              if (action.includes(' ')) {
+                promptActions += ', ';
+              } else {
+                promptActions += ' ';
+              }
+            }
+          }
+
+          return this.prompt.replace('%actions%', promptActions);
         }
 
         print(text) {
