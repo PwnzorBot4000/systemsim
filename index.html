@@ -668,6 +668,25 @@
                     this.waitInput(`${this.filesystems['localhost'].pwd} # `);
                     break;
                   }
+                  case 'curl': {
+                    const matches = this.input.match(/curl (-[A-Za-z]+ )*([A-Z]+) ([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)(\/.+)?/);
+                    if (!matches) {
+                      this.print('Usage: curl [options] METHOD IP[/path]<br />Example: curl GET 192.168.1.1');
+                      this.waitInput();
+                      break;
+                    }
+                    const fs = this.filesystems[matches[matches.length - 2]];
+                    if (!fs) {
+                      this.print('curl: server does not exist');
+                      this.waitInput();
+                      break;
+                    }
+                    const path = matches[matches.length - 1] ?? '/index.html';
+                    const file = fs.get('/srv' + path) ?? fs.get('/srv/not-found.html');
+                    this.print((file.contents ?? '') + '<br />');
+                    this.waitInput();
+                    break;
+                  }
                   case 'ls':
                     this.print(this.filesystems['localhost'].ls(this.getArgv(1)).join(' ') + '<br />');
                     this.waitInput();
@@ -778,7 +797,11 @@
         }
 
         getArgv(index, defaultValue = '') {
-          return this.input?.split(' ')?.[index] ?? defaultValue;
+          const terms = this.input?.split(' ');
+          if (!terms || terms.length === 0) return defaultValue;
+
+          const realIndex = (index >= 0) ? index : (terms.length + index);
+          return terms.[realIndex] ?? defaultValue;
         }
 
         getArgvInt(index, defaultValue = 0) {
