@@ -260,7 +260,44 @@
             ['/root/notes.txt', { contents: '104.122.199.11 - local high school' }],
             ['/share', 'dir'],
             ['/share/wordlists', 'dir'],
-          ]) })
+          ]) }),
+          'exploit-db.com': new Filesystem({ fsMap: new Map([
+            ['/srv', 'dir'],
+            ['/srv/index.html', { contents: '<h1>Exploit-DB</h1><a href="/vulnerabilities/index.html">Known vulnerabilities list</a><a href="/ghacks/index.html">Vulnerable site search hacks</a>' }],
+            ['/srv/vulnerabilites', 'dir'],
+            ['/srv/vulnerabilites/index.html', {
+              contents: '<h1>List of known vulnerabilities</h1>' +
+                '<table><thead><th>ID</th><th>Software</th><th>Version</th><th>Type</th><th>Year</th><th>Title</th></thead>' +
+                '<tbody><td>12804</td><td>Nginx</td><td>0.6.36</td><td>Remote</td><td>2010</td><td><a href="/vulnerabilites/12804.html">Directory Traversal</a></td></tbody></table>'
+            }],
+            ['/srv/ghacks', 'dir'],
+            ['/srv/ghacks/index.html', { contents: '<h1>Goggle search hacks for finding vulnerable sites</h1><table><thead><th>Type</th><th>Year</th><th>Title</th></thead><tbody></tbody></table>' }],
+          ]) }),
+          '104.122.199.11': new Filesystem({ fsMap: new Map([
+            ['/srv', 'dir'],
+            ['/srv/index.html', { contents: '<h2>Login</h2><form method="post">' +
+              '<label for="fname">Student username:</label><br><input type="text" id="fname" name="fname"><br>' +
+              '<label for="pass">Password:</label><br><input type="text" id="pass" name="pass"><br><br>' +
+              '<input type="submit" value="Submit"></form>'}],
+            ['/srv/not-found.html', { contents: '<p>Page not found</p><p>Nginx 0.6.2</p>'}],
+            ['/srv/students', 'dir'],
+            ['/srv/students/athena110717', 'dir'],
+            ['/srv/students/athena110717/sitse.txt', { contents: 'foogal.co.uk pass = "autumnleaves" + birthyear<br />www.watrar.com Free compressed files profram' }],
+            ['/srv/students/constantin160816', 'dir'],
+            ['/srv/students/constantin160816/todo.txt', { contents: 'Prepare ppt for ebikes<br />Prof tyranossaurus Tex asked us to install an ancient browser from projects.mikl-ptoska.cz/links<br />' +
+              'curl -O <rest of stuff> to download a file as A ***** FILE<br />Man pages has more stuff for program options, see uni site' }],
+            ['/srv/students/constantin160816/ebikes.pdf', 'file'],
+            ['/srv/students/hack3d222222', 'dir'],
+            ['/srv/students/hack3d222222/notes.txt', { contents: 'Lol school servers are total swiss cheese, I got in in like 3 minutes and a goggle search. ' +
+              'Im gonna try crack the admin pass, the specs are ok for a ddos zombie. Any other bros are welcome to install their own worms for their attacks, it\'s not ' +
+              'like this teapot can mine crypto.<br />' +
+              'If you are the admin reading this, upgrade your rotting nginx man, like, you\'re being paid a wage to *at least* do this once in a while.' }],
+            ['/srv/students/hack3d222222/wordlists', 'dir'],
+            ['/srv/students/hack3d222222/wordlists/nginx-paths.txt', 'file'],
+            ['/srv/students/maksim220724', 'dir'],
+            ['/srv/students/maksim220724/combustion-liquid-fuel-rockets.doc', 'file'],
+            ['/srv/students/maksim220724/remote-cruise-control.doc', 'file'],
+          ]) }),
         };
         memorySticks = [
           { size: '16GB', type: 'USB-A 3.0', readOnly: true, description: 'a live USB with a Linux distribution on it. It was used to originally set up the computer.', mounted: false },
