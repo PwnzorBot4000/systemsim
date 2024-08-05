@@ -89,8 +89,13 @@
         }
 
         render() {
-          if (this.areEmpty()) return '(Nothing, the side of your desk is clean.)';
-          return this.bags.map((bag) => `- ${bag}`).join('<br />') + '<br />';
+          if (this.areEmpty()) {
+            const prob = Math.random();
+            if (prob > 0.75)
+              return '(Nothing. The empty side of your desk is staring at you, menacingly.)';
+            return '(Nothing, the side of your desk is clean.)';
+          }
+          return this.bags.map((bag) => `- ${bag.description}`).join('<br />') + '<br />';
         }
       }
       
@@ -379,6 +384,7 @@
                   case 'cleanup-trash':
                     this.print('You clean up the trash.<br />');
                     await sleep(600);
+                    this.deskSideBags.cleanupTrash();
                     this.print('Now there is:<br />' + this.deskSideBags.render());
                     this.waitInput();
                     break;
