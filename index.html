@@ -383,6 +383,8 @@
                   case '':
                     this.print('You search the bags. There is:<br />' + this.deskSideBags.render());
                     this.possibleActions = ['cleanup-trash', 'back'];
+                    if (this.deskSideBags.areEmpty())
+                      this.possibleActions = this.possibleActions.filter((action) => action !== 'cleanup-trash');
                     this.waitInput('Possible actions: [%actions%]<br /><br />Action: ');
                     break;
                   case 'cleanup-trash':
@@ -390,6 +392,8 @@
                     await sleep(600);
                     this.deskSideBags.cleanupTrash();
                     this.print('Now there is:<br />' + this.deskSideBags.render());
+                    if (this.deskSideBags.areEmpty())
+                      this.possibleActions = this.possibleActions.filter((action) => action !== 'cleanup-trash');
                     this.waitInput();
                     break;
                   case 'back':
@@ -402,17 +406,22 @@
                 break;
               case 'inspect-desk':
                 switch (game.input) {
-                  case '':
+                  case '': {
                     this.print('You look at the desk.<br />');
                     await sleep(600);
+                    const bagsPrompt = this.deskSideBags.areEmpty() ? '' : ' Next to it a few paper bags are leaning on its side.';
                     this.print('On top of it, from left to right, there is a family picture, a small pile of memory sticks, a pile of electronics, and a large notepad with a pen.<br />' +
-                      'It has three drawers in one side, and the computer tower on the other one. Next to it a few paper bags are leaning on its side.<br />');
+                      `It has three drawers in one side, and the computer tower on the other one.${bagsPrompt}<br />`);
                     await sleep(600);
-                    this.possibleActions = ['picture', 'memorysticks', 'electronics', 'notepad', { render: 'drawer1/2/3', actions: ['drawer1', 'drawer2', 'drawer3'] }, 'tower', 'bags', 'boot', 'stand'];
+                    this.possibleActions = ['picture', 'memorysticks', 'electronics', 'notepad', {
+                      render: 'drawer1/2/3',
+                      actions: ['drawer1', 'drawer2', 'drawer3']
+                    }, 'tower', 'bags', 'boot', 'stand'];
                     if (this.deskSideBags.areEmpty())
                       this.possibleActions = this.possibleActions.filter((action) => action !== 'bags');
                     this.waitInput('Possible actions: [%actions%]<br /><br />Action: ');
                     break;
+                  }
                   case 'picture':
                     this.print('You look at the picture.<br />');
                     await sleep(600);
