@@ -81,7 +81,7 @@
         ];
 
         areEmpty() {
-          return !this.bags?.length;
+          return this.bags.length === 0;
         }
 
         cleanupTrash() {
@@ -91,9 +91,13 @@
         render() {
           if (this.areEmpty()) {
             const prob = Math.random();
+            if (prob > 0.95)
+              return '(Nothing. Like your soul.)<br />';
+            if (prob > 0.90)
+              return '(Nothing. The mathematically perfect void emanating from the empty corner is permeating the room, giving you the creeps.)<br />';
             if (prob > 0.75)
-              return '(Nothing. The empty side of your desk is staring at you, menacingly.)';
-            return '(Nothing, the side of your desk is clean.)';
+              return '(Nothing. The empty side of your desk is staring at you, menacingly.)<br />';
+            return '(Nothing, the side of your desk is clean.)<br />';
           }
           return this.bags.map((bag) => `- ${bag.description}`).join('<br />') + '<br />';
         }
