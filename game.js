@@ -114,6 +114,24 @@ export class Game {
         ['/srv/ghacks/index.html', {contents: '<h1>Goggle search hacks for finding vulnerable sites</h1><table><thead><th>Type</th><th>Year</th><th>Title</th></thead><tbody></tbody></table>'}],
       ])
     }),
+    'foogal.co.uk': new Filesystem({
+      fsMap: new Map([
+        ['/srv', 'dir'],
+        ['/srv/index.html', {contents: '<h1>Foogal</h1><h2>A place for all things foogal</h2><p>Cremes and colours, crafts and bath crystals, oh my!</p><a href="/login.html">Manage my Foogal page</a>' +
+          '<p>Meet our prominent members:</p><ul><li><a href="/foogal/charly.html">Charly</a></li><li><a href="/foogal/athena.html">Athena</a></li><li><a href="/foogal/admin.html">Vickie</a></li></ul>'}],
+        ['/srv/foogal/athena.html', {contents: '<h1>Foogal page</h1><p>This is a page about Athena\'s foogal fingers.</p>'}],
+        ['/srv/foogal/charly.html', {contents: '<h1>Foogal page</h1><p>This is a page about Charly\'s colorful crafts.</p>'}],
+        ['/srv/foogal/admin.html', {contents: '<h1>Foogal page</h1><p>This is a page about Vickie\'s administrative duties.</p>'}],
+        ['/srv/login.html', {contents: '<form method="post">' +
+          '<label for="fname">Foogal login:</label><br><input type="text" id="fname" name="fname"><br>' +
+          '<label for="pass">Password:</label><br><input type="text" id="pass" name="pass"><br><br>' +
+          '<input type="submit" value="Submit"></form>'}],
+        ['srv/content', 'dir'],
+        ['srv/content/athena', 'dir'],
+        ['srv/content/charly', 'dir'],
+        ['srv/content/vickie', 'dir'],
+      ])
+    }),
     'owasp.org': new Filesystem({
       fsMap: new Map([
         ['/srv', 'dir'],
