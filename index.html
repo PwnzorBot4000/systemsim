@@ -122,14 +122,29 @@
         }
 
         abspath(path) {
-          if (path.startsWith('/')) return path;
-          return this.joinpath(this.pwd, path);
+          const absPath1 = path.startsWith('/') ? path : this.joinpath(this.pwd, path);
+
+          // Process "../" paths
+          const parts = absPath1.split('/');
+          let newParts = [];
+          for (let i = 0; i < parts.length; i++) {
+            if (parts[i] === '') continue;
+            if (parts[i] === '..') {
+              if (newParts.length > 0) {
+                newParts.pop();
+              }
+            } else {
+              newParts.push(parts[i]);
+            }
+          }
+
+          const absPath2 = '/' + newParts.join('/');
+
+          return absPath2 === '/' ? absPath2 : absPath2.replace(/\/$/, '');
         }
 
         get(path) {
-          const absPath = this.abspath(path);
-          const normalizedPath = absPath === '/' ? absPath : absPath.replace(/\/$/, '');
-          return this.fsMap.get(normalizedPath);
+          return this.fsMap.get(this.abspath(path));
         }
 
         goIn(dir, options = { onerror: () => {} }) {
@@ -309,6 +324,7 @@
           'localhost': new Filesystem({ pwd: '/root', fsMap: new Map([
             ['/bin', 'dir'],
             ['/bin/curl', 'exe'],
+            ['/bin/nologin', 'exe'],
             ['/bin/sh', 'exe'],
             ['/boot', 'dir'],
             ['/boot/kernel', 'bin'],
@@ -317,8 +333,8 @@
             ['/etc/passwd', { contents: '#name:pass:uid:gid:comment:home:shell\n' +
               '# If pass == "x", the hashed password is stored in the shadow file.\n' +
               'root:x:0:0:root:/root:/bin/sh\n' +
-              'bin:x:1:1::/:/usr/bin/nologin\n' +
-              'nobody:x:65534:65534:Kernel Overflow User:/:/usr/bin/nologin' }],
+              'bin:x:1:1::/:/bin/nologin\n' +
+              'nobody:x:65534:65534:Kernel Overflow User:/:/bin/nologin' }],
             ['/mnt', 'dir'],
             ['/root', 'dir'],
             ['/root/notes.txt', { contents: '104.122.199.11 - local high school' }],
@@ -346,12 +362,19 @@
                 'attacker uses “../” sequences to move up to root directory, thus permitting\n' +
                 'navigation through the file system. (OWASP)\n' +
                 '#\n' +
-                'example.com/%5c%2e%2e%5cetc%5passwd\n'
+                'example.com/%2f%2e%2e%2fetc%2fpasswd\n'
             }],
             ['/srv/ghacks', 'dir'],
             ['/srv/ghacks/index.html', { contents: '<h1>Goggle search hacks for finding vulnerable sites</h1><table><thead><th>Type</th><th>Year</th><th>Title</th></thead><tbody></tbody></table>' }],
           ]) }),
           '104.122.199.11': new Filesystem({ fsMap: new Map([
+            ['/', 'dir'],
+            ['/etc', 'dir'],
+            ['/etc/passwd', { contents: 'root:x:0:0:root:/root:/bin/sh\n' +
+              'athena110717:x:1422:1422::/:/bin/sh\n' +
+              'constantin160816:x:1421:1421::/:/bin/sh\n' +
+              'hack3d222222:x:1429:1429::/:/bin/sh\n' +
+              'maksim220724:x:1432:1432::/:/bin/sh\n' }],
             ['/srv', 'dir'],
             ['/srv/index.html', { contents: '<h2>Login</h2><form method="post">' +
               '<label for="fname">Student username:</label><br><input type="text" id="fname" name="fname"><br>' +
@@ -367,7 +390,7 @@
             ['/srv/students/constantin160816/ebikes.pdf', 'file'],
             ['/srv/students/hack3d222222', 'dir'],
             ['/srv/students/hack3d222222/notes.txt', { contents: 'Lol school servers are total swiss cheese, I got in in like 3 minutes and an exploit search. ' +
-              'Im gonna try crack the admin pass, the specs are ok for a ddos zombie. Any other bros are welcome to install their own worms for attacks, it\'s not ' +
+              'Im gonna try crack the root pass, the specs are ok for a ddos zombie. Any other bros are welcome to install their own worms for attacks, it\'s not ' +
               'like this teapot can mine crypto.\n' +
               'If you are the admin reading this, upgrade your rotting nginx man, like, you\'re being paid a wage to *at least* do this once in a while.' }],
             ['/srv/students/hack3d222222/wordlists', 'dir'],
@@ -383,6 +406,7 @@
               ['/', 'dir'],
               ['/bin', 'dir'],
               ['/bin/curl', 'exe'],
+              ['/bin/nologin', 'exe'],
               ['/bin/sh', 'exe'],
               ['/boot', 'dir'],
               ['/boot/kernel', 'bin'],
@@ -820,7 +844,7 @@
                       this.waitInput();
                       break;
                     }
-                    const path = matches[matches.length - 1] ?? '/';
+                    const path = decodeURIComponent(matches[matches.length - 1] ?? '/');
                     const internalPath = fs.joinpath('/srv', path);
 
                     let contents = '';
@@ -847,6 +871,7 @@
                     this.print(this.filesystems['localhost'].ls(this.getArgv(1)).join(' ') + '<br />');
                     this.waitInput();
                     break;
+                  case 'nologin':
                   case 'sh':
                     this.print('<br />');
                     this.waitInput();
