@@ -773,17 +773,21 @@
                     if (!path) {
                       this.print('cat: missing operand<br />');
                     } else {
-                      this.print(sanitizeHtml(this.filesystems['localhost'].get(path)?.contents ?? '') + '<br />');
+                      const file = this.filesystems['localhost'].get(path);
+                      if (!file) this.print('cat: File not found<br />');
+                      else if (file === 'dir') this.print('cat: Is a directory<br />');
+                      else if (file === 'bin' || file === 'exe') this.print('cat: Is a binary<br />');
+                      else this.print(sanitizeHtml(file?.contents ?? '') + '<br />');
                     }
                     this.waitInput();
                     break;
                   }
                   case 'help':
                     this.print(
-                      'cat [path]        - Display contents of a file<br />' +
-                      'cd [path]         - Change directory. Use \'..\' to go up a directory<br />' +
-                      'help [command]    - Display help for a command<br />' +
-                      'ls                - List files in current directory<br />' +
+                      'cat PATH          - Display contents of a file<br />' +
+                      'cd PATH           - Change directory. Use \'..\' to go up a directory<br />' +
+                      'help [COMMAND]    - Display help for a command<br />' +
+                      'ls [PATH]         - List files in current directory<br />' +
                       'poweroff          - Shut down the computer<br />' +
                       '<br />' +
                       'All binaries located in /bin can also be executed as commands.<br /><br />');
@@ -841,6 +845,10 @@
                   }
                   case 'ls':
                     this.print(this.filesystems['localhost'].ls(this.getArgv(1)).join(' ') + '<br />');
+                    this.waitInput();
+                    break;
+                  case 'sh':
+                    this.print('<br />');
                     this.waitInput();
                     break;
                   case 'poweroff':
