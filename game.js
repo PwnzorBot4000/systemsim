@@ -400,6 +400,7 @@ export class Game {
             case '': {
               this.print('You look at the desk.<br />');
               await sleep(600);
+              document.getElementById('asciiart').innerHTML = asciiart.desk;
               const bagsPrompt = this.deskSideBags.areEmpty() ? '' : ' Next to it a few paper bags are leaning on its side.';
               this.print('On top of it, from left to right, there is a family picture, a small pile of memory sticks, a pile of electronics, and a large notepad with a pen.<br />' +
                 `It has three drawers in one side, and the computer tower on the other one.${bagsPrompt}<br />`);
@@ -570,7 +571,6 @@ export class Game {
               break;
             }
             case 'back':
-              document.getElementById('asciiart').innerHTML = '';
               return this.switchState('inspect-desk');
             default:
               this.print('Invalid action. ');
@@ -893,6 +893,7 @@ export class Game {
   async switchState(state, options = {cls: false}) {
     this.state = state;
     this.input = '';
+    document.getElementById('asciiart').innerHTML = '';
 
     if (options.cls) {
       this.cls();
