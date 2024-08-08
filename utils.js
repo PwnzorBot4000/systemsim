@@ -15,7 +15,7 @@ export function encodeExeName(name, trashCount = 0) {
     buffer[name.length + i + 1] = controlCharsRange + Math.floor(Math.random() * (256 - controlCharsRange));
   }
 
-  return encodeURIComponent(buffer.reduce((str, byte) => str + String.fromCharCode(byte), ''));
+  return buffer.reduce((str, byte) => str + String.fromCharCode(byte), '');
 }
 
 export function longestCommonPrefixSorted(strings, position = 0) {

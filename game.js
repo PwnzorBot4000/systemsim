@@ -705,11 +705,7 @@ export class Game {
                   filename = 'directory-listing.txt';
                 }
               } else if (file) {
-                if (file.type === 'bin' || file.type === 'exe') {
-                  contents = sanitizeHtml(decodeURIComponent(file.contents) ?? '');
-                } else {
-                  contents = sanitizeHtml(file.contents ?? '');
-                }
+                contents = sanitizeHtml(file.contents ?? '');
                 filename = internalPath.split('/').slice(-1)[0];
               } else {
                 const notFound = fs.get('/srv/not-found.html');
