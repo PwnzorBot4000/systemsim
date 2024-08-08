@@ -10,6 +10,9 @@
       * {
         margin: 0;
       }
+      html, body {
+        background-color: black;
+      }
       html, body, .layer {
         height: 100%;
         width: 100%;
@@ -18,8 +21,17 @@
         position: absolute;
       }
       /* layers */
+      #asciiart {
+        align-items: flex-end;
+        color: #383838;
+        display: flex;
+        font-family: 'Courier New', monospace;
+        justify-content: flex-end;
+        white-space: pre-wrap;
+        font-size: min(1.8vh, 1.8vw);  /* Equivalent to 'large' in a 16:9 screen */
+        line-height: 1.13em;
+      }
       #terminal {
-        background-color: black;
         color: white;
         padding: 1em;
         white-space: pre-wrap;
@@ -84,9 +96,11 @@
     </script>
   </head>
   <body>
-    <div id="terminal" class="layer">
+    <div id="asciiart" class="layer" style="z-index: 9;">
     </div>
-    <div id="UI" class="layer" style="z-index: 1;">
+    <div id="terminal" class="layer" style="z-index: 10;">
+    </div>
+    <div id="UI" class="layer" style="z-index: 20;">
       <button id="fullscreen-btn">Launch Game</button>
     </div>
   </body>

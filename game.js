@@ -2,6 +2,7 @@ import {DeskSideBags} from './desk-side-bags.js';
 import {Filesystem} from './filesystem.js';
 import {InputHistory} from './input-history.js';
 import {Notepad} from './notepad.js';
+import {asciiart} from './asciiart.js';
 import {longestCommonPrefixSorted, sanitizeHtml, sleep} from './utils.js';
 
 export class Game {
@@ -526,6 +527,7 @@ export class Game {
         case 'inspect-memorysticks':
           switch (this.getArgv(0)) {
             case '':
+              document.getElementById('asciiart').innerHTML = asciiart.memorySticks;
               this.print(
                 `There are ${this.memorySticks.length} memory sticks in the pile:<br />` +
                 this.memorySticks.map((stick, i) => `- Stick ${i + 1} (${stick.size}, ${stick.type}) is ${stick.description}${stick.mounted ? ' Currently mounted.' : ''}<br />`).join(''));
@@ -565,6 +567,7 @@ export class Game {
               break;
             }
             case 'back':
+              document.getElementById('asciiart').innerHTML = '';
               return this.switchState('inspect-desk');
             default:
               this.print('Invalid action. ');
