@@ -77,6 +77,11 @@ export class Filesystem {
       .map(key => key.replace(/^\/?/, ''));
   }
 
+  put(path, contents) {
+    const absPath = this.abspath(path);
+    this.fsMap.set(absPath, {contents: contents});
+  }
+
   rm(path) {
     const absPath = this.abspath(path);
     if (this.fsMap.has(absPath)) {

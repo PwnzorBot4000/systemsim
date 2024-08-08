@@ -692,22 +692,34 @@ export class Game {
               const internalPath = fs.joinpath('/srv', path);
 
               let contents = '';
+              let filename = '';
               const file = fs.get(internalPath);
               if (file === 'dir') {
                 const indexFile = fs.get(fs.joinpath(internalPath, 'index.html'));
                 if (indexFile) {
                   contents = sanitizeHtml(indexFile.contents ?? '');
+                  filename = 'index.html';
                 } else {
                   contents = fs.ls(internalPath).join(' ');
+                  filename = 'directory-listing.txt';
                 }
               } else if (file) {
                 contents = sanitizeHtml(file.contents ?? '');
+                filename = internalPath.split('/').slice(-1)[0];
               } else {
                 const notFound = fs.get('/srv/not-found.html');
                 contents = sanitizeHtml(notFound?.contents ?? '');
+                filename = 'not-found.html';
               }
 
-              this.print(contents + '<br />');
+              // Output
+              if (this.getSwitch('O', 'output')) {
+                this.filesystems['localhost'].put(filename, contents);
+                this.print(`Downloaded ${filename} (${contents.length} bytes)<br />`);
+              } else {
+                this.print(contents + '<br />');
+              }
+
               this.waitInput();
               break;
             }
@@ -846,6 +858,24 @@ export class Game {
 
   getArgvInt(index, defaultValue = 0) {
     return parseInt(this.getArgv(index, defaultValue.toString()));
+  }
+
+  getSwitch(short, long, defaultValue = false) {
+    const terms = this.input?.split(' ');
+    if (!terms || terms.length === 0) return defaultValue;
+
+    const shortSwitchParams = terms.filter(term => term.match(/^-[a-zA-Z]+$/));
+    const shortSwitches = new Set(shortSwitchParams
+      .map(param => param.slice(1))
+      .flatMap(param => param.split('')));
+    if (shortSwitches.has(short)) return true;
+
+    const longSwitchParams = terms.filter(term => term.match(/^--[a-zA-Z]+$/));
+    const longSwitches = new Set(longSwitchParams
+      .map(param => param.slice(2)));
+    if (longSwitches.has(long)) return true;
+
+    return defaultValue;
   }
 
   render() {
