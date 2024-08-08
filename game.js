@@ -288,6 +288,9 @@ export class Game {
 
     // Bind events
     document.addEventListener('keydown', async (e) => {
+      // Allow F11 fullscreen toggle
+      if (e.key === 'F11') return;
+
       e.preventDefault();
       e.stopPropagation();
       if (this.terminalState !== 'input') return;
