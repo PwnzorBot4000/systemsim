@@ -3,7 +3,7 @@ import {Filesystem} from './filesystem.js';
 import {InputHistory} from './input-history.js';
 import {Notepad} from './notepad.js';
 import {asciiart} from './asciiart.js';
-import {longestCommonPrefixSorted, sanitizeHtml, sleep} from './utils.js';
+import {encodeExeName, longestCommonPrefixSorted, sanitizeHtml, sleep} from './utils.js';
 
 export class Game {
   // Persistent state
@@ -191,7 +191,7 @@ export class Game {
         }],
         ['/srv/students/constantin160816/ebikes.pdf', 'file'],
         ['/srv/students/guest', 'dir'],
-        ['/srv/students/guest/m4r10k4rt.exe', 'exe'],
+        ['/srv/students/guest/m4r10k4rt.exe', { type: 'exe', contents: 'MZ' + encodeExeName('m4r10k4rt', 48) }],
         ['/srv/students/hack3d222222', 'dir'],
         ['/srv/students/hack3d222222/notes.txt', {
           contents: 'Lol school servers are total swiss cheese, I got in in like 3 minutes and an exploit search. ' +
@@ -643,7 +643,8 @@ export class Game {
                 const file = this.filesystems['localhost'].get(path);
                 if (!file) this.print('cat: File not found<br />');
                 else if (file === 'dir') this.print('cat: Is a directory<br />');
-                else if (file === 'bin' || file === 'exe') this.print('cat: Is a binary<br />');
+                else if (file === 'bin' || file === 'exe' || file.type === 'bin' || file.type === 'exe')
+                  this.print('cat: Is a binary<br />');
                 else this.print(sanitizeHtml(file?.contents ?? '') + '<br />');
               }
               this.waitInput();
@@ -704,7 +705,11 @@ export class Game {
                   filename = 'directory-listing.txt';
                 }
               } else if (file) {
-                contents = sanitizeHtml(file.contents ?? '');
+                if (file.type === 'bin' || file.type === 'exe') {
+                  contents = sanitizeHtml(decodeURIComponent(file.contents) ?? '');
+                } else {
+                  contents = sanitizeHtml(file.contents ?? '');
+                }
                 filename = internalPath.split('/').slice(-1)[0];
               } else {
                 const notFound = fs.get('/srv/not-found.html');
