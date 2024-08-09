@@ -15,7 +15,7 @@ html, body, .layer {
     position: absolute;
 }
 /* layers */
-#asciiart, #asciiart-l2, #asciiart-l2h {
+#asciiart, #asciiart-l2, #asciiart-l3 {
     align-items: flex-end;
     color: #383838;
     display: flex;
@@ -25,9 +25,6 @@ html, body, .layer {
     font-size: min(1.8vh, 1.8vw);  /* Equivalent to 'large' in a 16:9 screen */
     line-height: 1.12em;
     letter-spacing: 0;
-}
-#asciiart-l2h {
-    padding: 0.5em;
 }
 #terminal {
     color: white;

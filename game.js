@@ -924,20 +924,31 @@ export class Game {
   }
 
   setAsciiArt(asciiArtId) {
-    const asciiArtElem = document.getElementById('asciiart');
-    const asciiArtL2Elem = document.getElementById('asciiart-l2');
-    const asciiArtL2hElem = document.getElementById('asciiart-l2h');
+    const asciiArtLayers = [document.getElementById('asciiart')];
+    for (let i = 2; i <= 3; i++) {
+      asciiArtLayers.push(document.getElementById(`asciiart-l${i}`))
+    }
 
     if (!asciiArtId) {
-      asciiArtElem.innerHTML = '';
-      asciiArtL2Elem.innerHTML = '';
-      asciiArtL2hElem.innerHTML = '';
+      for (const layer of asciiArtLayers) {
+        layer.innerHTML = '';
+      }
       return;
     }
 
-    asciiArtElem.innerHTML = asciiart[asciiArtId] ?? '';
-    asciiArtL2Elem.innerHTML = asciiart[asciiArtId + '-layer2'] ?? '';
-    asciiArtL2hElem.innerHTML = asciiart[asciiArtId + '-layer2-half'] ?? '';
+    for (let i = 1; i <= 3; i++) {
+      const layer = asciiArtLayers[i - 1];
+      const layerId = i === 1 ? asciiArtId : `${asciiArtId}-layer${i}`;
+
+      layer.innerHTML = asciiart[layerId] ?? '';
+
+      const extraStyle = asciiart[`${layerId}-style`];
+      if (extraStyle) {
+        for (const key in extraStyle) {
+          layer.style[key] = extraStyle[key];
+        }
+      }
+    }
   }
 
   async switchState(state, options = {cls: false}) {
