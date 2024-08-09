@@ -3,79 +3,15 @@
   <head>
     <meta charset="utf-8" />
     <title>Systemsim</title>
-    <style>
-      *, *::before, *::after {
-        box-sizing: border-box;
-      }
-      * {
-        margin: 0;
-      }
-      html, body {
-        background-color: black;
-      }
-      html, body, .layer {
-        height: 100%;
-        width: 100%;
-      }
-      .layer {
-        position: absolute;
-      }
-      /* layers */
-      #asciiart {
-        align-items: flex-end;
-        color: #383838;
-        display: flex;
-        font-family: 'Courier New', monospace;
-        justify-content: flex-end;
-        white-space: pre-wrap;
-        font-size: min(1.8vh, 1.8vw);  /* Equivalent to 'large' in a 16:9 screen */
-        line-height: 1.13em;
-      }
-      #terminal {
-        color: white;
-        padding: 1em;
-        white-space: pre-wrap;
-        overflow: hidden;
-      }
-      #UI {
-        align-items: center;
-        display: flex;
-        justify-content: center;
-      }
-      #UI button {
-        background-color: black;
-        border: 3px lightgray double;
-        color: lightgray;
-        font-family: 'Courier New', monospace;
-        font-size: 1.5em;
-        text-shadow: 0 0 2px white;
-        padding: 0.5em;
-        text-align: center;
-        text-decoration: none;
-        transition: 0.2s;
-      }
-      #UI button:hover {
-        background-color: lightgray;
-        color: black;
-        text-shadow: 0 0 2px black;
-      }
-      /* layer overrides */
-      .nocursor {
-        cursor: none;
-      }
-      .monospace {
-        font-family: 'Courier New', monospace;
-      }
-      .terminal12px {
-        font-size: 12px;
-      }
-    </style>
+    <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48 64x64 128x128" type="image/x-icon" />
+    <link rel="stylesheet" href="styles.css" />
     <script type="module">
       import { Game } from './game.js';
 
       const game = new Game();
 
       document.addEventListener('DOMContentLoaded', async () => {
+        game.setAsciiArt('logo');
         document.getElementById('fullscreen-btn').addEventListener('click', async () => {
           const docElm = document.documentElement;
           if (docElm.requestFullscreen) {
@@ -90,6 +26,7 @@
           document.getElementById('fullscreen-btn').remove();
           document.getElementById('UI').style.display = 'none';
 
+          game.setAsciiArt(undefined);
           await game.init();
         });
       });

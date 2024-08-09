@@ -290,6 +290,8 @@ export class Game {
     document.addEventListener('keydown', async (e) => {
       // Allow F11 fullscreen toggle
       if (e.key === 'F11') return;
+      // Allow taking screenshots (print screen, ctrl+shift+p, F12)
+      if (e.key === 'PrintScreen' || (e.ctrlKey && e.shiftKey && e.key === 'KeyP') || e.key === 'F12') return;
 
       e.preventDefault();
       e.stopPropagation();
@@ -400,7 +402,7 @@ export class Game {
             case '': {
               this.print('You look at the desk.<br />');
               await sleep(600);
-              document.getElementById('asciiart').innerHTML = asciiart.desk;
+              this.setAsciiArt('desk');
               const bagsPrompt = this.deskSideBags.areEmpty() ? '' : ' Next to it a few paper bags are leaning on its side.';
               this.print('On top of it, from left to right, there is a family picture, a small pile of memory sticks, a pile of electronics, and a large notepad with a pen.<br />' +
                 `It has three drawers in one side, and the computer tower on the other one.${bagsPrompt}<br />`);
@@ -531,7 +533,7 @@ export class Game {
         case 'inspect-memorysticks':
           switch (this.getArgv(0)) {
             case '':
-              document.getElementById('asciiart').innerHTML = asciiart.memorySticks;
+              this.setAsciiArt('memorySticks');
               this.print(
                 `There are ${this.memorySticks.length} memory sticks in the pile:<br />` +
                 this.memorySticks.map((stick, i) => `- Stick ${i + 1} (${stick.size}, ${stick.type}) is ${stick.description}${stick.mounted ? ' Currently mounted.' : ''}<br />`).join(''));
@@ -921,10 +923,20 @@ export class Game {
     return this.switchState('init');
   }
 
+  setAsciiArt(asciiArtId) {
+    const asciiArtElem = document.getElementById('asciiart');
+    if (!asciiArtId) {
+      asciiArtElem.innerHTML = '';
+      return;
+    }
+
+    asciiArtElem.innerHTML = asciiart[asciiArtId];
+  }
+
   async switchState(state, options = {cls: false}) {
     this.state = state;
     this.input = '';
-    document.getElementById('asciiart').innerHTML = '';
+    this.setAsciiArt(undefined);
 
     if (options.cls) {
       this.cls();
