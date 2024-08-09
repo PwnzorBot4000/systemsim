@@ -925,12 +925,19 @@ export class Game {
 
   setAsciiArt(asciiArtId) {
     const asciiArtElem = document.getElementById('asciiart');
+    const asciiArtL2Elem = document.getElementById('asciiart-l2');
+    const asciiArtL2hElem = document.getElementById('asciiart-l2h');
+
     if (!asciiArtId) {
       asciiArtElem.innerHTML = '';
+      asciiArtL2Elem.innerHTML = '';
+      asciiArtL2hElem.innerHTML = '';
       return;
     }
 
-    asciiArtElem.innerHTML = asciiart[asciiArtId];
+    asciiArtElem.innerHTML = asciiart[asciiArtId] ?? '';
+    asciiArtL2Elem.innerHTML = asciiart[asciiArtId + '-layer2'] ?? '';
+    asciiArtL2hElem.innerHTML = asciiart[asciiArtId + '-layer2-half'] ?? '';
   }
 
   async switchState(state, options = {cls: false}) {
