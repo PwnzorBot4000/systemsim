@@ -944,9 +944,19 @@ export class Game {
       layer.innerHTML = asciiart[layerId] ?? '';
 
       const extraStyle = asciiart[`${layerId}-style`];
+      const extraStyles = asciiart[`${layerId}-styles`] ?? [];
       if (extraStyle) {
-        for (const key in extraStyle) {
-          layer.style[key] = extraStyle[key];
+        extraStyles.push(extraStyle);
+      }
+      for (const style of extraStyles) {
+        if (style.condition) {
+          if (!style.condition(this)) {
+            continue;
+          }
+        }
+        for (const key in style) {
+          if (key === 'condition') continue;
+          layer.style[key] = style[key];
         }
       }
     }

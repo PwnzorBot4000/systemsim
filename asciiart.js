@@ -122,10 +122,41 @@ export const asciiart = {
     '   ║                       ║   \n' +
     '  ╚═══════════════════════╝   \n' +
     '                               \n',
-  'logo-layer2-style': {
-    color: '#ff000048',
-    padding: '1em',
-    animation: 'static-crackle 6s infinite',
-    'animation-timing-function': 'steps(1, end)',
-  },
+  'logo-layer2-styles': [
+    {
+      padding: '1em',
+      color: '#ff000048',
+      animation: 'static-crackle 6s infinite',
+      'animation-timing-function': 'steps(1, end)',
+    },
+    {
+      condition: () => false,
+      padding: '0 1em',
+    }
+  ],
+  'logo-layer3':
+    '                               \n' +
+    '   ╔═══════════════════════╗   \n' +
+    '    ║                       ║   \n' +
+    '   ║ ██████ ██   ██ ██████ ║   \n' +
+    '  ║ ██  ██ ██   ██ ██  ██ ║   \n' +
+    '   ║ ██     ███ ███ ██     ║   \n' +
+    '   ║ ██████  ██ ██  ██████ ║   \n' +
+    '  ║     ██   ███       ██ ║   \n' +
+    '   ║ ██  ██   ███   ██  ██ ║   \n' +
+    '    ║ ██████   ███   ██████ ║   \n' +
+    '   ║                       ║   \n' +
+    '  ╚═══════════════════════╝   \n' +
+    '                               \n',
+  'logo-layer3-styles': [
+    {
+      color: '#ff000000',
+    },
+    {
+      condition: () => false,
+      color: '#0099ff48',
+      animation: 'neon-ripple 0.5s infinite',
+      'animation-timing-function': 'ease-in-out',
+    }
+  ],
 }
