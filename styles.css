@@ -64,3 +64,18 @@ html, body, .layer {
 .terminal12px {
     font-size: 12px;
 }
+/* animations */
+@keyframes static-crackle {
+    0% {
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    54% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 0;
+    }
+}

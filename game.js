@@ -932,6 +932,7 @@ export class Game {
     if (!asciiArtId) {
       for (const layer of asciiArtLayers) {
         layer.innerHTML = '';
+        layer.style = null;
       }
       return;
     }
