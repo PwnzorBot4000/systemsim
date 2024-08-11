@@ -9,7 +9,7 @@ export class Filesystem {
   }
 
   abspath(path) {
-    const absPath1 = path.startsWith('/') ? path : this.joinpath(this.pwd, path);
+    const absPath1 = path.startsWith('/') ? path : Filesystem.joinpath(this.pwd, path);
 
     // Process "../" paths
     const parts = absPath1.split('/');
@@ -38,7 +38,7 @@ export class Filesystem {
     onerror: () => {
     }
   }) {
-    const target = this.joinpath(this.pwd, dir);
+    const target = Filesystem.joinpath(this.pwd, dir);
     if (!this.fsMap.has(target) || this.fsMap.get(target) !== 'dir') {
       options.onerror?.();
       return false;
@@ -63,7 +63,7 @@ export class Filesystem {
     return true;
   }
 
-  joinpath(base, rel) {
+  static joinpath(base, rel) {
     return base + (base.endsWith('/') || rel.startsWith('/') ? '' : '/') + rel;
   }
 

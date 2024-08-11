@@ -1,3 +1,22 @@
+export function decodeExeName(contents) {
+  const controlCharsRange = 256 - 48 * 5;
+  let datastart = 1;
+  if (contents.startsWith('MZ')) {
+    datastart = 3;
+  } else if (contents.startsWith('ELF')) {
+    datastart = 4;
+  }
+  const nameLength = contents.charCodeAt(datastart - 1);
+  const encodedName = contents.slice(datastart, datastart + nameLength);
+
+  const charCodes = [];
+  for (let i = 0; i < encodedName.length; i++) {
+    charCodes.push((encodedName.charCodeAt(i) - controlCharsRange) % 48 + 48);
+  }
+  const name = String.fromCharCode(...charCodes);
+  return name.toLowerCase();
+}
+
 export function encodeExeName(name, trashCount = 0) {
   const controlCharsRange = 256 - 48 * 5;
   let buffer = new Uint8Array(name.length + trashCount + 1);
@@ -5,8 +24,9 @@ export function encodeExeName(name, trashCount = 0) {
   buffer[0] = name.length;
 
   // 0-9 A-Z range
+  const nameUpper = name.toUpperCase();
   for (let i = 0; i < name.length; i++) {
-    const charCode = (name.charCodeAt(i) - 48) % 48;
+    const charCode = (nameUpper.charCodeAt(i) - 48) % 48;
     const rotation = Math.floor(Math.random() * 5);
     buffer[i + 1] = controlCharsRange + charCode + rotation * 48;
   }

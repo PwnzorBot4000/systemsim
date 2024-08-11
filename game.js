@@ -3,75 +3,33 @@ import {Filesystem} from './filesystem.js';
 import {InputHistory} from './input-history.js';
 import {Notepad} from './notepad.js';
 import {asciiart} from './asciiart.js';
-import {encodeExeName, longestCommonPrefixSorted, sanitizeHtml, sleep} from './utils.js';
+import {decodeExeName, encodeExeName, longestCommonPrefixSorted, sanitizeHtml, sleep} from './utils.js';
+import {sh} from "./programs/sh.js";
+import {curl} from "./programs/curl.js";
+import {m4r10k4rt} from "./programs/m4r10k4rt.js";
+import {books} from "./data/books.js";
 
 export class Game {
   // Persistent state
   deskSideBags = new DeskSideBags();
   drawer1 = [
     {
-      name: 'history-of-computer-industry', type: 'book', actions: ['open', 'move-to-bookcase'], contents: [
-        {
-          type: 'chapter', name: 'http-methods', contents:
-            '[...] To interact with a system using the HTTP protocol, one needs to think of the system as a collection of resources.\n' +
-            'A resource is an entity that can be identified by a URI (Uniform Resource Identifier), also known as a \'path\' inside the system.\n' +
-            'The HTTP protocol defines a set of methods that can be used to interact with resources. These methods are:\n' +
-            '- GET: Retrieve the contents of a resource\n' +
-            '- POST: Create a new resource\n' +
-            '- PUT: Update (replace or upsert) a resource\n' +
-            '- DELETE: Delete a resource\n' +
-            '- OPTIONS: Retrieve the list of methods supported by a resource\n' +
-            'Accessing the resources of a system in this way comprises the \'REST\' methodology, which stands for \'REpresentational State Transfer\'.\n' +
-            'This methodology defines a set of constraints that must be met by a system in order to be considered RESTful.\n' +
-            'The constraints are:\n' +
-            '- Client-Server: The system must be a client-server system, where the client is the user and the server is the system.\n' +
-            '- Stateless: The system must be stateless, meaning that it does not maintain any information about the state of the system between requests.\n' +
-            '- Uniform Interface: The system must have a uniform interface, meaning that it should have the same methods and parameters for all resources.\n' +
-            '[...]\n' +
-            'This is in contrast to the older \'SOAP\' methodology, which is more focused on the communication between a client and a server.\n' +
-            '[...]\n' +
-            '(Some hand-written notes lie at the bottom of the page:\n' +
-            '"- POST can be called multiple times and a new resource will be created for each call"\n' +
-            '"- e.g. POST /potatoes with body { "content": "starch" } will create potatoes 1,2,3,4,5..."\n' +
-            '"- PUT will update the same resource every time, it is \'idempotent\'"\n' +
-            '"- e.g. PUT /potatoes/1 with body { "content": "starch" } will always update the first potato"\n'
-        },
-        {
-          type: 'chapter', name: 'http-headers', contents:
-            '[...] The HTTP protocol defines a set of headers that can be used to provide additional information about a request or a response.\n' +
-            'These headers are:\n' +
-            '- Content-Type: The type of the content being sent.\n' +
-            '- Last-Modified: The last modified date of the resource being created or updated.\n' +
-            '- Accept: The content types that the client can accept.\n' +
-            '- Accept-Encoding: The content encodings that the client can accept.\n' +
-            '- Authorization: The authorization credentials of the client.\n' +
-            '- True-Client-IP: The true IP address of the client.\n' +
-            '- Cookie: The cookies of the client.\n' +
-            '- Set-Cookie: The cookies that the server wants to set.\n' +
-            '[...]\n'
-        },
-        {
-          type: 'chapter', name: 'appendix', contents:
-            '[...]\n' +
-            'Library of Computer Science\n' +
-            'School of Electrical and Computer Engineering\n' +
-            'Technical University of Continued Education\n' +
-            'cslib.ece.tuce.edu\n' +
-            '[...]\n'
-        },
-      ]
+      name: 'history-of-computer-industry',
+      type: 'book',
+      actions: ['open', 'move-to-bookcase'],
+      contents: books.get('history-of-computer-industry'),
     }
   ];
   filesystems = {
     'localhost': new Filesystem({
       pwd: '/root', fsMap: new Map([
         ['/bin', 'dir'],
-        ['/bin/curl', 'exe'],
-        ['/bin/nologin', 'exe'],
-        ['/bin/sh', 'exe'],
+        ['/bin/curl', { type: 'exe', contents: 'ELF' + encodeExeName('curl', 306) }],
+        ['/bin/nologin', { type: 'exe', contents: 'ELF' + encodeExeName('noop', 10) }],
+        ['/bin/sh', { type: 'exe', contents: 'ELF' + encodeExeName('noop', 920) }],
         ['/boot', 'dir'],
-        ['/boot/kernel', 'bin'],
-        ['/boot/initrd', 'bin'],
+        ['/boot/kernel', { type: 'bin', contents: 'ELF' + encodeExeName('kernel', 2210) }],
+        ['/boot/initrd', { type: 'bin', contents: 'ELF' + encodeExeName('initrd', 3211) }],
         ['/etc', 'dir'],
         ['/etc/passwd', {
           contents: '#name:pass:uid:gid:comment:home:shell\n' +
@@ -219,12 +177,12 @@ export class Game {
         fsMap: new Map([
           ['/', 'dir'],
           ['/bin', 'dir'],
-          ['/bin/curl', 'exe'],
-          ['/bin/nologin', 'exe'],
-          ['/bin/sh', 'exe'],
+          ['/bin/curl', { type: 'exe', contents: 'ELF' + encodeExeName('curl', 306) }],
+          ['/bin/nologin', { type: 'exe', contents: 'ELF' + encodeExeName('noop', 10) }],
+          ['/bin/sh', { type: 'exe', contents: 'ELF' + encodeExeName('noop', 920) }],
           ['/boot', 'dir'],
-          ['/boot/kernel', 'bin'],
-          ['/boot/initrd', 'bin'],
+          ['/boot/kernel', { type: 'bin', contents: 'ELF' + encodeExeName('kernel', 2210) }],
+          ['/boot/initrd', { type: 'bin', contents: 'ELF' + encodeExeName('initrd', 3211) }],
         ])
       })
     },
@@ -638,124 +596,59 @@ export class Game {
               this.waitInput(`${this.filesystems['localhost'].pwd} # `);
               break;
             case 'cat': {
-              const path = this.getArgv(1);
-              if (!path) {
-                this.print('cat: missing operand<br />');
-              } else {
-                const file = this.filesystems['localhost'].get(path);
-                if (!file) this.print('cat: File not found<br />');
-                else if (file === 'dir') this.print('cat: Is a directory<br />');
-                else if (file === 'bin' || file === 'exe' || file.type === 'bin' || file.type === 'exe')
-                  this.print('cat: Is a binary<br />');
-                else this.print(sanitizeHtml(file?.contents ?? '') + '<br />');
-              }
+              sh.cat(this);
               this.waitInput();
               break;
             }
             case 'help':
-              this.print(
-                'cat PATH          - Display contents of a file<br />' +
-                'cd PATH           - Change directory. Use \'..\' to go up a directory<br />' +
-                'help [COMMAND]    - Display help for a command<br />' +
-                'ls [PATH]         - List files in current directory<br />' +
-                'poweroff          - Shut down the computer<br />' +
-                'rm PATH           - Remove a file<br />' +
-                '<br />' +
-                'All binaries located in /bin can also be executed as commands.<br /><br />');
+              sh.help(this);
               this.waitInput();
               break;
             case 'cd': {
-              const dir = this.getArgv(1);
-              if (!dir) {
-                this.print('cd: missing operand<br />');
-              } else if (dir === '..') {
-                this.filesystems['localhost'].goUp({onerror: () => this.print(`${dir}: No such directory<br />`)});
-              } else {
-                this.filesystems['localhost'].goIn(dir, {onerror: () => this.print(`${dir}: No such directory<br />`)});
-              }
+              sh.cd(this);
               this.waitInput(`${this.filesystems['localhost'].pwd} # `);
               break;
             }
-            case 'curl': {
-              const matches = this.input.match(/curl (-[A-Za-z]+ )*([A-Z]+) ([A-Za-z0-9-.]+)(\/.+)?/);
-              if (!matches) {
-                this.print('Usage: curl [options] METHOD HOST[/path]<br />' +
-                  'Example: curl GET www.example.com<br />' +
-                  'Example: curl GET 192.168.1.1/example.html<br />');
+            case 'ls':
+              sh.ls(this);
+              this.waitInput();
+              break;
+            case 'poweroff':
+              return await sh.poweroff(this);
+            case 'rm':
+              sh.rm(this);
+              this.waitInput();
+              break;
+            default: {
+              // Programs
+              const localProgram = this.filesystems['localhost'].get(this.getArgv(0));
+              const binProgram = this.filesystems['localhost'].get(Filesystem.joinpath('/bin', this.getArgv(0)));
+              if (!localProgram && !binProgram) {
+                this.print(`Unknown command: ${this.getArgv(0)}<br />For a list of commands, type 'help'.<br /><br />`);
                 this.waitInput();
                 break;
               }
-              const fs = this.filesystems[matches[matches.length - 2]];
-              if (!fs) {
-                this.print('curl: server does not exist<br />');
-                this.waitInput();
-                break;
-              }
-              const path = decodeURIComponent(matches[matches.length - 1] ?? '/');
-              const internalPath = fs.joinpath('/srv', path);
+              const programName = decodeExeName(localProgram?.contents ?? binProgram?.contents);
 
-              let contents = '';
-              let filename = '';
-              const file = fs.get(internalPath);
-              if (file === 'dir') {
-                const indexFile = fs.get(fs.joinpath(internalPath, 'index.html'));
-                if (indexFile) {
-                  contents = sanitizeHtml(indexFile.contents ?? '');
-                  filename = 'index.html';
-                } else {
-                  contents = fs.ls(internalPath).join(' ');
-                  filename = 'directory-listing.txt';
-                }
-              } else if (file) {
-                contents = sanitizeHtml(file.contents ?? '');
-                filename = internalPath.split('/').slice(-1)[0];
-              } else {
-                const notFound = fs.get('/srv/not-found.html');
-                contents = sanitizeHtml(notFound?.contents ?? '');
-                filename = 'not-found.html';
-              }
-
-              // Output
-              if (this.getSwitch('O', 'output')) {
-                this.filesystems['localhost'].put(filename, contents);
-                this.print(`Downloaded ${filename} (${contents.length} bytes)<br />`);
-              } else {
-                this.print(contents + '<br />');
+              switch (programName) {
+                case 'curl':
+                  curl(this);
+                  break;
+                case 'm4r10k4rt':
+                  return await m4r10k4rt(this);
+                case 'noop':
+                  this.print('<br />');
+                  this.waitInput();
+                  break;
+                default:
+                  this.print(`${this.getArgv(0)} is not an executable file.<br /><br />`);
+                  this.waitInput();
+                  break;
               }
 
               this.waitInput();
               break;
             }
-            case 'ls':
-              this.print(this.filesystems['localhost'].ls(this.getArgv(1)).join(' ') + '<br />');
-              this.waitInput();
-              break;
-            case 'nologin':
-            case 'sh':
-              this.print('<br />');
-              this.waitInput();
-              break;
-            case 'poweroff':
-              await sleep(600);
-              return await this.poweroff();
-            case 'm4r10k4rt.exe':
-              await sleep(2000);
-              this.print('rm /boot/kernel<br />');
-              this.filesystems['localhost'].rm('/boot/kernel');
-              await sleep(1000);
-              this.cls();
-              await sleep(1000);
-              for (let i = 0; i < 24; i++) {
-                this.print('&gt;&gt;&gt;=================== Y0U G0T PWN3D, K1D ===================&lt;&lt;&lt;<br /><br />');
-                await sleep(100);
-              }
-              this.print('# poweroff<br />');
-              await sleep(300);
-              return await this.poweroff(3000);
-            default:
-              this.print(`Unknown command: ${this.getArgv(0)}<br />For a list of commands, type 'help'.<br /><br />`);
-              this.waitInput();
-              break;
           }
           break;
         case 'inspect-room':
@@ -846,6 +739,19 @@ export class Game {
     }
   }
 
+  addAchievement(name) {
+    const achievements = localStorage.getItem('systemsim-achievements');
+    if (!achievements) {
+      localStorage.setItem('systemsim-achievements', JSON.stringify([name]));
+    } else {
+      const achievementsList = JSON.parse(achievements);
+      if (!achievementsList.includes(name)) {
+        achievementsList.push(name);
+        localStorage.setItem('systemsim-achievements', JSON.stringify(achievementsList));
+      }
+    }
+  }
+
   cls() {
     document.getElementById('terminal').innerHTML = '';
     this.terminalBuffer = [];
@@ -879,6 +785,13 @@ export class Game {
     if (longSwitches.has(long)) return true;
 
     return defaultValue;
+  }
+
+  hasAchievement(name) {
+    const achievements = localStorage.getItem('systemsim-achievements');
+    if (!achievements) return false;
+    const achievementsList = JSON.parse(achievements);
+    return achievementsList.includes(name);
   }
 
   render() {
