@@ -41,11 +41,7 @@ function help(game) {
 
 function ls(game) {
   const path = game.getArgv(1) ?? '';
-
-  const file = game.filesystems['localhost'].get(path);
-  if (!file) game.print('ls: File not found<br />');
-  else if (file === 'dir') game.print(game.filesystems['localhost'].ls(path).join(' ') + '<br />');
-  else game.print('ls: Is a file<br />');
+  game.print(game.filesystems['localhost'].ls(path).join(' ') + '<br />');
 }
 
 async function poweroff(game) {

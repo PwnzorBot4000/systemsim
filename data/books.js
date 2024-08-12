@@ -1,7 +1,7 @@
 export const booksData = new Map([
   ['history-of-computer-industry', [
     {
-      type: 'chapter', name: 'http-methods', contents:
+      type: 'chapter', name: 'http-methods', title: 'HTTP Methods', contents:
         '[...] To interact with a system using the HTTP protocol, one needs to think of the system as a collection of resources.\n' +
         'A resource is an entity that can be identified by a URI (Uniform Resource Identifier), also known as a \'path\' inside the system.\n' +
         'The HTTP protocol defines a set of methods that can be used to interact with resources. These methods are:\n' +
@@ -26,7 +26,7 @@ export const booksData = new Map([
         '"- e.g. PUT /potatoes/1 with body { "content": "starch" } will always update the first potato"\n'
     },
     {
-      type: 'chapter', name: 'http-headers', contents:
+      type: 'chapter', name: 'http-headers', title: 'HTTP Headers', contents:
         '[...] The HTTP protocol defines a set of headers that can be used to provide additional information about a request or a response.\n' +
         'These headers are:\n' +
         '- Content-Type: The type of the content being sent.\n' +
@@ -40,7 +40,7 @@ export const booksData = new Map([
         '[...]\n'
     },
     {
-      type: 'chapter', name: 'appendix', contents:
+      type: 'chapter', name: 'appendix', title: 'Appendix', contents:
         '[...]\n' +
         'Library of Computer Science\n' +
         'School of Electrical and Computer Engineering\n' +

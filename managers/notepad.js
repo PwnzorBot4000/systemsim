@@ -4,17 +4,28 @@ export class Notepad {
     '(must install links smh, browsing with curl is torture)']];
   page = 0;
 
-  goto(index, options = {
-    onerror: () => {
-    }
-  }) {
+  async goto(index) {
     if (index < 0 || index >= this.notes.length) {
-      options.onerror?.();
-      return false;
+      throw new Error(`Invalid page: ${index + 1}`);
     }
 
     this.page = index;
-    return true;
+  }
+
+  async next() {
+    if (this.page + 1 >= this.notes.length) {
+      throw new Error('This is the last page.');
+    }
+
+    this.page++;
+  }
+
+  async prev() {
+    if (this.page - 1 < 0) {
+      throw new Error('This is the first page.');
+    }
+
+    this.page--;
   }
 
   render() {
