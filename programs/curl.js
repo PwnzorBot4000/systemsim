@@ -1,5 +1,5 @@
 import {sanitizeHtml} from "../utils.js";
-import {Filesystem} from "../filesystem.js";
+import {Filesystem} from "../entities/filesystem.js";
 
 export function curl(game) {
   const matches = game.input.match(/curl (-[A-Za-z]+ )*([A-Z]+) ([A-Za-z0-9-.]+)(\/.+)?/);

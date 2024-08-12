@@ -1,13 +1,13 @@
-import {DeskSideBags} from './desk-side-bags.js';
-import {Filesystem} from './filesystem.js';
-import {InputHistory} from './input-history.js';
-import {Notepad} from './notepad.js';
-import {asciiart} from './asciiart.js';
+import {DeskSideBags} from './managers/desk-side-bags.js';
+import {Filesystem} from './entities/filesystem.js';
+import {InputHistory} from './managers/input-history.js';
+import {Notepad} from './managers/notepad.js';
+import {asciiart} from './data/asciiart.js';
 import {decodeExeName, encodeExeName, longestCommonPrefixSorted, sanitizeHtml, sleep} from './utils.js';
 import {sh} from "./programs/sh.js";
 import {curl} from "./programs/curl.js";
 import {m4r10k4rt} from "./programs/m4r10k4rt.js";
-import {books} from "./data/books.js";
+import {booksData} from "./data/books.js";
 
 export class Game {
   // Persistent state
@@ -17,7 +17,7 @@ export class Game {
       name: 'history-of-computer-industry',
       type: 'book',
       actions: ['open', 'move-to-bookcase'],
-      contents: books.get('history-of-computer-industry'),
+      contents: booksData.get('history-of-computer-industry'),
     }
   ];
   filesystems = {

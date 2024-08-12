@@ -1,4 +1,4 @@
-import {helpPages} from "../data/help-pages.js";
+import {helpData} from "../data/help.js";
 import {sanitizeHtml, sleep} from "../utils.js";
 
 function cat(game) {
@@ -29,7 +29,7 @@ function cd(game) {
 
 function help(game) {
   const helpTerm = game.getArgv(1) ?? '';
-  const helpPage = helpPages.get(helpTerm);
+  const helpPage = helpData.get(helpTerm);
 
   if (!helpPage) {
     game.print(`Unknown command: ${helpTerm}<br />`);

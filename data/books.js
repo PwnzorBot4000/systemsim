@@ -1,4 +1,4 @@
-export const books = new Map([
+export const booksData = new Map([
   ['history-of-computer-industry', [
     {
       type: 'chapter', name: 'http-methods', contents:

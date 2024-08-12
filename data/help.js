@@ -1,4 +1,4 @@
-export const helpPages = new Map([
+export const helpData = new Map([
   ['',
     'cat PATH          - Display contents of a file<br />' +
     'cd PATH           - Change directory. Use \'..\' to go up a directory<br />' +

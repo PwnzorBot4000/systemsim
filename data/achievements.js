@@ -1,4 +1,4 @@
-export const achievements = new Map([
+export const achievementsData = new Map([
   ['m4r10k4rt', {
     title: 'm4r10k4rt',
     description: 'Get your kernel deleted by m4r10k4rt malware',
