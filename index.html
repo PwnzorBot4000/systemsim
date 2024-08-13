@@ -11,8 +11,7 @@
       const game = new Game();
 
       document.addEventListener('DOMContentLoaded', async () => {
-        game.setAsciiArt('logo');
-
+        // Bind events
         document.getElementById('fs-btn').addEventListener('click', async () => {
           await game.enableFullscreen();
         });
@@ -26,11 +25,28 @@
 
           await game.init();
         });
+
+        // Show init UI
+        game.setAsciiArt('logo');
+        document.getElementById('init-ui').style.display = null;
       });
     </script>
   </head>
   <body>
     <div id="asciiart" class="layer" style="z-index: 1;">
+                               <br />LOADING
+   ╔═══════════════════════╗   <br />LOADING
+   ║                       ║   <br />LOADING
+   ║ ██████ ██   ██ ██████ ║   <br />LOADING
+   ║ ██  ██ ██   ██ ██  ██ ║   <br />LOADING
+   ║ ██     ███ ███ ██     ║   <br />LOADING
+   ║ ██████  ██ ██  ██████ ║   <br />LOADING
+   ║     ██   ███       ██ ║   <br />LOADING
+   ║ ██  ██   ███   ██  ██ ║   <br />LOADING
+   ║ ██████   ███   ██████ ║   <br />LOADING
+   ║                       ║   <br />LOADING
+   ╚═══════════════════════╝   <br />LOADING
+                               <br />LOADING
     </div>
     <div id="asciiart-l2" class="layer" style="z-index: 2;">
     </div>
@@ -41,7 +57,7 @@
     <div id="esc-ui" class="ui layer" style="z-index: 19; display: none;">
       <button id="fs-btn">&#x2922;</button>
     </div>
-    <div id="init-ui" class="ui layer" style="z-index: 20;">
+    <div id="init-ui" class="ui layer" style="z-index: 20; display: none;">
       <button primary id="init-btn">Launch Game</button>
     </div>
   </body>
