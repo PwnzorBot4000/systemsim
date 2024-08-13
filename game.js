@@ -76,6 +76,8 @@ export class Game {
       if (e.key === 'F11') return;
       // Allow taking screenshots (print screen, ctrl+shift+p, F12)
       if (e.key === 'PrintScreen' || (e.ctrlKey && e.shiftKey && e.key === 'KeyP') || e.key === 'F12') return;
+      // Allow dev tools (ctrl+shift+i, F12)
+      if (e.ctrlKey && e.shiftKey && e.key === 'KeyI') return;
 
       e.preventDefault();
       e.stopPropagation();
@@ -548,6 +550,19 @@ export class Game {
   cls() {
     document.getElementById('terminal').innerHTML = '';
     this.terminalBuffer = [];
+  }
+
+  async enableFullscreen() {
+    const fsElm = document.body;
+    if (fsElm.requestFullscreen) {
+      await fsElm.requestFullscreen();
+    } else if (fsElm.msRequestFullscreen) {
+      fsElm.msRequestFullscreen();
+    } else if (fsElm.mozRequestFullScreen) {
+      fsElm.mozRequestFullScreen();
+    } else if (fsElm.webkitRequestFullScreen) {
+      fsElm.webkitRequestFullScreen();
+    }
   }
 
   getArgv(index, defaultValue = '') {

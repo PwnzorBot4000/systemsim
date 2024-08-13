@@ -12,21 +12,18 @@
 
       document.addEventListener('DOMContentLoaded', async () => {
         game.setAsciiArt('logo');
-        document.getElementById('fullscreen-btn').addEventListener('click', async () => {
-          const docElm = document.documentElement;
-          if (docElm.requestFullscreen) {
-            await docElm.requestFullscreen();
-          } else if (docElm.msRequestFullscreen) {
-            docElm.msRequestFullscreen();
-          } else if (docElm.mozRequestFullScreen) {
-            docElm.mozRequestFullScreen();
-          } else if (docElm.webkitRequestFullScreen) {
-            docElm.webkitRequestFullScreen();
-          }
-          document.getElementById('fullscreen-btn').remove();
-          document.getElementById('UI').style.display = 'none';
 
+        document.getElementById('fs-btn').addEventListener('click', async () => {
+          await game.enableFullscreen();
+        });
+
+        document.getElementById('init-btn').addEventListener('click', async () => {
+          await game.enableFullscreen();
+
+          document.getElementById('init-ui').style.display = 'none';
+          document.getElementById('esc-ui').style.display = null;
           game.setAsciiArt(undefined);
+
           await game.init();
         });
       });
@@ -41,8 +38,11 @@
     </div>
     <div id="terminal" class="layer" style="z-index: 10;">
     </div>
-    <div id="UI" class="layer" style="z-index: 20;">
-      <button id="fullscreen-btn">Launch Game</button>
+    <div id="esc-ui" class="ui layer" style="z-index: 19; display: none;">
+      <button id="fs-btn">&#x2922;</button>
+    </div>
+    <div id="init-ui" class="ui layer" style="z-index: 20;">
+      <button primary id="init-btn">Launch Game</button>
     </div>
   </body>
 </html>

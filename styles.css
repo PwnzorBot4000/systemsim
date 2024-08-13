@@ -14,6 +14,27 @@ html, body, .layer {
 .layer {
     position: absolute;
 }
+/* layer styles */
+.ui button {
+    background-color: black;
+    border: 1px #c0c0c0 solid;
+    color: #c0c0c0;
+    font-family: 'Courier New', monospace;
+    font-size: 1.5em;
+    text-shadow: 0 0 2px white;
+    padding: 0.5em;
+    text-align: center;
+    text-decoration: none;
+    transition: 0.2s;
+}
+.ui button:hover {
+    background-color: lightgray;
+    color: black;
+    text-shadow: 0 0 2px black;
+}
+.ui button[primary] {
+    border: 3px lightgray double;
+}
 /* layers */
 #asciiart, #asciiart-l2, #asciiart-l3 {
     align-items: flex-end;
@@ -32,27 +53,21 @@ html, body, .layer {
     white-space: pre-wrap;
     overflow: hidden;
 }
-#UI {
+#init-ui {
     align-items: center;
     display: flex;
     justify-content: center;
 }
-#UI button {
-    background-color: black;
-    border: 3px lightgray double;
-    color: lightgray;
-    font-family: 'Courier New', monospace;
-    font-size: 1.5em;
-    text-shadow: 0 0 2px white;
-    padding: 0.5em;
-    text-align: center;
-    text-decoration: none;
-    transition: 0.2s;
+#esc-ui {
+    align-items: flex-end;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    justify-content: flex-start;
+    padding: 1em;
 }
-#UI button:hover {
-    background-color: lightgray;
-    color: black;
-    text-shadow: 0 0 2px black;
+:is(:fullscreen, :-webkit-full-screen, :-moz-full-screen, :-ms-fullscreen) #esc-ui {
+    display: none;
 }
 /* layer overrides */
 .nocursor {
