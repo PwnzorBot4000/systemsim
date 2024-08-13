@@ -130,7 +130,7 @@ export const asciiart = {
       'animation-timing-function': 'steps(1, end)',
     },
     {
-      condition: () => false,
+      condition: (game) => game.achievements.has('deepnet'),
       padding: '0 1em',
     }
   ],
@@ -153,7 +153,7 @@ export const asciiart = {
       color: '#ff000000',
     },
     {
-      condition: () => false,
+      condition: (game) => game.achievements.has('deepnet'),
       color: '#0099ff48',
       animation: 'neon-ripple 0.5s infinite',
       'animation-timing-function': 'ease-in-out',
