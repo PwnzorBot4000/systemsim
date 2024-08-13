@@ -205,6 +205,7 @@ export class Game {
             case 'picture':
               this.print('You look at the picture.<br />');
               await sleep(600);
+              this.setAsciiArt('picture');
               this.print(
                 'It is a picture of your parents, with you in the middle. They are holding you from the hands, one hand each.<br />' +
                 'The date on the photo is 2006 May 16.<br />');
