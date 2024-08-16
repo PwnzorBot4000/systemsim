@@ -74,7 +74,7 @@ export const filesystemsData = {
     ['srv/content/charly', 'dir'],
     ['srv/content/vickie', 'dir'],
   ],
-'owasp.org': [
+  'owasp.org': [
     ['/srv', 'dir'],
     ['/srv/index.html', {
       contents: '<h1>OWASP Foundation</h1><h2>Explore the world of cyber security</h2>' +
@@ -108,41 +108,40 @@ export const filesystemsData = {
       contents: 'root:x:0:0:root:/root:/bin/sh\n' +
         'athena110717:x:1422:1422::/:/bin/sh\n' +
         'constantin160816:x:1421:1421::/:/bin/sh\n' +
-        'hack3d222222:x:1429:1429::/:/bin/sh\n' +
         'maksim220724:x:1432:1432::/:/bin/sh\n'
     }],
     ['/srv', 'dir'],
     ['/srv/index.html', {
-      contents: '<h2>Login</h2><form method="post">' +
-        '<label for="fname">Student username:</label><br><input type="text" id="fname" name="fname"><br>' +
-        '<label for="pass">Password:</label><br><input type="text" id="pass" name="pass"><br><br>' +
-        '<input type="submit" value="Submit"></form><!-- Use username "guest" and password "guest" for guest access -->'
+      contents: '<h2>Login</h2>\n<form method="post" action="/login.html">\n' +
+        '<label for="username">Student username:</label><br>\<input type="text" id="username" name="username"><br>\n' +
+        '<label for="password">Password:</label><br>\n<input type="text" id="password" name="password"><br><br>\n' +
+        '<input type="submit" value="Submit">\n</form>\n<!-- Use username "guest" and password "guest" for guest access -->\n'
     }],
     ['/srv/not-found.html', {contents: '<p>Page not found</p><p>Nginx 0.6.2</p>'}],
-    ['/srv/students', 'dir'],
-    ['/srv/students/athena110717', 'dir'],
-    ['/srv/students/athena110717/sitse.txt', {contents: 'foogal.co.uk pass = "autumnleaves" + birthyear\nwww.watrar.com Free compressed files profram'}],
-    ['/srv/students/constantin160816', 'dir'],
-    ['/srv/students/constantin160816/todo.txt', {
+    ['/students', 'dir'],
+    ['/students/athena110717', 'dir'],
+    ['/students/athena110717/sitse.txt', {contents: 'foogal.co.uk pass = "autumnleaves" + birthyear\nwww.watrar.com Free compressed files profram'}],
+    ['/students/constantin160816', 'dir'],
+    ['/students/constantin160816/todo.txt', {
       contents: 'Prepare ppt for ebikes\nProf tyranossaurus Tex asked us to install an ancient browser from projects.mikl-ptoska.cz/links\n' +
         'curl -O <rest of stuff> to download a file as A ***** FILE\nMan pages has more stuff for program options, see uni site'
     }],
-    ['/srv/students/constantin160816/ebikes.pdf', 'file'],
-    ['/srv/students/guest', 'dir'],
-    ['/srv/students/guest/m4r10k4rt.exe', { type: 'exe', contents: 'MZ' + encodeExeName('m4r10k4rt', 48) }],
-    ['/srv/students/hack3d222222', 'dir'],
-    ['/srv/students/hack3d222222/notes.txt', {
+    ['/students/constantin160816/ebikes.pdf', 'file'],
+    ['/students/guest', 'dir'],
+    ['/students/guest/m4r10k4rt.exe', { type: 'exe', contents: 'MZ' + encodeExeName('m4r10k4rt', 48) }],
+    ['/students/hack3d222222', 'dir'],
+    ['/students/hack3d222222/notes.txt', {
       contents: 'Lol school servers are total swiss cheese, I got in in like 3 minutes and an exploit search. ' +
         'Im gonna try crack the root pass, the specs are ok for a ddos zombie. Any other bros are welcome to install their own worms for attacks, it\'s not ' +
         'like this teapot can mine crypto.\n' +
         'If you are the admin reading this, upgrade your rotting nginx man, like, you\'re being paid a wage to *at least* do this once in a while.'
     }],
-    ['/srv/students/hack3d222222/wordlists', 'dir'],
-    ['/srv/students/hack3d222222/wordlists/nginx-paths.txt', 'file'],
-    ['/srv/students/hack3d222222/wordlists/admin-passes-top10000.txt', 'file'],
-    ['/srv/students/maksim220724', 'dir'],
-    ['/srv/students/maksim220724/combustion-liquid-fuel-rockets.doc', 'file'],
-    ['/srv/students/maksim220724/remote-cruise-control.doc', 'file'],
+    ['/students/hack3d222222/wordlists', 'dir'],
+    ['/students/hack3d222222/wordlists/nginx-paths.txt', 'file'],
+    ['/students/hack3d222222/wordlists/admin-passes-top10000.txt', 'file'],
+    ['/students/maksim220724', 'dir'],
+    ['/students/maksim220724/combustion-liquid-fuel-rockets.doc', 'file'],
+    ['/students/maksim220724/remote-cruise-control.doc', 'file'],
   ],
   'memorystick-1': [
     ['/', 'dir'],

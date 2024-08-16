@@ -2,8 +2,8 @@ export class Filesystem {
   fsMap = new Map();
   pwd = '/';
 
-  constructor(options = {pwd: '/', fsMap: undefined, contents: undefined}) {
-    if (options?.pwd) this.pwd = options.pwd;
+  constructor(options = {pwd: undefined, fsMap: undefined, contents: undefined}) {
+    this.pwd = options.pwd ?? '/';
     if (options?.fsMap) this.fsMap = options.fsMap;
     // TODO contents sugar
   }

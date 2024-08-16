@@ -12,6 +12,7 @@ import {Achievements} from "./managers/achievements.js";
 import {filesystemsData} from "./data/filesystems.js";
 import {MemorySticks} from "./managers/memorysticks.js";
 import {Book} from "./entities/book.js";
+import {Server} from "./entities/server.js";
 
 export class Game {
   // Persistent state
@@ -24,21 +25,48 @@ export class Game {
     'localhost': new Filesystem({
       pwd: '/root', fsMap: new Map(filesystemsData['localhost'])
     }),
-    'exploit-db.com': new Filesystem({
-      fsMap: new Map(filesystemsData['exploit-db.com'])
-    }),
-    'foogal.co.uk': new Filesystem({
-      fsMap: new Map(filesystemsData['foogal.co.uk'])
-    }),
-    'owasp.org': new Filesystem({
-      fsMap: new Map(filesystemsData['owasp.org'])
-    }),
-    '104.122.199.11': new Filesystem({
-      fsMap: new Map(filesystemsData['104.122.199.11'])
-    }),
   };
   memorySticks = new MemorySticks();
   notepad = new Notepad();
+  servers = {
+    'exploit-db.com': new Server({
+      filesystem: new Filesystem({
+        fsMap: new Map(filesystemsData['exploit-db.com'])
+      }),
+    }),
+    'foogal.co.uk': new Server({
+      filesystem: new Filesystem({
+        fsMap: new Map(filesystemsData['foogal.co.uk'])
+      }),
+    }),
+    'owasp.org': new Server({
+      filesystem: new Filesystem({
+        fsMap: new Map(filesystemsData['owasp.org'])
+      }),
+    }),
+    '104.122.199.11': new Server({
+      filesystem: new Filesystem({
+        fsMap: new Map(filesystemsData['104.122.199.11'])
+      }),
+      routes: [
+        {
+          method: 'POST',
+          path: '/login.html',
+          handler: (server, method, path, body) => {
+            try {
+              const json = JSON.parse(body);
+              return server.serveStaticContent(`/${json.username}`, {staticRoot: `/students`});
+            } catch (e) {
+              return {
+                status: 400,
+                body: 'Incorrectly formatted JSON body.',
+              };
+            }
+          }
+        },
+      ],
+    }),
+  }
   state = 'init';
 
   // Transient state
@@ -228,37 +256,46 @@ export class Game {
               this.print('A large notepad with a pen is on the desk.<br />');
               return this.switchState('inspect-notepad');
             case 'drawer1':
-              this.print(
-                'You open the first drawer. It contains:<br />' +
-                '- A book about the history of the computer industry.<br />' +
-                '- A USB-A to USB-C 3.0 cable.<br />' +
-                '- A TV remote control for your monitor, unused.<br />' +
-                '- 3 AAA batteries.<br />' +
-                '- A box of paper clips.<br />');
-              if (!this.possibleActions.includes('read-book'))
-                this.possibleActions.push('read-book');
-              this.waitInput();
-              break;
             case 'drawer2':
-              this.print(
-                'You open the second drawer. It contains:<br />' +
-                '- 2 AA batteries, expired.<br />' +
-                '- A spoon.<br />' +
-                '- A stack of sticky notes.<br />' +
-                '- A syringe of thermal paste.<br />' +
-                '- An old low-performance CPU cooler.<br />');
+            case 'drawer3': {
+              const index = parseInt(this.getArgv(0).slice(-1));
+              switch (index) {
+                case 1:
+                  this.print(
+                    'You open the first drawer. It contains:<br />' +
+                    '- A book about the history of the computer industry.<br />' +
+                    '- A USB-A to USB-C 3.0 cable.<br />' +
+                    '- A TV remote control for your monitor, unused.<br />' +
+                    '- 3 AAA batteries.<br />' +
+                    '- A box of paper clips.<br />');
+                  if (!this.possibleActions.includes('read-book'))
+                    this.possibleActions.push('read-book');
+                  break;
+                case 2:
+                  this.print(
+                    'You open the second drawer. It contains:<br />' +
+                    '- 2 AA batteries, expired.<br />' +
+                    '- A spoon.<br />' +
+                    '- A stack of sticky notes.<br />' +
+                    '- A syringe of thermal paste.<br />' +
+                    '- An old low-performance CPU cooler.<br />');
+                  break;
+                case 3:
+                  this.print(
+                    'You open the third drawer. It contains:<br />' +
+                    '- A pair of over-ear headphones. The plastic coating of the muffs is chipped.<br />' +
+                    '- A pair of trousers.<br />' +
+                    '- A fork with some steel wire wrapped around it.<br />' +
+                    '- A bottle of cologne.<br />' +
+                    '- A packet of tissues.<br />');
+                  break;
+                default:
+                  this.print('Invalid drawer index.<br />');
+                  break;
+              }
               this.waitInput();
               break;
-            case 'drawer3':
-              this.print(
-                'You open the third drawer. It contains:<br />' +
-                '- A pair of over-ear headphones. The plastic coating of the muffs is chipped.<br />' +
-                '- A pair of trousers.<br />' +
-                '- A fork with some steel wire wrapped around it.<br />' +
-                '- A bottle of cologne.<br />' +
-                '- A packet of tissues.<br />');
-              this.waitInput();
-              break;
+            }
             case 'tower':
               this.print(
                 'You open the computer tower. It is equipped with:<br />' +

@@ -1,47 +1,63 @@
 import {sanitizeHtml} from "../utils.js";
-import {Filesystem} from "../entities/filesystem.js";
 
 export function curl(game) {
-  const matches = game.input.match(/curl (-[A-Za-z]+ )*([A-Z]+) ([A-Za-z0-9-.]+)(\/.+)?/);
+  const matches = game.input.match(/curl (-[A-Za-z]+ )*([A-Z]+) ([A-Za-z0-9-.]+)(\/[^ ]+)? ?(.*)?/);
   if (!matches) {
-    game.print('Usage: curl [options] METHOD HOST[/path]<br />' +
+    game.print('Usage: curl [options] METHOD HOST[/path] [BODY]<br />' +
       'Example: curl GET www.example.com<br />' +
       'Example: curl GET 192.168.1.1/example.html<br />');
     return;
   }
-  const fs = game.filesystems[matches[matches.length - 2]];
-  if (!fs) {
+  const serverName = matches[matches.length - 3];
+  const server = game.servers[serverName];
+  if (!server) {
     game.print('curl: server does not exist<br />');
     return;
   }
-  const path = decodeURIComponent(matches[matches.length - 1] ?? '/');
-  const internalPath = Filesystem.joinpath('/srv', path);
+  const method = matches[matches.length - 4];
+  const path = decodeURIComponent(matches[matches.length - 2] ?? '/');
+  const body = matches[matches.length - 1] ?? '';
 
-  let contents;
-  let filename;
-  const file = fs.get(internalPath);
-  if (file === 'dir') {
-    const indexFile = fs.get(Filesystem.joinpath(internalPath, 'index.html'));
-    if (indexFile) {
-      contents = sanitizeHtml(indexFile.contents ?? '');
-      filename = 'index.html';
-    } else {
-      contents = fs.ls(internalPath).join(' ');
-      filename = 'directory-listing.txt';
+  const response = server.request(method, path, body);
+  const contents = sanitizeHtml(response.body ?? '');
+
+  if (!contents || response.status !== 200) {
+    let statusText;
+    switch (response.status) {
+      case 200:
+        statusText = 'OK';
+        break;
+      case 201:
+        statusText = 'Created';
+        break;
+      case 400:
+        statusText = 'Bad Request';
+        break;
+      case 401:
+        statusText = 'Unauthorized';
+        break;
+      case 403:
+        statusText = 'Forbidden';
+        break;
+      case 404:
+        statusText = 'Not Found';
+        break;
+      case 500:
+        statusText = 'Internal Server Error';
+      default:
+        statusText = '';
+        break;
     }
-  } else if (file) {
-    contents = sanitizeHtml(file.contents ?? '');
-    filename = internalPath.split('/').slice(-1)[0];
-  } else {
-    const notFound = fs.get('/srv/not-found.html');
-    contents = sanitizeHtml(notFound?.contents ?? '');
-    filename = 'not-found.html';
+
+    game.print(`${serverName} responded with: HTTP ${response.status} ${statusText}<br />`);
+    if (contents) game.print(contents + '<br />');
+    return;
   }
 
   // Output
   if (game.getSwitch('O', 'output')) {
-    game.filesystems['localhost'].put(filename, contents);
-    game.print(`Downloaded ${filename} (${contents.length} bytes)<br />`);
+    game.filesystems['localhost'].put(response.filename, {contents, type: response.headers['Content-Type']});
+    game.print(`Downloaded ${response.filename} (${contents.length} bytes)<br />`);
   } else {
     game.print(contents + '<br />');
   }
