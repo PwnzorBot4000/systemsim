@@ -89,7 +89,7 @@ export class Filesystem {
   }
 
   mount(what, where) {
-    if (this.mounts.some((mnt) => mnt.where === where) return false;
+    if (this.mounts.some((mnt) => mnt.where === where)) return false;
 
     this.mounts.push({ what, where });
     return true;
