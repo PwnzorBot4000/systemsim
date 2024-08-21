@@ -1,5 +1,6 @@
 export class Filesystem {
   fsMap = new Map();
+  mounts = [];
   pwd = '/';
 
   constructor(options = {pwd: undefined, fsMap: undefined, contents: undefined}) {
@@ -31,21 +32,28 @@ export class Filesystem {
   }
 
   get(path) {
-    return this.fsMap.get(this.abspath(path));
+    const absPath = this.abspath(path);
+
+    const mountsFile = this.recurseMounts(absPath, (fs, innerPath) => fs.get(innerPath));
+    if (mountsFile) return mountsFile;
+
+    return this.fsMap.get(absPath);
   }
 
   goIn(dir, options = {
     onerror: () => {
     }
   }) {
-    const target = Filesystem.joinpath(this.pwd, dir);
-    if (!this.fsMap.has(target) || this.fsMap.get(target) !== 'dir') {
+    const targetPath = Filesystem.joinpath(this.pwd, dir);
+    const target = this.get(targetPath);
+
+    if (target !== 'dir') {
       options.onerror?.();
       return false;
     }
 
     // Add a level
-    this.pwd = target;
+    this.pwd = targetPath;
     return true;
   }
 
@@ -70,6 +78,9 @@ export class Filesystem {
   ls(path) {
     const prefix = path ? this.abspath(path) : this.pwd;
 
+    const lsInMount = this.recurseMounts(prefix, (fs, innerPath) => fs.ls(innerPath));
+    if (lsInMount) return lsInMount;
+
     return [...this.fsMap.keys()]
       .filter(key => key.startsWith(prefix))
       .map(key => key.replace(prefix, ''))
@@ -77,17 +88,48 @@ export class Filesystem {
       .map(key => key.replace(/^\/?/, ''));
   }
 
+  mount(what, where) {
+    if (this.mounts.some((mnt) => mnt.where === where) return false;
+
+    this.mounts.push({ what, where });
+    return true;
+  }
+
   put(path, contents) {
     const absPath = this.abspath(path);
+
+    const setInMount = this.recurseMounts(absPath, (fs, innerPath) => fs.put(innerPath, contents));
+    if (setInMount) return true;
+
     this.fsMap.set(absPath, {contents: contents});
+    return true;
+  }
+
+  recurseMounts(path, fn) {
+    for (const mount of this.mounts) {
+      if (path.startsWith(mount.where)) {
+        return fn(mount.what, path.replace(mount.where, ''));
+      }
+    }
+
+    return undefined;
   }
 
   rm(path) {
     const absPath = this.abspath(path);
+    
+    const removedInMount = this.recurseMounts(absPath, (fs, innerPath) => fs.rm(innerPath));
+    if (removedInMount) return;
+    
     if (this.fsMap.has(absPath)) {
       this.fsMap.delete(absPath);
       return true;
     }
+
     return false;
+  }
+
+  unmount(path) {
+    this.mounts = this.mounts.filter((mnt) => mnt.where !== path);
   }
 }
