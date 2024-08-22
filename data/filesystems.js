@@ -11,6 +11,7 @@ const binaries = new Map([
 
 export const filesystemsData = {
   'localhost': [
+    ['/', 'dir'],
     ['/bin', 'dir'],
     ['/bin/curl', binaries.get('curl')],
     ['/bin/nologin', binaries.get('nologin')],

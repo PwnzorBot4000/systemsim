@@ -20,10 +20,8 @@ function cd(game) {
   const dir = game.getArgv(1);
   if (!dir) {
     game.print('cd: missing operand<br />');
-  } else if (dir === '..') {
-    game.filesystems['localhost'].goUp({onerror: () => game.print(`${dir}: No such directory<br />`)});
   } else {
-    game.filesystems['localhost'].goIn(dir, {onerror: () => game.print(`${dir}: No such directory<br />`)});
+    game.filesystems['localhost'].cd(dir, {onerror: () => game.print(`${dir}: No such directory<br />`)});
   }
 }
 

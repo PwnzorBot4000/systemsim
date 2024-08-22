@@ -369,7 +369,7 @@ export class Game {
             }
             case 'mount': {
               const index = this.getArgvInt(1) - 1;
-              await this.memorySticks.mount(index)
+              await this.memorySticks.mount(index, this.filesystems['localhost'])
                 .then(() => this.print(`You mount memory stick ${index + 1}.<br />`))
                 .catch(e => this.print(`${e.message}<br />`));
               this.waitInput();

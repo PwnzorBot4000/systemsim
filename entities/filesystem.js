@@ -40,11 +40,11 @@ export class Filesystem {
     return this.fsMap.get(absPath);
   }
 
-  goIn(dir, options = {
+  cd(dir, options = {
     onerror: () => {
     }
   }) {
-    const targetPath = Filesystem.joinpath(this.pwd, dir);
+    const targetPath = this.abspath(dir);
     const target = this.get(targetPath);
 
     if (target !== 'dir') {
@@ -57,22 +57,12 @@ export class Filesystem {
     return true;
   }
 
-  goUp(options = {
-    onerror: () => {
-    }
-  }) {
-    if (this.pwd === '/') {
-      options.onerror?.();
-      return false;
-    }
-
-    // Remove a level
-    this.pwd = '/' + this.pwd.split('/').slice(0, -1).join('/');
-    return true;
-  }
-
   static joinpath(base, rel) {
-    return base + (base.endsWith('/') || rel.startsWith('/') ? '' : '/') + rel;
+    let joinedPath =  base +  '/' + rel;
+    while (joinedPath.includes('//')) {
+      joinedPath = joinedPath.replace('//', '/');
+    }
+    return joinedPath;
   }
 
   ls(path) {
@@ -89,7 +79,8 @@ export class Filesystem {
   }
 
   mount(what, where) {
-    if (this.mounts.some((mnt) => mnt.where === where)) return false;
+    if (this.mounts.some((mnt) => mnt.where === where))
+      throw new Error(`A filesystem is already mounted at ${where}`);
 
     this.mounts.push({ what, where });
     return true;
