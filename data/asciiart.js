@@ -150,12 +150,37 @@ export const asciiart = {
     '                               \n',
   'logo-layer3-styles': [
     {
-      color: '#ff000000',
+      color: '#00000000',
     },
     {
       condition: (game) => game.achievements.has('deepnet'),
       color: '#0099ff48',
       animation: 'neon-ripple 0.5s infinite',
+      'animation-timing-function': 'ease-in-out',
+    }
+  ],
+  'logo-layer4':
+    '                               \n' +
+    '   ╔═══════════════════════╗   \n' +
+    '   ║                       ║   \n' +
+    '   ║ ██████ ██   ██ ██████ ║   \n' +
+    '   ║ ██  ██ ██   ██ ██  ██ ║   \n' +
+    '   ║ ██     ███ ███ ██     ║   \n' +
+    '   ║ ██████  ██ ██  ██████ ║   \n' +
+    '   ║     ██   ███       ██ ║   \n' +
+    '   ║ ██  ██   ███   ██  ██ ║   \n' +
+    '   ║ ██████   ███   ██████ ║   \n' +
+    '   ║                       ║   \n' +
+    '   ╚═══════════════════════╝   \n' +
+    '                               \n',
+  'logo-layer4-styles': [
+    {
+      color: '#00000000',
+    },
+    {
+      condition: (game) => !game.achievements.has('deepnet'),
+      color: '#0000ff80',
+      animation: 'periodic-ripple 14s infinite',
       'animation-timing-function': 'ease-in-out',
     }
   ],

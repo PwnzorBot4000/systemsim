@@ -36,7 +36,7 @@ html, body, .layer {
     border: 3px lightgray double;
 }
 /* layers */
-#asciiart, #asciiart-l2, #asciiart-l3 {
+.asciiart {
     align-items: flex-end;
     color: #383838;
     display: flex;
@@ -80,14 +80,17 @@ html, body, .layer {
     font-size: 12px;
 }
 /* animations */
-@keyframes static-crackle {
+@keyframes periodic-ripple {
     0% {
+        opacity: 0;
+    }
+    33% {
         opacity: 0;
     }
     50% {
         opacity: 1;
     }
-    54% {
+    66% {
         opacity: 0;
     }
     100% {
@@ -103,5 +106,19 @@ html, body, .layer {
     }
     100% {
         opacity: 0.75;
+    }
+}
+@keyframes static-crackle {
+    0% {
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    54% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 0;
     }
 }

@@ -675,8 +675,9 @@ export class Game {
   }
 
   setAsciiArt(asciiArtId) {
+    const numLayers = 4;
     const asciiArtLayers = [document.getElementById('asciiart')];
-    for (let i = 2; i <= 3; i++) {
+    for (let i = 2; i <= numLayers; i++) {
       asciiArtLayers.push(document.getElementById(`asciiart-l${i}`))
     }
 
@@ -688,7 +689,7 @@ export class Game {
       return;
     }
 
-    for (let i = 1; i <= 3; i++) {
+    for (let i = 1; i <= numLayers; i++) {
       const layer = asciiArtLayers[i - 1];
       const layerId = i === 1 ? asciiArtId : `${asciiArtId}-layer${i}`;
 
