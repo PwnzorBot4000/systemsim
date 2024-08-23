@@ -107,9 +107,10 @@ export const filesystemsData = {
     ['/etc', 'dir'],
     ['/etc/passwd', {
       contents: 'root:x:0:0:root:/root:/bin/sh\n' +
-        'athena110717:x:1422:1422::/:/bin/sh\n' +
-        'constantin160816:x:1421:1421::/:/bin/sh\n' +
-        'maksim220724:x:1432:1432::/:/bin/sh\n'
+        'athena110717:13324:1422:1422::/:/bin/sh\n' +
+        'constantin160816:121217:1421:1421::/:/bin/sh\n' +
+        'hack3d222222:162:1429:1429::/:/bin/sh\n' +
+        'maksim220724:223398:1432:1432::/:/bin/sh\n'
     }],
     ['/srv', 'dir'],
     ['/srv/index.html', {

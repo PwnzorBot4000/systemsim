@@ -3,7 +3,7 @@ import {Filesystem} from './entities/filesystem.js';
 import {InputHistory} from './managers/input-history.js';
 import {Notepad} from './managers/notepad.js';
 import {asciiart} from './data/asciiart.js';
-import {decodeExeName, longestCommonPrefixSorted, sanitizeHtml, sleep} from './utils.js';
+import {decodeExeName, longestCommonPrefixSorted, sanitizeHtml, simpleHash, sleep} from './utils.js';
 import {sh} from "./programs/sh.js";
 import {curl} from "./programs/curl.js";
 import {m4r10k4rt} from "./programs/m4r10k4rt.js";
@@ -52,12 +52,40 @@ export class Game {
       }),
       routes: [
         {
-          method: 'POST',
-          path: '/login.html',
+          regex: /^POST \/login.html$/,
           handler: (server, method, path, body) => {
+            const response = {
+              status: 302,
+              body: 'Login successful. Redirecting you to your home folder.',
+            };
+
             try {
               const json = JSON.parse(body);
-              return server.serveStaticContent(`/${json.username}`, {staticRoot: `/students`});
+              const passwdFile = server.filesystem.get('/etc/passwd');
+              const passwdLines = passwdFile.contents.split('\n');
+              const userIndex = passwdLines.findIndex(line => line.startsWith(json.username));
+              // Guest access
+              if (json.username === 'guest' && json.password === 'guest') {
+                server.ipWhitelist = [...(server.ipWhitelist ?? []), 'localhost'];  // Heh, I know
+                response.headers = { 'Location': `/student-data/guest` };
+                return response;
+              }
+              // Standard user access
+              if (userIndex < 0) {
+                return {
+                  status: 404,
+                  body: 'User not found.',
+                };
+              }
+              if (passwdLines[userIndex].split(':')[2] !== simpleHash(json.password)) {
+                return {
+                  status: 401,
+                  body: 'Incorrect password.',
+                };
+              }
+              server.ipWhitelist = [...(server.ipWhitelist ?? []), 'localhost'];
+              response.headers = { 'Location': `/student-data/${json.username}` };
+              return response;
             } catch (e) {
               return {
                 status: 400,
@@ -66,6 +94,21 @@ export class Game {
             }
           }
         },
+        {
+          regex: /^GET \/student-data\/(.*)$/,
+          handler: (server, method, path, body) => {
+            const innerPath = path.replace(/^\/student-data\//, '');
+
+            if (!server.ipWhitelist || !server.ipWhitelist.includes('localhost')) {
+              return {
+                status: 403,
+                body: 'Access denied.',
+              };
+            }
+
+            return server.serveStaticContent(innerPath, {staticRoot: `/students`});
+          }
+        }
       ],
     }),
   }

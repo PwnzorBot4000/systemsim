@@ -2,19 +2,20 @@ import {Filesystem} from "./filesystem.js";
 
 export class Server {
   filesystem;
-  routes = new Map();
+  routes = [];
   isStaticContentServed = true;
 
   constructor(options = {filesystem: undefined, routes: undefined}) {
-    if (options?.routes) this.routes = new Map(options.routes.map(route => [`${route.method} ${route.path}`, route.handler]));
+    if (options?.routes) this.routes = options.routes;
     if (options?.filesystem) this.filesystem = options.filesystem;
   }
 
   request(method, path, body) {
     const response = {};
 
-    if (this.routes.has(`${method} ${path}`)) {
-      const response = this.routes.get(`${method} ${path}`)(this, method, path, body);
+    for (const route of this.routes) {
+      if (!route.regex.test(`${method} ${path}`)) continue;
+      const response = route.handler(this, method, path, body);
       if (response) return response;
     }
 

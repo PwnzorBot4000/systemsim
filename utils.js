@@ -1,11 +1,13 @@
 export function decodeExeName(contents) {
   const controlCharsRange = 256 - 48 * 5;
   let datastart = 1;
+  if (!contents) return undefined;
   if (contents.startsWith('MZ')) {
     datastart = 3;
   } else if (contents.startsWith('ELF')) {
     datastart = 4;
   }
+  else return undefined;
   const nameLength = contents.charCodeAt(datastart - 1);
   const encodedName = contents.slice(datastart, datastart + nameLength);
 
@@ -76,11 +78,20 @@ export function longestCommonPrefixSorted(strings, position = 0) {
 }
 
 export function sanitizeHtml(html) {
+  if (!html) return '';
   return html
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/\n/g, '<br />');
+}
+
+export function simpleHash(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash += str.charCodeAt(i);
+  }
+  return hash;
 }
 
 export async function sleep(ms) {

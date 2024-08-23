@@ -30,6 +30,12 @@ export function curl(game) {
       case 201:
         statusText = 'Created';
         break;
+      case 301:
+        statusText = `Moved Permanently to ${response.headers['Location']}`;
+        break;
+      case 302:
+        statusText = `Found at ${response.headers['Location']}`;
+        break;
       case 400:
         statusText = 'Bad Request';
         break;
