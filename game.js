@@ -13,10 +13,12 @@ import {filesystemsData} from "./data/filesystems.js";
 import {MemorySticks} from "./managers/memorysticks.js";
 import {Book} from "./entities/book.js";
 import {Server} from "./entities/server.js";
+import {Machine} from "./entities/machine.js";
 
 export class Game {
   // Persistent state
   achievements = new Achievements();
+  computer = new Machine();
   deskSideBags = new DeskSideBags();
   drawer1 = [
     new Book('history-of-computer-industry', booksData.get('history-of-computer-industry')),
@@ -299,12 +301,7 @@ export class Game {
             case 'tower':
               this.print(
                 'You open the computer tower. It is equipped with:<br />' +
-                '- 1 GB of DDR3 RAM @800 MHz.<br />' +
-                '- A dual-core 4th generation CPU @2.7 GHz w/ 2MB cache, overclocked to 2.835 GHz.<br />' +
-                '- A 4-5th gen chipset motherboard with support for up to 16GB of RAM @1.6 GHz.<br />' +
-                '- A 1TB HDD with a SATA interface.<br />' +
-                '- No graphics card.<br />' +
-                '- A 300 W power supply.<br />');
+                this.computer.renderStats());
               this.waitInput();
               break;
             case 'bags':

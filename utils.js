@@ -38,6 +38,32 @@ export function encodeExeName(name, trashCount = 0) {
   return buffer.reduce((str, byte) => str + String.fromCharCode(byte), '');
 }
 
+export function formatNumberInOrdinal(number) {
+  const mod10 = number % 10;
+  const mod100 = number % 100;
+
+  if (mod10 === 1 && mod100 !== 11) {
+    return `${number}st`;
+  }
+  if (mod10 === 2 && mod100 !== 12) {
+    return `${number}nd`;
+  }
+  if (mod10 === 3 && mod100 !== 13) {
+    return `${number}rd`;
+  }
+
+  return `${number}th`;
+}
+
+export function formatSize(input, inputMultiplier = 'M', options = {binary: undefined, space: undefined}) {
+  const binary = !!options.binary;
+  const multipliers = ['', 'K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y'];
+  const inputExponent = multipliers.indexOf(inputMultiplier);
+  const bytes = Math.pow(binary ? 1024 : 1000, inputExponent) * input;
+  const outputExponent = Math.floor(Math.log(bytes) / Math.log(binary ? 1024 : 1000));
+  return `${bytes / Math.pow(binary ? 1024 : 1000, outputExponent)}${!!options.space ? ' ' : ''}${multipliers[outputExponent]}`;
+}
+
 export function longestCommonPrefixSorted(strings, position = 0) {
   // recursive, sorted by length
   if (strings.length === 0) return '';
