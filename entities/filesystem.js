@@ -86,13 +86,13 @@ export class Filesystem {
     return true;
   }
 
-  put(path, contents) {
+  put(path, contents, props = {}) {
     const absPath = this.abspath(path);
 
     const setInMount = this.recurseMounts(absPath, (fs, innerPath) => fs.put(innerPath, contents));
     if (setInMount) return true;
 
-    this.fsMap.set(absPath, {contents: contents});
+    this.fsMap.set(absPath, {contents: contents, ...props});
     return true;
   }
 

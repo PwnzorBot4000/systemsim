@@ -19,9 +19,8 @@ export function curl(game) {
   const body = matches[matches.length - 1] ?? '';
 
   const response = server.request(method, path, body);
-  const contents = sanitizeHtml(response.body ?? '');
 
-  if (!contents || response.status !== 200) {
+  if (!response.body || response.status !== 200) {
     let statusText;
     switch (response.status) {
       case 200:
@@ -56,15 +55,15 @@ export function curl(game) {
     }
 
     game.print(`${serverName} responded with: HTTP ${response.status} ${statusText}<br />`);
-    if (contents) game.print(contents + '<br />');
+    if (response.body) game.print(sanitizeHtml(response.body) + '<br />');
     return;
   }
 
   // Output
   if (game.getSwitch('O', 'output')) {
-    game.filesystems['localhost'].put(response.filename, {contents, type: response.headers['Content-Type']});
-    game.print(`Downloaded ${response.filename} (${contents.length} bytes)<br />`);
+    game.filesystems['localhost'].put(response.filename, response.body, { type: response.headers['Content-Type'] });
+    game.print(`Downloaded ${response.filename} (${response.body.length} bytes)<br />`);
   } else {
-    game.print(contents + '<br />');
+    game.print(sanitizeHtml(response.body ?? '') + '<br />');
   }
 }
