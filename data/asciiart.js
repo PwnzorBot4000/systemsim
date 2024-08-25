@@ -1,3 +1,5 @@
+import {Achievements} from "../managers/achievements.js";
+
 export const asciiart = {
   memorySticks:
     '                           \n' +
@@ -130,7 +132,7 @@ export const asciiart = {
       'animation-timing-function': 'steps(1, end)',
     },
     {
-      condition: (game) => game.achievements.has('deepnet'),
+      condition: () => Achievements.has('deepnet'),
       padding: '0 1em',
     }
   ],
@@ -153,7 +155,7 @@ export const asciiart = {
       color: '#00000000',
     },
     {
-      condition: (game) => game.achievements.has('deepnet'),
+      condition: () => Achievements.has('deepnet'),
       color: '#0099ff48',
       animation: 'neon-ripple 0.5s infinite',
       'animation-timing-function': 'ease-in-out',
@@ -178,7 +180,7 @@ export const asciiart = {
       color: '#00000000',
     },
     {
-      condition: (game) => !game.achievements.has('deepnet'),
+      condition: () => !Achievements.has('deepnet'),
       color: '#0000ff80',
       animation: 'periodic-ripple 14s infinite',
       'animation-timing-function': 'ease-in-out',
