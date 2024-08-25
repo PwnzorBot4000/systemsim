@@ -6,17 +6,16 @@ export class MemorySticks {
     {
       size: '16GB',
       type: 'USB-A 3.0',
-      readOnly: true,
       description: 'a live USB with a Linux distribution on it. It was used to originally set up the computer.',
       mountPoint: undefined,
       fs: new Filesystem({
-        fsMap: new Map(filesystemsData['memorystick-1'])
+        fsMap: new Map(filesystemsData['memorystick-1']),
+        readOnly: true
       })
     },
     {
       size: '8GB',
       type: 'USB-A 3.0',
-      readOnly: false,
       description: 'empty.',
       mountPoint: undefined,
       fs: new Filesystem({
@@ -26,7 +25,6 @@ export class MemorySticks {
     {
       size: '32GB',
       type: 'USB-C 3.1',
-      readOnly: false,
       description: 'labeled \'Files\', and is mostly empty.',
       mountPoint: undefined,
       fs: new Filesystem({

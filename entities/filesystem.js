@@ -2,9 +2,11 @@ export class Filesystem {
   fsMap = new Map();
   mounts = [];
   pwd = '/';
+  readOnly = false;
 
-  constructor(options = {pwd: undefined, fsMap: undefined, contents: undefined}) {
+  constructor(options = {pwd: undefined, fsMap: undefined, contents: undefined, readOnly: undefined }) {
     this.pwd = options.pwd ?? '/';
+    this.readOnly = options.readOnly ?? false;
     if (options?.fsMap) this.fsMap = options.fsMap;
     // TODO contents sugar
   }
@@ -92,6 +94,8 @@ export class Filesystem {
     const setInMount = this.recurseMounts(absPath, (fs, innerPath) => fs.put(innerPath, contents));
     if (setInMount) return true;
 
+    if (this.readOnly) throw new Error('put: File system is read only');
+
     this.fsMap.set(absPath, {contents: contents, ...props});
     return true;
   }
@@ -110,14 +114,13 @@ export class Filesystem {
     const absPath = this.abspath(path);
     
     const removedInMount = this.recurseMounts(absPath, (fs, innerPath) => fs.rm(innerPath));
-    if (removedInMount) return;
-    
-    if (this.fsMap.has(absPath)) {
-      this.fsMap.delete(absPath);
-      return true;
-    }
+    if (removedInMount) return true;
 
-    return false;
+    if (this.readOnly) throw new Error('rm: File system is read only');
+    if (!this.fsMap.has(absPath)) return false;
+
+    this.fsMap.delete(absPath);
+    return true;
   }
 
   unmount(path) {

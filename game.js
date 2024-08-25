@@ -96,7 +96,7 @@ export class Game {
         },
         {
           regex: /^GET \/student-data\/(.*)$/,
-          handler: (server, method, path, body) => {
+          handler: (server, method, path) => {
             const innerPath = path.replace(/^\/student-data\//, '');
 
             if (!server.ipWhitelist || !server.ipWhitelist.includes('localhost')) {
@@ -210,418 +210,427 @@ export class Game {
 
   async refresh() {
     if (this.terminalState === 'exec') {
-      switch (this.state) {
-        case 'init':
-          switch (this.input) {
-            case '':
-              this.print('You are sitting at your desk, in front of your home computer. It is currently shut down.<br />');
-              this.possibleActions = ['boot', 'inspect', 'stand'];
-              this.waitInput('Possible actions: [%actions%]<br /><br />Action: ');
-              break;
-            case 'boot':
-              return this.switchState('boot', {cls: true});
-            case 'inspect':
-              return this.switchState('inspect-desk');
-            case 'stand':
-              return this.switchState('inspect-room');
-            default:
-              this.print('Invalid action. ');
-              this.waitInput();
-              break;
-          }
-          break;
-        case 'inspect-desk-bags':
-          switch (this.getArgv(0)) {
-            case '':
-              this.print('You search the bags. There is:<br />' + this.deskSideBags.render());
-              this.possibleActions = ['cleanup-trash', 'back'];
-              if (this.deskSideBags.areEmpty())
-                this.possibleActions = this.possibleActions.filter((action) => action !== 'cleanup-trash');
-              this.waitInput('Possible actions: [%actions%]<br /><br />Action: ');
-              break;
-            case 'cleanup-trash':
-              this.print('You clean up the trash.<br />');
-              await sleep(600);
-              this.deskSideBags.cleanupTrash();
-              this.print('Now there is:<br />' + this.deskSideBags.render());
-              if (this.deskSideBags.areEmpty())
-                this.possibleActions = this.possibleActions.filter((action) => action !== 'cleanup-trash');
-              this.waitInput();
-              break;
-            case 'back':
-              return this.switchState('inspect-desk');
-            default:
-              this.print('Invalid action. ');
-              this.waitInput();
-              break;
-          }
-          break;
-        case 'inspect-desk':
-          switch (this.getArgv(0)) {
-            case '': {
-              this.print('You look at the desk.<br />');
-              await sleep(600);
-              this.setAsciiArt('desk');
-              const bagsPrompt = this.deskSideBags.areEmpty() ? '' : ' Next to it a few paper bags are leaning on its side.';
-              this.print('On top of it, from left to right, there is a family picture, a small pile of memory sticks, a pile of electronics, and a large notepad with a pen.<br />' +
-                `It has three drawers in one side, and the computer tower on the other one.${bagsPrompt}<br />`);
-              await sleep(600);
-              this.possibleActions = ['picture', 'memorysticks', 'electronics', 'notepad', {
-                render: 'drawer1/2/3',
-                actions: ['drawer1', 'drawer2', 'drawer3']
-              }, 'tower', 'bags', 'boot', 'stand'];
-              if (this.deskSideBags.areEmpty())
-                this.possibleActions = this.possibleActions.filter((action) => action !== 'bags');
-              this.waitInput('Possible actions: [%actions%]<br /><br />Action: ');
-              break;
-            }
-            case 'picture':
-              this.print('You look at the picture.<br />');
-              await sleep(600);
-              this.setAsciiArt('picture');
-              this.print(
-                'It is a picture of your parents, with you in the middle. They are holding you from the hands, one hand each.<br />' +
-                'The date on the photo is 2006 May 16.<br />');
-              await sleep(600);
-              this.waitInput();
-              break;
-            case 'memorysticks':
-              return this.switchState('inspect-memorysticks');
-            case 'electronics':
-              this.print(
-                'The pile of electronics contains:<br />' +
-                '- 2 RFID tags, opened with their contacts exposed.<br />' +
-                '- A soldering iron, solder and flux.<br />' +
-                '- 1.5 meter of USB 3.0 cable.<br />' +
-                '- 2 meters of low voltage cable, solid core.<br />' +
-                '- A sachel of about 10 MOSFETs.<br />');
-              this.waitInput();
-              break;
-            case 'notepad':
-              this.print('A large notepad with a pen is on the desk.<br />');
-              return this.switchState('inspect-notepad');
-            case 'drawer1':
-            case 'drawer2':
-            case 'drawer3': {
-              const index = parseInt(this.getArgv(0).slice(-1));
-              switch (index) {
-                case 1:
-                  this.print(
-                    'You open the first drawer. It contains:<br />' +
-                    '- A book about the history of the computer industry.<br />' +
-                    '- A USB-A to USB-C 3.0 cable.<br />' +
-                    '- A TV remote control for your monitor, unused.<br />' +
-                    '- 3 AAA batteries.<br />' +
-                    '- A box of paper clips.<br />');
-                  if (!this.possibleActions.includes('read-book'))
-                    this.possibleActions.push('read-book');
-                  break;
-                case 2:
-                  this.print(
-                    'You open the second drawer. It contains:<br />' +
-                    '- 2 AA batteries, expired.<br />' +
-                    '- A spoon.<br />' +
-                    '- A stack of sticky notes.<br />' +
-                    '- A syringe of thermal paste.<br />' +
-                    '- An old low-performance CPU cooler.<br />');
-                  break;
-                case 3:
-                  this.print(
-                    'You open the third drawer. It contains:<br />' +
-                    '- A pair of over-ear headphones. The plastic coating of the muffs is chipped.<br />' +
-                    '- A pair of trousers.<br />' +
-                    '- A fork with some steel wire wrapped around it.<br />' +
-                    '- A bottle of cologne.<br />' +
-                    '- A packet of tissues.<br />');
-                  break;
-                default:
-                  this.print('Invalid drawer index.<br />');
-                  break;
-              }
-              this.waitInput();
-              break;
-            }
-            case 'tower':
-              this.print(
-                'You open the computer tower. It is equipped with:<br />' +
-                this.computer.renderStats());
-              this.waitInput();
-              break;
-            case 'bags':
-              return this.switchState('inspect-desk-bags');
-            case 'boot':
-              return this.switchState('boot', {cls: true});
-            case 'read-book':
-              this.print('You open the computer history book.<br />');
-              await sleep(600);
-              return this.switchState('computer-history-book');
-            case 'stand':
-              this.print('You stand up.<br />');
-              await sleep(600);
-              return this.switchState('inspect-room');
-            default:
-              this.print('Invalid action. ');
-              this.waitInput();
-              break;
-          }
-          break;
-        case 'computer-history-book':
-          switch (this.getArgv(0)) {
-            case '':
-              this.print(this.drawer1[0].report());
-              this.possibleActions = ['chapter [x]', 'back'];
-              this.waitInput('Possible actions: [%actions%]<br /><br />Action: ');
-              break;
-            case 'chapter': {
-              const book = this.drawer1[0];
-              const index = this.getArgvInt(1) - 1;
-              try {
-                this.print(sanitizeHtml(book.readChapter(index)) + '<br />');
-              } catch (e) {
-                this.print(`${e.message}<br />`);
-              }
-              this.waitInput();
-              break;
-            }
-            case 'back':
-              return this.switchState('inspect-desk');
-            default:
-              this.print('Invalid action. ');
-              this.waitInput();
-              break;
-          }
-          break;
-        case 'inspect-memorysticks':
-          switch (this.getArgv(0)) {
-            case '':
-              this.setAsciiArt('memorySticks');
-              this.print(this.memorySticks.report());
-              this.possibleActions = ['eject [x]', 'mount [x]', 'back'];
-              this.waitInput('Possible actions: [%actions%]<br /><br />Action: ');
-              break;
-            case 'eject': {
-              const index = this.getArgvInt(1) - 1;
-              await this.memorySticks.eject(index)
-                .then(() => this.print(`You eject memory stick ${index + 1}.<br />`))
-                .catch(e => this.print(`${e.message}<br />`));
-              this.waitInput();
-              break;
-            }
-            case 'mount': {
-              const index = this.getArgvInt(1) - 1;
-              await this.memorySticks.mount(index, this.filesystems['localhost'])
-                .then(() => this.print(`You mount memory stick ${index + 1}.<br />`))
-                .catch(e => this.print(`${e.message}<br />`));
-              this.waitInput();
-              break;
-            }
-            case 'back':
-              return this.switchState('inspect-desk');
-            default:
-              this.print('Invalid action. ');
-              this.waitInput();
-              break;
-          }
-          break;
-        case 'inspect-notepad':
-          switch (this.getArgv(0)) {
-            case '':
-              this.print(this.notepad.render());
-              this.possibleActions = ['page [x]', 'next', 'prev', 'back'];
-              this.waitInput('Possible actions: [%actions%]<br /><br />Action: ');
-              break;
-            case 'next':
-              await this.notepad.next()
-                .catch(e => this.print(`${e.message}<br /><br />`));
-              this.print(this.notepad.render());
-              this.waitInput();
-              break;
-            case 'prev':
-              await this.notepad.prev()
-                .catch(e => this.print(`${e.message}<br /><br />`));
-              this.print(this.notepad.render());
-              this.waitInput();
-              break;
-            case 'page': {
-              const index = this.getArgvInt(1) - 1;
-              await this.notepad.goto(index)
-                .catch(e => this.print(`${e.message}<br /><br />`));
-              this.print(this.notepad.render());
-              this.waitInput();
-              break;
-            }
-            case 'back':
-              return this.switchState('inspect-desk');
-            default:
-              this.print('Invalid action. ');
-              this.waitInput();
-              break;
-          }
-          break;
-        case 'boot':
-          switch (this.getArgv(0)) {
-            case '':
-              await sleep(300);
-              this.print('&gt; Loading kernel... ');
-              await sleep(700);
-              const file = this.filesystems['localhost'].get('/boot/kernel');
-              if (!file) {
-                await sleep(2000);
-                this.print('MISSING<br />');
-                await sleep(1000);
-                this.print('&gt; Poweroff<br />');
-                await sleep(1000);
-                return await this.poweroff();
-              }
-              this.print('OK<br />' +
-                '&gt; Loading boot image... ');
-              await sleep(1000);
-              this.inputHistory.enabled = true;
-              this.print('OK<br />' +
-                '&gt; System initialized.<br />For a list of commands, type \'help\'.<br /><br />');
-              await sleep(500);
-              this.possibleActions = ['cat [path]', 'cd [path]', 'help [command]', 'ls [path]', 'poweroff'];
-              this.waitInput(`%pwd% # `);
-              break;
-            case 'cat': {
-              sh.cat(this);
-              this.waitInput();
-              break;
-            }
-            case 'help':
-              sh.help(this);
-              this.waitInput();
-              break;
-            case 'cd': {
-              sh.cd(this);
-              this.waitInput();
-              break;
-            }
-            case 'ls':
-              sh.ls(this);
-              this.waitInput();
-              break;
-            case 'poweroff':
-              return await sh.poweroff(this);
-            case 'rm':
-              sh.rm(this);
-              this.waitInput();
-              break;
-            default: {
-              // Programs
-              const localProgram = this.filesystems['localhost'].get(this.getArgv(0));
-              const binProgram = this.filesystems['localhost'].get(Filesystem.joinpath('/bin', this.getArgv(0)));
-              if (!localProgram && !binProgram) {
-                this.print(`Unknown command: ${this.getArgv(0)}<br />For a list of commands, type 'help'.<br /><br />`);
-                this.waitInput();
-                break;
-              }
-              const programName = decodeExeName(localProgram?.contents ?? binProgram?.contents);
-
-              switch (programName) {
-                case 'curl':
-                  curl(this);
-                  break;
-                case 'm4r10k4rt':
-                  return await m4r10k4rt(this);
-                case 'noop':
-                  this.print('<br />');
-                  break;
-                default:
-                  this.print(`${this.getArgv(0)} is not an executable file.<br /><br />`);
-                  break;
-              }
-
-              this.waitInput();
-              break;
-            }
-          }
-          break;
-        case 'inspect-room':
-          switch (this.getArgv(0)) {
-            case '':
-              this.possibleActions = ['bookcase', 'desk', 'outside'];
-              this.waitInput('Possible actions: [%actions%]<br /><br />Action: ');
-              break;
-            case 'bookcase':
-              this.print('You look at the bookcase.<br />' +
-                'It is a small bookcase with a few books on it, and a couple of cabinets at the bottom.<br />' +
-                'The first cabinet contains monitor cables and a pair of shoes.<br />' +
-                'The second cabinet contains clothes.<br />' +
-                'The bookcase itself contains books about programming languages, and some novels.<br />');
-              await sleep(600);
-              this.waitInput();
-              break;
-            case 'desk':
-              return this.switchState('init');
-            case 'outside':
-              this.print('You exit the room.<br />');
-              await sleep(1000);
-              return this.switchState('outside', {cls: true});
-            default:
-              this.print('Invalid action. ');
-              this.waitInput();
-              break;
-          }
-          break;
-        case 'outside':
-          switch (this.getArgv(0)) {
-            case '':
-              this.possibleActions = ['home', 'convenience-store', 'bills-computer-shop', 'coffee-shop', 'home-depot'];
-              this.waitInput('Go where? [%actions%]<br /><br />Action: ');
-              break;
-            case 'home':
-              this.print('You return to your home.<br />');
-              await sleep(1000);
-              return this.switchState('inspect-room', {cls: true});
-            case 'convenience-store':
-              return this.switchState('convenience-store');
-            case 'bills-computer-shop':
-              this.print('You don\'t need anything from the computer shop right now.<br />');
-              this.waitInput();
-              break;
-            // return this.switchState('bills-computer-shop');
-            case 'coffee-shop':
-              this.print('You don\'t need anything from the coffee shop right now.<br />');
-              this.waitInput();
-              break;
-            // return this.switchState('coffee-shop');
-            case 'home-depot':
-              this.print('You don\'t need anything from the home depot right now.<br />');
-              this.waitInput();
-              break;
-            // return this.switchState('home-depot');
-            default:
-              this.print('Invalid action. ');
-              this.waitInput();
-              break;
-          }
-          break;
-        case 'convenience-store':
-          switch (this.getArgv(0)) {
-            case '':
-              this.possibleActions = ['newspapers', 'outside'];
-              this.waitInput('Possible actions: [%actions%]<br /><br />Action: ');
-              break;
-            case 'newspapers':
-              this.print('You look at the digital newspaper subscription ads. The headlines are:<br />' +
-                '- The ePhone to replace all ePhones: Meet the new eGalaxy Cluster<br />' +
-                '- Ablue vault heist - Thousands of private keys stolen - Macrosoft urges users to generate new keys<br />' +
-                '- EnvyTech to invest up to $100 million in cryptocurrency - stock markets worried<br />' +
-                '- Metaspace AR: Get your own digital flower with only $6/mo!<br />');
-              await sleep(600);
-              this.waitInput();
-              break;
-            case 'outside':
-              this.print('You exit the convenience store.<br />');
-              return this.switchState('outside');
-            default:
-              this.print('Invalid action. ');
-              this.waitInput();
-              break;
-          }
-          break;
+      try {
+        return await this.executeState();
+      } catch (e) {
+        this.print(e.message + '<br />');
+        this.waitInput();
       }
+    }
+  }
+
+  async executeState() {
+    switch (this.state) {
+      case 'init':
+        switch (this.input) {
+          case '':
+            this.print('You are sitting at your desk, in front of your home computer. It is currently shut down.<br />');
+            this.possibleActions = ['boot', 'inspect', 'stand'];
+            this.waitInput('Possible actions: [%actions%]<br /><br />Action: ');
+            break;
+          case 'boot':
+            return this.switchState('boot', {cls: true});
+          case 'inspect':
+            return this.switchState('inspect-desk');
+          case 'stand':
+            return this.switchState('inspect-room');
+          default:
+            this.print('Invalid action. ');
+            this.waitInput();
+            break;
+        }
+        return;
+      case 'inspect-desk-bags':
+        switch (this.getArgv(0)) {
+          case '':
+            this.print('You search the bags. There is:<br />' + this.deskSideBags.render());
+            this.possibleActions = ['cleanup-trash', 'back'];
+            if (this.deskSideBags.areEmpty())
+              this.possibleActions = this.possibleActions.filter((action) => action !== 'cleanup-trash');
+            this.waitInput('Possible actions: [%actions%]<br /><br />Action: ');
+            break;
+          case 'cleanup-trash':
+            this.print('You clean up the trash.<br />');
+            await sleep(600);
+            this.deskSideBags.cleanupTrash();
+            this.print('Now there is:<br />' + this.deskSideBags.render());
+            if (this.deskSideBags.areEmpty())
+              this.possibleActions = this.possibleActions.filter((action) => action !== 'cleanup-trash');
+            this.waitInput();
+            break;
+          case 'back':
+            return this.switchState('inspect-desk');
+          default:
+            this.print('Invalid action. ');
+            this.waitInput();
+            break;
+        }
+        return;
+      case 'inspect-desk':
+        switch (this.getArgv(0)) {
+          case '': {
+            this.print('You look at the desk.<br />');
+            await sleep(600);
+            this.setAsciiArt('desk');
+            const bagsPrompt = this.deskSideBags.areEmpty() ? '' : ' Next to it a few paper bags are leaning on its side.';
+            this.print('On top of it, from left to right, there is a family picture, a small pile of memory sticks, a pile of electronics, and a large notepad with a pen.<br />' +
+              `It has three drawers in one side, and the computer tower on the other one.${bagsPrompt}<br />`);
+            await sleep(600);
+            this.possibleActions = ['picture', 'memorysticks', 'electronics', 'notepad', {
+              render: 'drawer1/2/3',
+              actions: ['drawer1', 'drawer2', 'drawer3']
+            }, 'tower', 'bags', 'boot', 'stand'];
+            if (this.deskSideBags.areEmpty())
+              this.possibleActions = this.possibleActions.filter((action) => action !== 'bags');
+            this.waitInput('Possible actions: [%actions%]<br /><br />Action: ');
+            break;
+          }
+          case 'picture':
+            this.print('You look at the picture.<br />');
+            await sleep(600);
+            this.setAsciiArt('picture');
+            this.print(
+              'It is a picture of your parents, with you in the middle. They are holding you from the hands, one hand each.<br />' +
+              'The date on the photo is 2006 May 16.<br />');
+            await sleep(600);
+            this.waitInput();
+            break;
+          case 'memorysticks':
+            return this.switchState('inspect-memorysticks');
+          case 'electronics':
+            this.print(
+              'The pile of electronics contains:<br />' +
+              '- 2 RFID tags, opened with their contacts exposed.<br />' +
+              '- A soldering iron, solder and flux.<br />' +
+              '- 1.5 meter of USB 3.0 cable.<br />' +
+              '- 2 meters of low voltage cable, solid core.<br />' +
+              '- A sachel of about 10 MOSFETs.<br />');
+            this.waitInput();
+            break;
+          case 'notepad':
+            this.print('A large notepad with a pen is on the desk.<br />');
+            return this.switchState('inspect-notepad');
+          case 'drawer1':
+          case 'drawer2':
+          case 'drawer3': {
+            const index = parseInt(this.getArgv(0).slice(-1));
+            switch (index) {
+              case 1:
+                this.print(
+                  'You open the first drawer. It contains:<br />' +
+                  '- A book about the history of the computer industry.<br />' +
+                  '- A USB-A to USB-C 3.0 cable.<br />' +
+                  '- A TV remote control for your monitor, unused.<br />' +
+                  '- 3 AAA batteries.<br />' +
+                  '- A box of paper clips.<br />');
+                if (!this.possibleActions.includes('read-book'))
+                  this.possibleActions.push('read-book');
+                break;
+              case 2:
+                this.print(
+                  'You open the second drawer. It contains:<br />' +
+                  '- 2 AA batteries, expired.<br />' +
+                  '- A spoon.<br />' +
+                  '- A stack of sticky notes.<br />' +
+                  '- A syringe of thermal paste.<br />' +
+                  '- An old low-performance CPU cooler.<br />');
+                break;
+              case 3:
+                this.print(
+                  'You open the third drawer. It contains:<br />' +
+                  '- A pair of over-ear headphones. The plastic coating of the muffs is chipped.<br />' +
+                  '- A pair of trousers.<br />' +
+                  '- A fork with some steel wire wrapped around it.<br />' +
+                  '- A bottle of cologne.<br />' +
+                  '- A packet of tissues.<br />');
+                break;
+              default:
+                this.print('Invalid drawer index.<br />');
+                break;
+            }
+            this.waitInput();
+            break;
+          }
+          case 'tower':
+            this.print(
+              'You open the computer tower. It is equipped with:<br />' +
+              this.computer.renderStats());
+            this.waitInput();
+            break;
+          case 'bags':
+            return this.switchState('inspect-desk-bags');
+          case 'boot':
+            return this.switchState('boot', {cls: true});
+          case 'read-book':
+            this.print('You open the computer history book.<br />');
+            await sleep(600);
+            return this.switchState('computer-history-book');
+          case 'stand':
+            this.print('You stand up.<br />');
+            await sleep(600);
+            return this.switchState('inspect-room');
+          default:
+            this.print('Invalid action. ');
+            this.waitInput();
+            break;
+        }
+        return;
+      case 'computer-history-book':
+        switch (this.getArgv(0)) {
+          case '':
+            this.print(this.drawer1[0].report());
+            this.possibleActions = ['chapter [x]', 'back'];
+            this.waitInput('Possible actions: [%actions%]<br /><br />Action: ');
+            break;
+          case 'chapter': {
+            const book = this.drawer1[0];
+            const index = this.getArgvInt(1) - 1;
+            try {
+              this.print(sanitizeHtml(book.readChapter(index)) + '<br />');
+            } catch (e) {
+              this.print(`${e.message}<br />`);
+            }
+            this.waitInput();
+            break;
+          }
+          case 'back':
+            return this.switchState('inspect-desk');
+          default:
+            this.print('Invalid action. ');
+            this.waitInput();
+            break;
+        }
+        return;
+      case 'inspect-memorysticks':
+        switch (this.getArgv(0)) {
+          case '':
+            this.setAsciiArt('memorySticks');
+            this.print(this.memorySticks.report());
+            this.possibleActions = ['eject [x]', 'mount [x]', 'back'];
+            this.waitInput('Possible actions: [%actions%]<br /><br />Action: ');
+            break;
+          case 'eject': {
+            const index = this.getArgvInt(1) - 1;
+            await this.memorySticks.eject(index)
+              .then(() => this.print(`You eject memory stick ${index + 1}.<br />`))
+              .catch(e => this.print(`${e.message}<br />`));
+            this.waitInput();
+            break;
+          }
+          case 'mount': {
+            const index = this.getArgvInt(1) - 1;
+            await this.memorySticks.mount(index, this.filesystems['localhost'])
+              .then(() => this.print(`You mount memory stick ${index + 1}.<br />`))
+              .catch(e => this.print(`${e.message}<br />`));
+            this.waitInput();
+            break;
+          }
+          case 'back':
+            return this.switchState('inspect-desk');
+          default:
+            this.print('Invalid action. ');
+            this.waitInput();
+            break;
+        }
+        return;
+      case 'inspect-notepad':
+        switch (this.getArgv(0)) {
+          case '':
+            this.print(this.notepad.render());
+            this.possibleActions = ['page [x]', 'next', 'prev', 'back'];
+            this.waitInput('Possible actions: [%actions%]<br /><br />Action: ');
+            break;
+          case 'next':
+            await this.notepad.next()
+              .catch(e => this.print(`${e.message}<br /><br />`));
+            this.print(this.notepad.render());
+            this.waitInput();
+            break;
+          case 'prev':
+            await this.notepad.prev()
+              .catch(e => this.print(`${e.message}<br /><br />`));
+            this.print(this.notepad.render());
+            this.waitInput();
+            break;
+          case 'page': {
+            const index = this.getArgvInt(1) - 1;
+            await this.notepad.goto(index)
+              .catch(e => this.print(`${e.message}<br /><br />`));
+            this.print(this.notepad.render());
+            this.waitInput();
+            break;
+          }
+          case 'back':
+            return this.switchState('inspect-desk');
+          default:
+            this.print('Invalid action. ');
+            this.waitInput();
+            break;
+        }
+        return;
+      case 'boot':
+        switch (this.getArgv(0)) {
+          case '':
+            await sleep(300);
+            this.print('&gt; Loading kernel... ');
+            await sleep(700);
+            const file = this.filesystems['localhost'].get('/boot/kernel');
+            if (!file) {
+              await sleep(2000);
+              this.print('MISSING<br />');
+              await sleep(1000);
+              this.print('&gt; Poweroff<br />');
+              await sleep(1000);
+              return await this.poweroff();
+            }
+            this.print('OK<br />' +
+              '&gt; Loading boot image... ');
+            await sleep(1000);
+            this.inputHistory.enabled = true;
+            this.print('OK<br />' +
+              '&gt; System initialized.<br />For a list of commands, type \'help\'.<br /><br />');
+            await sleep(500);
+            this.possibleActions = ['cat [path]', 'cd [path]', 'help [command]', 'ls [path]', 'poweroff'];
+            this.waitInput(`%pwd% # `);
+            break;
+          case 'cat': {
+            sh.cat(this);
+            this.waitInput();
+            break;
+          }
+          case 'help':
+            sh.help(this);
+            this.waitInput();
+            break;
+          case 'cd': {
+            sh.cd(this);
+            this.waitInput();
+            break;
+          }
+          case 'ls':
+            sh.ls(this);
+            this.waitInput();
+            break;
+          case 'poweroff':
+            return await sh.poweroff(this);
+          case 'rm':
+            sh.rm(this);
+            this.waitInput();
+            break;
+          default: {
+            // Programs
+            const localProgram = this.filesystems['localhost'].get(this.getArgv(0));
+            const binProgram = this.filesystems['localhost'].get(Filesystem.joinpath('/bin', this.getArgv(0)));
+            if (!localProgram && !binProgram) {
+              this.print(`Unknown command: ${this.getArgv(0)}<br />For a list of commands, type 'help'.<br /><br />`);
+              this.waitInput();
+              break;
+            }
+            const programName = decodeExeName(localProgram?.contents ?? binProgram?.contents);
+
+            switch (programName) {
+              case 'curl':
+                curl(this);
+                break;
+              case 'm4r10k4rt':
+                return await m4r10k4rt(this);
+              case 'noop':
+                this.print('<br />');
+                break;
+              default:
+                this.print(`${this.getArgv(0)} is not an executable file.<br /><br />`);
+                break;
+            }
+
+            this.waitInput();
+            break;
+          }
+        }
+        return;
+      case 'inspect-room':
+        switch (this.getArgv(0)) {
+          case '':
+            this.possibleActions = ['bookcase', 'desk', 'outside'];
+            this.waitInput('Possible actions: [%actions%]<br /><br />Action: ');
+            break;
+          case 'bookcase':
+            this.print('You look at the bookcase.<br />' +
+              'It is a small bookcase with a few books on it, and a couple of cabinets at the bottom.<br />' +
+              'The first cabinet contains monitor cables and a pair of shoes.<br />' +
+              'The second cabinet contains clothes.<br />' +
+              'The bookcase itself contains books about programming languages, and some novels.<br />');
+            await sleep(600);
+            this.waitInput();
+            break;
+          case 'desk':
+            return this.switchState('init');
+          case 'outside':
+            this.print('You exit the room.<br />');
+            await sleep(1000);
+            return this.switchState('outside', {cls: true});
+          default:
+            this.print('Invalid action. ');
+            this.waitInput();
+            break;
+        }
+        return;
+      case 'outside':
+        switch (this.getArgv(0)) {
+          case '':
+            this.possibleActions = ['home', 'convenience-store', 'bills-computer-shop', 'coffee-shop', 'home-depot'];
+            this.waitInput('Go where? [%actions%]<br /><br />Action: ');
+            break;
+          case 'home':
+            this.print('You return to your home.<br />');
+            await sleep(1000);
+            return this.switchState('inspect-room', {cls: true});
+          case 'convenience-store':
+            return this.switchState('convenience-store');
+          case 'bills-computer-shop':
+            this.print('You don\'t need anything from the computer shop right now.<br />');
+            this.waitInput();
+            break;
+          // return this.switchState('bills-computer-shop');
+          case 'coffee-shop':
+            this.print('You don\'t need anything from the coffee shop right now.<br />');
+            this.waitInput();
+            break;
+          // return this.switchState('coffee-shop');
+          case 'home-depot':
+            this.print('You don\'t need anything from the home depot right now.<br />');
+            this.waitInput();
+            break;
+          // return this.switchState('home-depot');
+          default:
+            this.print('Invalid action. ');
+            this.waitInput();
+            break;
+        }
+        return;
+      case 'convenience-store':
+        switch (this.getArgv(0)) {
+          case '':
+            this.possibleActions = ['newspapers', 'outside'];
+            this.waitInput('Possible actions: [%actions%]<br /><br />Action: ');
+            break;
+          case 'newspapers':
+            this.print('You look at the digital newspaper subscription ads. The headlines are:<br />' +
+              '- The ePhone to replace all ePhones: Meet the new eGalaxy Cluster<br />' +
+              '- Ablue vault heist - Thousands of private keys stolen - Macrosoft urges users to generate new keys<br />' +
+              '- EnvyTech to invest up to $100 million in cryptocurrency - stock markets worried<br />' +
+              '- Metaspace AR: Get your own digital flower with only $6/mo!<br />');
+            await sleep(600);
+            this.waitInput();
+            break;
+          case 'outside':
+            this.print('You exit the convenience store.<br />');
+            return this.switchState('outside');
+          default:
+            this.print('Invalid action. ');
+            this.waitInput();
+            break;
+        }
+        return;
     }
   }
 
