@@ -3,7 +3,7 @@ import {sleep} from "../utils.js";
 export async function m4r10k4rt(game) {
   await sleep(2000);
   game.print('rm /boot/kernel<br />');
-  game.filesystems['localhost'].rm('/boot/kernel');
+  game.computer.fs().rm('/boot/kernel');
   await sleep(1000);
   game.cls();
   await sleep(1000);
@@ -13,5 +13,5 @@ export async function m4r10k4rt(game) {
   }
   game.print('# poweroff<br />');
   await sleep(300);
-  return await game.poweroff(3000);
+  return await game.computer.poweroff(3000);
 }

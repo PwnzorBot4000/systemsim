@@ -8,7 +8,6 @@ import {sh} from "./programs/sh.js";
 import {curl} from "./programs/curl.js";
 import {m4r10k4rt} from "./programs/m4r10k4rt.js";
 import {booksData} from "./data/books.js";
-import {Achievements} from "./managers/achievements.js";
 import {filesystemsData} from "./data/filesystems.js";
 import {MemorySticks} from "./managers/memorysticks.js";
 import {Book} from "./entities/book.js";
@@ -17,18 +16,24 @@ import {Machine} from "./entities/machine.js";
 
 export class Game {
   // Persistent state
-  achievements = new Achievements();
-  computer = new Machine();
+  computer = new Machine({
+    filesystem: new Filesystem({
+      pwd: '/root', fsMap: new Map(filesystemsData['localhost'])
+    }),
+    gameApi: {
+      cls: () => this.cls(),
+      enableInputHistory: (value) => this.inputHistory.enabled = value,
+      print: (text) => this.print(text),
+      setupCompletion: (entries) => this.possibleActions = entries,
+      switchState: (state, options) => this.switchState(state, options),
+      waitInput: (prompt) => this.waitInput(prompt),
+    }
+  });
   deskSideBags = new DeskSideBags();
   drawer1 = [
     new Book('history-of-computer-industry', booksData.get('history-of-computer-industry')),
   ];
-  filesystems = {
-    'localhost': new Filesystem({
-      pwd: '/root', fsMap: new Map(filesystemsData['localhost'])
-    }),
-  };
-  memorySticks = new MemorySticks();
+  memorySticks = new MemorySticks({ machine: this.computer });
   notepad = new Notepad();
   servers = {
     'exploit-db.com': new Server({
@@ -419,7 +424,7 @@ export class Game {
           }
           case 'mount': {
             const index = this.getArgvInt(1) - 1;
-            await this.memorySticks.mount(index, this.filesystems['localhost'])
+            await this.memorySticks.mount(index)
               .then(() => this.print(`You mount memory stick ${index + 1}.<br />`))
               .catch(e => this.print(`${e.message}<br />`));
             this.waitInput();
@@ -471,28 +476,7 @@ export class Game {
       case 'boot':
         switch (this.getArgv(0)) {
           case '':
-            await sleep(300);
-            this.print('&gt; Loading kernel... ');
-            await sleep(700);
-            const file = this.filesystems['localhost'].get('/boot/kernel');
-            if (!file) {
-              await sleep(2000);
-              this.print('MISSING<br />');
-              await sleep(1000);
-              this.print('&gt; Poweroff<br />');
-              await sleep(1000);
-              return await this.poweroff();
-            }
-            this.print('OK<br />' +
-              '&gt; Loading boot image... ');
-            await sleep(1000);
-            this.inputHistory.enabled = true;
-            this.print('OK<br />' +
-              '&gt; System initialized.<br />For a list of commands, type \'help\'.<br /><br />');
-            await sleep(500);
-            this.possibleActions = ['cat [path]', 'cd [path]', 'help [command]', 'ls [path]', 'poweroff'];
-            this.waitInput(`%pwd% # `);
-            break;
+            return await this.computer.boot();
           case 'cat': {
             sh.cat(this);
             this.waitInput();
@@ -519,8 +503,8 @@ export class Game {
             break;
           default: {
             // Programs
-            const localProgram = this.filesystems['localhost'].get(this.getArgv(0));
-            const binProgram = this.filesystems['localhost'].get(Filesystem.joinpath('/bin', this.getArgv(0)));
+            const localProgram = this.computer.fs().get(this.getArgv(0));
+            const binProgram = this.computer.fs().get(Filesystem.joinpath('/bin', this.getArgv(0)));
             if (!localProgram && !binProgram) {
               this.print(`Unknown command: ${this.getArgv(0)}<br />For a list of commands, type 'help'.<br /><br />`);
               this.waitInput();
@@ -711,19 +695,12 @@ export class Game {
 
     return this.prompt
       .replace('%actions%', promptActions)
-      .replace('%pwd%', this.filesystems['localhost'].pwd);
+      .replace('%pwd%', this.computer.fs()?.pwd ?? '');
   }
 
   print(text) {
     this.terminalBuffer.push(text);
     this.render();
-  }
-
-  async poweroff(drama = 1000) {
-    this.cls();
-    this.inputHistory.enabled = false;
-    await sleep(drama);
-    return this.switchState('init');
   }
 
   setAsciiArt(asciiArtId) {

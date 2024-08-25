@@ -49,6 +49,7 @@ export function curl(game) {
         break;
       case 500:
         statusText = 'Internal Server Error';
+        break;
       default:
         statusText = '';
         break;
@@ -61,7 +62,7 @@ export function curl(game) {
 
   // Output
   if (game.getSwitch('O', 'output')) {
-    game.filesystems['localhost'].put(response.filename, response.body, { type: response.headers['Content-Type'] });
+    game.computer.fs().put(response.filename, response.body, { type: response.headers['Content-Type'] });
     game.print(`Downloaded ${response.filename} (${response.body.length} bytes)<br />`);
   } else {
     game.print(sanitizeHtml(response.body ?? '') + '<br />');

@@ -103,7 +103,7 @@ export class Filesystem {
   recurseMounts(path, fn) {
     for (const mount of this.mounts) {
       if (path.startsWith(mount.where)) {
-        return fn(mount.what, path.replace(mount.where, ''));
+        return fn(mount.what, path.replace(mount.where, '') || '/');
       }
     }
 

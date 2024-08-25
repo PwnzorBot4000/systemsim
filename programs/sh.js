@@ -8,7 +8,7 @@ function cat(game) {
     return;
   }
 
-  const file = game.filesystems['localhost'].get(path);
+  const file = game.computer.fs().get(path);
   if (!file) game.print('cat: File not found<br />');
   else if (file === 'dir') game.print('cat: Is a directory<br />');
   else if (file === 'bin' || file === 'exe' || file.type === 'bin' || file.type === 'exe')
@@ -21,7 +21,7 @@ function cd(game) {
   if (!dir) {
     game.print('cd: missing operand<br />');
   } else {
-    game.filesystems['localhost'].cd(dir, {onerror: () => game.print(`${dir}: No such directory<br />`)});
+    game.computer.fs().cd(dir, {onerror: () => game.print(`${dir}: No such directory<br />`)});
   }
 }
 
@@ -39,12 +39,12 @@ function help(game) {
 
 function ls(game) {
   const path = game.getArgv(1) ?? '';
-  game.print(game.filesystems['localhost'].ls(path).join(' ') + '<br />');
+  game.print(game.computer.fs().ls(path).join(' ') + '<br />');
 }
 
 async function poweroff(game) {
   await sleep(600);
-  return await game.poweroff();
+  return await game.computer.poweroff();
 }
 
 function rm(game) {
@@ -54,7 +54,7 @@ function rm(game) {
     return;
   }
 
-  game.filesystems['localhost'].rm(path);
+  game.computer.fs().rm(path);
 }
 
 const commands = {

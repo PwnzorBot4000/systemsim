@@ -1,37 +1,42 @@
 import {Filesystem} from "../entities/filesystem.js";
 import {filesystemsData} from "../data/filesystems.js";
+import {MemoryStick} from "../entities/memory-stick.js";
 
 export class MemorySticks {
+  machine;
   sticks = [
-    {
+    new MemoryStick({
+      bootable: true,
       size: '16GB',
       type: 'USB-A 3.0',
       description: 'a live USB with a Linux distribution on it. It was used to originally set up the computer.',
-      mountPoint: undefined,
-      fs: new Filesystem({
+      filesystem: new Filesystem({
         fsMap: new Map(filesystemsData['memorystick-1']),
         readOnly: true
       })
-    },
-    {
+    }),
+    new MemoryStick({
       size: '8GB',
       type: 'USB-A 3.0',
       description: 'empty.',
-      mountPoint: undefined,
-      fs: new Filesystem({
+      filesystem: new Filesystem({
         fsMap: new Map(filesystemsData['memorystick-2'])
       })
-    },
-    {
+    }),
+    new MemoryStick({
       size: '32GB',
       type: 'USB-C 3.1',
       description: 'labeled \'Files\', and is mostly empty.',
-      mountPoint: undefined,
-      fs: new Filesystem({
+      filesystem: new Filesystem({
         fsMap: new Map(filesystemsData['memorystick-3'])
       })
-    },
+    }),
   ];
+
+  constructor(options = {machine: undefined}) {
+    // Memory stick pile should have a reference to the machine that owns it
+    this.machine = options.machine;
+  }
 
   assertIndex(index) {
     if (index < 0 || index >= this.sticks.length) {
@@ -41,7 +46,7 @@ export class MemorySticks {
 
   assertMounted(index, shouldBeMounted) {
     const memoryStick = this.sticks[index];
-    const isMounted = this.isMounted(memoryStick);
+    const isMounted = this.machine.isAttached(memoryStick);
     if (shouldBeMounted && !isMounted) {
       throw new Error(`Memory stick ${index + 1} is not mounted.`);
     }
@@ -54,39 +59,19 @@ export class MemorySticks {
     this.assertIndex(index);
     this.assertMounted(index, true);
 
-    const memoryStick = this.sticks[index];
-
-    memoryStick.mountPoint.filesystem.unmount(memoryStick.mountPoint.where);
-    delete memoryStick.mountPoint;
+    this.machine.detach(this.sticks[index]);
   }
 
-  isMounted(memoryStick) {
-    if (!memoryStick.mountPoint) return false;
-
-    // Validate weak reference of mountPoint with the actual mount on the target filesystem
-    if (memoryStick.mountPoint.filesystem.mounts.some((mnt) => mnt.where === memoryStick.mountPoint.where && mnt.what === memoryStick.fs)) {
-      return true;
-    }
-
-    // Update weak reference of mountPoint, some other entity may have ejected it
-    delete memoryStick.mountPoint;
-    return false;
-  }
-
-  async mount(index, filesystem, where = '/mnt') {
+  async mount(index) {
     this.assertIndex(index);
     this.assertMounted(index, false);
 
-    const memoryStick = this.sticks[index];
-
-    filesystem.unmount(where);
-    filesystem.mount(memoryStick.fs, where);
-    memoryStick.mountPoint = { filesystem, where };
+    this.machine.attach(this.sticks[index]);
   }
 
   report() {
     return `There are ${this.sticks.length} memory sticks in the pile:<br />` +
       this.sticks.map((stick, i) =>
-        `- Stick ${i + 1} (${stick.size}, ${stick.type}) is ${stick.description}${!!this.isMounted(stick) ? ' Currently mounted.' : ''}<br />`).join('');
+        `- Stick ${i + 1} (${stick.size}, ${stick.type}) is ${stick.description}${!!this.machine.isAttached(stick) ? ' Currently mounted.' : ''}<br />`).join('');
   }
 }

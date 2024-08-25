@@ -154,6 +154,7 @@ export const filesystemsData = {
     ['/boot', 'dir'],
     ['/boot/kernel', binaries.get('kernel')],
     ['/boot/initrd', binaries.get('initrd')],
+    ['/mnt', 'dir'],
   ],
   'memorystick-2': [
     ['/', 'dir'],

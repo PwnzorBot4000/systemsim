@@ -1,20 +1,125 @@
-import {formatNumberInOrdinal, formatSize} from "../utils.js";
+import {formatNumberInOrdinal, formatSize, sleep} from "../utils.js";
+import {MemoryStick} from "./memory-stick.js";
 
 export class Machine {
+  api = {
+    cls: undefined,
+    print: undefined,
+    setupCompletion: undefined,
+    switchState: undefined,
+    waitInput: undefined,
+  };
+  devices = [];
   specs = {
     ram: { size: 1, type: 'DDR3', frequency: 800 },
     cpu: { cores: 2, generation: 4, frequency: 2.7, cache: 2, overclock: 2.835 },
-    mb: { minGen: 4, maxGen: 5, maxRam: 16, maxFrequency: 1600 },
+    mb: { minGen: 4, maxGen: 5, maxRam: 16, maxFrequency: 1600, usbPorts: 1 },
     disk: { size: 1000, interface: 'SATA', type: 'HDD' },
     psu: { watts: 300 }
   }
   state = 'off';
+  bootFilesystem;
+  storedFilesystem;
 
-  poweroff() {
-    this.state = 'off';
+  constructor(options) {
+    this.storedFilesystem = options.filesystem;
+    this.api = options.gameApi;
   }
 
-  suspend() {
+  attach(device) {
+    if (device instanceof MemoryStick) {
+      const numUsbDevices = this.devices.filter((dev) => dev instanceof MemoryStick).length;
+
+      if (numUsbDevices >= this.specs.mb.usbPorts) {
+        if (this.specs.mb.usbPorts === 1) {
+          // Single USB port, silently detach the first device
+          this.detach(this.devices[0]);
+        } else {
+          // Multiple USB ports, user has to select a device to detach
+          throw new Error(`Maximum number of USB devices reached.`);
+        }
+      }
+
+      this.devices.push(device);
+      if (this.state !== 'off') {
+        this.bootFilesystem.mount(device.filesystem, '/mnt');
+      }
+    }
+  }
+
+  detach(device) {
+    this.devices = this.devices.filter((dev) => dev !== device);
+    if (this.state !== 'off') {
+      this.bootFilesystem.unmount('/mnt');
+    }
+  }
+
+  isAttached(device) {
+    return this.devices.includes(device);
+  }
+
+  fs() {
+    return this.bootFilesystem;
+  }
+
+  async boot() {
+    this.state = 'boot';
+    // Bootloader (firmware) actions
+    await sleep(300);
+    const bootableDevices = this.devices.filter((dev) => dev.bootable);
+    if (bootableDevices.length > 0) {
+      this.bootFilesystem = bootableDevices[0].filesystem;
+    } else {
+      this.bootFilesystem = this.storedFilesystem;
+    }
+    this.api.print('&gt; Loading kernel... ');
+    await sleep(700);
+    const file = this.fs().get('/boot/kernel');
+    if (!file) {
+      await sleep(2000);
+      this.api.print('MISSING<br />');
+      await sleep(1000);
+      this.api.print('&gt; Poweroff<br />');
+      await sleep(1000);
+      return await this.poweroff();
+    }
+    // Kernel actions
+    this.api.print('OK<br />' +
+      '&gt; Loading boot image... ');
+    await sleep(1000);
+    // Mount attached devices, or the disk filesystem if booting from USB
+    if (this.devices.length > 0) {
+      if (this.bootFilesystem === this.storedFilesystem) {
+        this.bootFilesystem.mount(this.devices[0].filesystem, '/mnt');
+      } else {
+        this.bootFilesystem.mount(this.storedFilesystem, '/mnt');
+      }
+    }
+    // Initrd actions
+    this.api.print('OK<br />' +
+      '&gt; System initialized.<br />For a list of commands, type \'help\'.<br /><br />');
+    await sleep(500);
+    // Shell actions
+    this.api.enableInputHistory(true);
+    this.api.setupCompletion(['cat [path]', 'cd [path]', 'help [command]', 'ls [path]', 'poweroff']);
+    this.api.waitInput(`%pwd% # `);
+  }
+
+  async poweroff(drama = 1000) {
+    // Shell actions
+    this.api.cls();
+    this.api.enableInputHistory(false);
+    // Kernel / initrd actions (varying by how gracefully the computer was shutdown)
+    await sleep(drama);
+    this.bootFilesystem.unmount('/mnt');
+    // Bootloader (firmware) actions
+    this.bootFilesystem = undefined;
+    this.state = 'off';
+    // Game actions
+    return this.api.switchState('init');
+  }
+
+  async suspend() {
     this.state = 'suspended';
   }
 
