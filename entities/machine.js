@@ -1,14 +1,11 @@
 import {formatNumberInOrdinal, formatSize, sleep} from "../utils.js";
 import {MemoryStick} from "./memory-stick.js";
+import {GameApi} from "../interfaces/game-api.js";
+import {MachineApi} from "../interfaces/machine-api.js";
 
 export class Machine {
-  api = {
-    cls: undefined,
-    print: undefined,
-    setupCompletion: undefined,
-    switchState: undefined,
-    waitInput: undefined,
-  };
+  api = new MachineApi();
+  gameApi = new GameApi();
   devices = [];
   specs = {
     ram: { size: 1, type: 'DDR3', frequency: 800 },
@@ -23,7 +20,17 @@ export class Machine {
 
   constructor(options) {
     this.storedFilesystem = options.filesystem;
-    this.api = options.gameApi;
+    this.gameApi = options.gameApi;
+
+    this.api = new MachineApi({
+      cls: this.gameApi.cls,
+      getArgv: this.gameApi.getArgv,
+      getArgvInt: this.gameApi.getArgvInt,
+      getSwitch: this.gameApi.getSwitch,
+      print: this.gameApi.print,
+      fs: this.fs.bind(this),
+      poweroff: this.poweroff.bind(this),
+    });
   }
 
   attach(device) {
@@ -72,19 +79,19 @@ export class Machine {
     } else {
       this.bootFilesystem = this.storedFilesystem;
     }
-    this.api.print('&gt; Loading kernel... ');
+    this.print('&gt; Loading kernel... ');
     await sleep(700);
     const file = this.fs().get('/boot/kernel');
     if (!file) {
       await sleep(2000);
-      this.api.print('MISSING<br />');
+      this.print('MISSING<br />');
       await sleep(1000);
-      this.api.print('&gt; Poweroff<br />');
+      this.print('&gt; Poweroff<br />');
       await sleep(1000);
       return await this.poweroff();
     }
     // Kernel actions
-    this.api.print('OK<br />' +
+    this.print('OK<br />' +
       '&gt; Loading boot image... ');
     await sleep(1000);
     // Mount attached devices, or the disk filesystem if booting from USB
@@ -96,19 +103,19 @@ export class Machine {
       }
     }
     // Initrd actions
-    this.api.print('OK<br />' +
+    this.print('OK<br />' +
       '&gt; System initialized.<br />For a list of commands, type \'help\'.<br /><br />');
     await sleep(500);
     // Shell actions
-    this.api.enableInputHistory(true);
-    this.api.setupCompletion(['cat [path]', 'cd [path]', 'help [command]', 'ls [path]', 'poweroff']);
-    this.api.waitInput(`%pwd% # `);
+    this.gameApi.enableInputHistory(true);
+    this.gameApi.setupCompletion(['cat [path]', 'cd [path]', 'help [command]', 'ls [path]', 'poweroff']);
+    this.gameApi.waitInput(`%pwd% # `);
   }
 
   async poweroff(drama = 1000) {
     // Shell actions
-    this.api.cls();
-    this.api.enableInputHistory(false);
+    this.cls();
+    this.gameApi.enableInputHistory(false);
     // Kernel / initrd actions (varying by how gracefully the computer was shutdown)
     await sleep(drama);
     this.bootFilesystem.unmount('/mnt');
@@ -116,7 +123,15 @@ export class Machine {
     this.bootFilesystem = undefined;
     this.state = 'off';
     // Game actions
-    return this.api.switchState('init');
+    return this.gameApi.switchState('init');
+  }
+
+  cls() {
+    this.gameApi.cls();
+  }
+
+  print(text) {
+    this.gameApi.print(text);
   }
 
   async suspend() {

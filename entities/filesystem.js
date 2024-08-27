@@ -119,6 +119,9 @@ export class Filesystem {
     if (this.readOnly) throw new Error('rm: File system is read only');
     if (!this.fsMap.has(absPath)) return false;
 
+    const fileToDelete = this.fsMap.get(absPath);
+    if (fileToDelete === 'dir') throw new Error('rm: Is a directory');
+
     this.fsMap.delete(absPath);
     return true;
   }

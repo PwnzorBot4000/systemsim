@@ -2,6 +2,7 @@ export const helpData = new Map([
   ['',
     'cat PATH          - Display contents of a file<br />' +
     'cd PATH           - Change directory. Use \'..\' to go up a directory<br />' +
+    'cp SRC DST        - Copy a file<br />' +
     'help [COMMAND]    - Display help for a command<br />' +
     'ls [PATH]         - List files in current directory<br />' +
     'poweroff          - Shut down the computer<br />' +
@@ -25,6 +26,12 @@ export const helpData = new Map([
     '/root # cd ../bin        # Directory will now be /bin<br />' +
     '/root # cd /bin          # Directory will now be /bin<br />' +
     '/root # cd /             # Directory will now be /<br />',
+  ],
+  ['cp',
+    'Usage: cp SRC DST<br />' +
+    'Copy a file to a new location<br />' +
+    'Example: cp hello.txt directory<br />' +
+    'Result: hello.txt will be copied to directory/hello.txt<br />',
   ],
   ['help',
     'Usage: help [COMMAND]<br />' +

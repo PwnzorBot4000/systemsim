@@ -13,21 +13,27 @@ import {MemorySticks} from "./managers/memorysticks.js";
 import {Book} from "./entities/book.js";
 import {Server} from "./entities/server.js";
 import {Machine} from "./entities/machine.js";
+import {GameApi} from "./interfaces/game-api.js";
 
 export class Game {
+  api = new GameApi({
+    cls: this.cls.bind(this),
+    enableInputHistory: (value) => this.inputHistory.enabled = value,
+    getArgv: this.getArgv.bind(this),
+    getArgvInt: this.getArgvInt.bind(this),
+    getSwitch: this.getSwitch.bind(this),
+    print: this.print.bind(this),
+    setupCompletion: (entries) => this.possibleActions = entries,
+    switchState: this.switchState.bind(this),
+    waitInput: this.waitInput.bind(this),
+  });
+
   // Persistent state
   computer = new Machine({
     filesystem: new Filesystem({
       pwd: '/root', fsMap: new Map(filesystemsData['localhost'])
     }),
-    gameApi: {
-      cls: () => this.cls(),
-      enableInputHistory: (value) => this.inputHistory.enabled = value,
-      print: (text) => this.print(text),
-      setupCompletion: (entries) => this.possibleActions = entries,
-      switchState: (state, options) => this.switchState(state, options),
-      waitInput: (prompt) => this.waitInput(prompt),
-    }
+    gameApi: this.api,
   });
   deskSideBags = new DeskSideBags();
   drawer1 = [
@@ -478,27 +484,32 @@ export class Game {
           case '':
             return await this.computer.boot();
           case 'cat': {
-            sh.cat(this);
+            sh.cat(this.computer.api);
             this.waitInput();
             break;
           }
           case 'help':
-            sh.help(this);
+            sh.help(this.computer.api);
             this.waitInput();
             break;
           case 'cd': {
-            sh.cd(this);
+            sh.cd(this.computer.api);
+            this.waitInput();
+            break;
+          }
+          case 'cp': {
+            sh.cp(this.computer.api);
             this.waitInput();
             break;
           }
           case 'ls':
-            sh.ls(this);
+            sh.ls(this.computer.api);
             this.waitInput();
             break;
           case 'poweroff':
-            return await sh.poweroff(this);
+            return await sh.poweroff(this.computer.api);
           case 'rm':
-            sh.rm(this);
+            sh.rm(this.computer.api);
             this.waitInput();
             break;
           default: {
