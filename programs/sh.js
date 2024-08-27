@@ -12,8 +12,6 @@ function cat(api) {
   const file = api.fs().get(path);
   if (!file) api.print('cat: File not found<br />');
   else if (file === 'dir') api.print('cat: Is a directory<br />');
-  else if (file === 'bin' || file === 'exe' || file.type === 'bin' || file.type === 'exe')
-    api.print('cat: Is a binary<br />');
   else api.print(sanitizeHtml(file?.contents ?? '') + '<br />');
 }
 

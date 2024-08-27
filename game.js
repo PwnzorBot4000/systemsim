@@ -532,6 +532,21 @@ export class Game {
               case 'noop':
                 this.print('<br />');
                 break;
+              case 'installos': {
+                const target = this.getArgv(1) || '/mnt';
+                const targetFs = this.computer.fs().mounts.find((mnt) => mnt.where === target)?.what;
+                if (!targetFs) {
+                  this.print(`Invalid argument: ${target}<br />`);
+                  break;
+                }
+                this.print(`Installing operating system to ${target}...<br />`);
+                await sleep(1000);
+                targetFs.fsMap = new Map(filesystemsData['localhost']);
+                targetFs.rm('/root/notes.txt');  // You'd better have kept these notes!
+                await sleep(1000);
+                this.print(`Operating system installed.<br />`);
+                break;
+              }
               default:
                 this.print(`${this.getArgv(0)} is not an executable file.<br /><br />`);
                 break;

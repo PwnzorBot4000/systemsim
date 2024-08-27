@@ -7,6 +7,7 @@ const binaries = new Map([
   ['kernel', { type: 'bin', contents: 'ELF' + encodeExeName('kernel', 2210) }],
   ['initrd', { type: 'bin', contents: 'ELF' + encodeExeName('initrd', 3211) }],
   ['m4r10k4rt', { type: 'exe', contents: 'MZ' + encodeExeName('m4r10k4rt', 48) }],
+  ['install-os', { type: 'exe', contents: 'ELF' + encodeExeName('installos', 120) }],
 ]);
 
 export const filesystemsData = {
@@ -151,10 +152,65 @@ export const filesystemsData = {
     ['/bin/curl', binaries.get('curl')],
     ['/bin/nologin', binaries.get('nologin')],
     ['/bin/sh', binaries.get('sh')],
+    ['/bin/install', binaries.get('install-os')],
     ['/boot', 'dir'],
     ['/boot/kernel', binaries.get('kernel')],
     ['/boot/initrd', binaries.get('initrd')],
     ['/mnt', 'dir'],
+    ['/INSTRUCTIONS.txt', {
+      contents: 'Green Fern Unix installation instructions\n' +
+        '\n' +
+        'Simple installation\n' +
+        '==========================================\n' +
+        'Attach the official USB stick to the computer, and boot from it.\n' +
+        'The computer will boot into a live system, and will mount the existing disk on /mnt.\n' +
+        'You can now install the operating system by running the install script:\n' +
+        '/ # install\n' +
+        'WARNING: This will erase all data on the system!\n' +
+        'If you are simply looking to repair an existing installation after a boot failure,\n' +
+        'see the instructions below.\n' +
+        '\n' +
+        'Multiple disks / Live USB creation\n' +
+        '==========================================\n' +
+        'If you have multiple disks, or want to install the live system to a USB drive,\n' +
+        'ensure that your installation target is attached. On startup, it will be\n' +
+        'mounted to /mnt/diskX, where X is the disk number. Then run the install script:\n' +
+        '/ # install /mnt/diskX\n' +
+        'Please double-check that the disk number is correct before proceeding.\n' +
+        '\n' +
+        'Repairing an existing installation\n' +
+        '==========================================\n' +
+        'If you are trying to repair your computer after a boot failure, e.g. due to an\n' +
+        'incompatible kernel installation, a missing system file, or a virus infection,\n' +
+        'you should not use the install script directly. Instead, you can use the following steps:\n' +
+        '- Boot the computer from the USB stick.\n' +
+        '- In case of an incompatible kernel: navigate to the existing filesystem located in /mnt,\n' +
+        '  and delete the incompatible kernel found in /boot. Example: \n' +
+        '  / # rm /mnt/boot/kernel\n' +
+        '- In case of a known virus infection: navigate to the existing filesystem located in /mnt,\n' +
+        '  and delete the infected files. Example: \n' +
+        '  / # rm /mnt/bin/known-virus\n' +
+        '- Copy the working kernel / system files from the USB stick to the existing filesystem.\n' +
+        '  Example: \n' +
+        '  / # cp /boot/kernel /mnt/boot\n' +
+        'In the case of an unknown virus infection, where it is not known which files are infected,\n' +
+        'you can try the following steps:\n' +
+        '- Boot the computer from the USB stick.\n' +
+        '- Attach a second, empty USB stick to the computer.\n' +
+        '- Copy any important files from the existing filesystem to the empty USB stick.\n' +
+        '  Example: \n' +
+        '  / # cp /mnt/disk1/bin/important-file /mnt/disk2\n' +
+        '  Make sure that the files that you copy are not infected.\n' +
+        '  If unsure, use an antivirus software or online scanning service to scan the files.\n' +
+        '- Run the install script. A fresh system will be installed to the computer.\n' +
+        '- Copy your files back to the computer\'s filesystem.\n' +
+        'In the rare case of a firmware-tampering virus, that may have modified the bootloader\n' +
+        'and/or the firmware of any of your internal devices (drives, memory sticks, expansion cards),\n' +
+        'before doing the above, to avoid further infections, you should first make sure to flash the\n' +
+        'original firmware to all affected devices. Some motherboards have a firmware reset button\n' +
+        'for this purpose, and there exist firmware management tools that can run during bootloader\n' +
+        'time (UEFI shell) that will allow you to reset the firmware of your other devices.\n',
+    }],
   ],
   'memorystick-2': [
     ['/', 'dir'],
