@@ -1,11 +1,9 @@
 import {formatNumberInOrdinal, formatSize, sleep} from "../utils.js";
 import {MemoryStick} from "./memory-stick.js";
-import {GameApi} from "../interfaces/game-api.js";
-import {MachineApi} from "../interfaces/machine-api.js";
 
 export class Machine {
-  api = new MachineApi();
-  gameApi = new GameApi();
+  game;
+  shell;
   devices = [];
   specs = {
     ram: { size: 1, type: 'DDR3', frequency: 800 },
@@ -20,17 +18,7 @@ export class Machine {
 
   constructor(options) {
     this.storedFilesystem = options.filesystem;
-    this.gameApi = options.gameApi;
-
-    this.api = new MachineApi({
-      cls: this.gameApi.cls,
-      getArgv: this.gameApi.getArgv,
-      getArgvInt: this.gameApi.getArgvInt,
-      getSwitch: this.gameApi.getSwitch,
-      print: this.gameApi.print,
-      fs: this.fs.bind(this),
-      poweroff: this.poweroff.bind(this),
-    });
+    this.game = options.game;
   }
 
   attach(device) {
@@ -58,6 +46,26 @@ export class Machine {
     this.devices = this.devices.filter((dev) => dev !== device);
     if (this.state !== 'off') {
       this.bootFilesystem.unmount('/mnt');
+    }
+  }
+
+  async executeInput() {
+    switch (this.state) {
+      case 'boot':
+        await this.shell.executeInput();
+        break;
+      case 'off':
+        await this.boot();
+        break;
+    }
+
+    switch (this.state) {
+      case 'boot':
+        this.game.waitInput();
+        break;
+      case 'off':
+        // A program has requested a shutdown.
+        return this.game.switchState('init');
     }
   }
 
@@ -106,32 +114,30 @@ export class Machine {
     this.print('OK<br />' +
       '&gt; System initialized.<br />For a list of commands, type \'help\'.<br /><br />');
     await sleep(500);
+    const shellModule = await import('../programs/sh.js');
+    this.shell = new shellModule.Shell();
     // Shell actions
-    this.gameApi.enableInputHistory(true);
-    this.gameApi.setupCompletion(['cat [path]', 'cd [path]', 'help [command]', 'ls [path]', 'poweroff']);
-    this.gameApi.waitInput(`%pwd% # `);
+    this.shell.init({ game: this.game, computer: this });
   }
 
   async poweroff(drama = 1000) {
     // Shell actions
     this.cls();
-    this.gameApi.enableInputHistory(false);
+    this.game.enableInputHistory(false);
     // Kernel / initrd actions (varying by how gracefully the computer was shutdown)
     await sleep(drama);
     this.bootFilesystem.unmount('/mnt');
     // Bootloader (firmware) actions
     this.bootFilesystem = undefined;
     this.state = 'off';
-    // Game actions
-    return this.gameApi.switchState('init');
   }
 
   cls() {
-    this.gameApi.cls();
+    this.game.cls();
   }
 
   print(text) {
-    this.gameApi.print(text);
+    this.game.print(text);
   }
 
   async suspend() {

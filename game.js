@@ -3,37 +3,21 @@ import {Filesystem} from './entities/filesystem.js';
 import {InputHistory} from './managers/input-history.js';
 import {Notepad} from './managers/notepad.js';
 import {asciiart} from './data/asciiart.js';
-import {decodeExeName, longestCommonPrefixSorted, sanitizeHtml, simpleHash, sleep} from './utils.js';
-import {sh} from "./programs/sh.js";
-import {curl} from "./programs/curl.js";
-import {m4r10k4rt} from "./programs/m4r10k4rt.js";
+import {longestCommonPrefixSorted, sanitizeHtml, simpleHash, sleep} from './utils.js';
 import {booksData} from "./data/books.js";
 import {filesystemsData} from "./data/filesystems.js";
 import {MemorySticks} from "./managers/memorysticks.js";
 import {Book} from "./entities/book.js";
 import {Server} from "./entities/server.js";
 import {Machine} from "./entities/machine.js";
-import {GameApi} from "./interfaces/game-api.js";
 
 export class Game {
-  api = new GameApi({
-    cls: this.cls.bind(this),
-    enableInputHistory: (value) => this.inputHistory.enabled = value,
-    getArgv: this.getArgv.bind(this),
-    getArgvInt: this.getArgvInt.bind(this),
-    getSwitch: this.getSwitch.bind(this),
-    print: this.print.bind(this),
-    setupCompletion: (entries) => this.possibleActions = entries,
-    switchState: this.switchState.bind(this),
-    waitInput: this.waitInput.bind(this),
-  });
-
   // Persistent state
   computer = new Machine({
     filesystem: new Filesystem({
       pwd: '/root', fsMap: new Map(filesystemsData['localhost'])
     }),
-    gameApi: this.api,
+    game: this,
   });
   deskSideBags = new DeskSideBags();
   drawer1 = [
@@ -224,6 +208,7 @@ export class Game {
       try {
         return await this.executeState();
       } catch (e) {
+        console.warn(e);
         this.print(e.message + '<br />');
         this.waitInput();
       }
@@ -480,83 +465,7 @@ export class Game {
         }
         return;
       case 'boot':
-        switch (this.getArgv(0)) {
-          case '':
-            return await this.computer.boot();
-          case 'cat': {
-            sh.cat(this.computer.api);
-            this.waitInput();
-            break;
-          }
-          case 'help':
-            sh.help(this.computer.api);
-            this.waitInput();
-            break;
-          case 'cd': {
-            sh.cd(this.computer.api);
-            this.waitInput();
-            break;
-          }
-          case 'cp': {
-            sh.cp(this.computer.api);
-            this.waitInput();
-            break;
-          }
-          case 'ls':
-            sh.ls(this.computer.api);
-            this.waitInput();
-            break;
-          case 'poweroff':
-            return await sh.poweroff(this.computer.api);
-          case 'rm':
-            sh.rm(this.computer.api);
-            this.waitInput();
-            break;
-          default: {
-            // Programs
-            const localProgram = this.computer.fs().get(this.getArgv(0));
-            const binProgram = this.computer.fs().get(Filesystem.joinpath('/bin', this.getArgv(0)));
-            if (!localProgram && !binProgram) {
-              this.print(`Unknown command: ${this.getArgv(0)}<br />For a list of commands, type 'help'.<br /><br />`);
-              this.waitInput();
-              break;
-            }
-            const programName = decodeExeName(localProgram?.contents ?? binProgram?.contents);
-
-            switch (programName) {
-              case 'curl':
-                curl(this);
-                break;
-              case 'm4r10k4rt':
-                return await m4r10k4rt(this);
-              case 'noop':
-                this.print('<br />');
-                break;
-              case 'installos': {
-                const target = this.getArgv(1) || '/mnt';
-                const targetFs = this.computer.fs().mounts.find((mnt) => mnt.where === target)?.what;
-                if (!targetFs) {
-                  this.print(`Invalid argument: ${target}<br />`);
-                  break;
-                }
-                this.print(`Installing operating system to ${target}...<br />`);
-                await sleep(1000);
-                targetFs.fsMap = new Map(filesystemsData['localhost']);
-                targetFs.rm('/root/notes.txt');  // You'd better have kept these notes!
-                await sleep(1000);
-                this.print(`Operating system installed.<br />`);
-                break;
-              }
-              default:
-                this.print(`${this.getArgv(0)} is not an executable file.<br /><br />`);
-                break;
-            }
-
-            this.waitInput();
-            break;
-          }
-        }
-        return;
+        return await this.computer.executeInput();
       case 'inspect-room':
         switch (this.getArgv(0)) {
           case '':
@@ -660,6 +569,10 @@ export class Game {
     } else if (fsElm.webkitRequestFullScreen) {
       fsElm.webkitRequestFullScreen();
     }
+  }
+
+  enableInputHistory(value) {
+    this.inputHistory.enabled = value;
   }
 
   getArgv(index, defaultValue = '') {
@@ -767,6 +680,10 @@ export class Game {
         }
       }
     }
+  }
+
+  setupCompletion(entries) {
+    this.possibleActions = entries;
   }
 
   async switchState(state, options = {cls: false}) {

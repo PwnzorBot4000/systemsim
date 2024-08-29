@@ -15,5 +15,5 @@ export async function m4r10k4rt(game) {
   game.print('# poweroff<br />');
   await sleep(300);
   setTimeout(() => Achievements.add('m4r10k4rt'), 1000);
-  return await game.computer.poweroff(3000);
+  await game.computer.poweroff(3000);
 }
