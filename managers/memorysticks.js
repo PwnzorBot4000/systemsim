@@ -6,6 +6,7 @@ export class MemorySticks {
   machine;
   sticks = [
     new MemoryStick({
+      id: 'green-fern-unix-live-usb',
       bootable: true,
       size: '16GB',
       type: 'USB-A 3.0',
@@ -16,6 +17,7 @@ export class MemorySticks {
       })
     }),
     new MemoryStick({
+      id: 'general-purpose-usb-1',
       size: '8GB',
       type: 'USB-A 3.0',
       description: 'empty.',
@@ -24,6 +26,7 @@ export class MemorySticks {
       })
     }),
     new MemoryStick({
+      id: 'general-purpose-usb-2',
       size: '32GB',
       type: 'USB-C 3.1',
       description: 'labeled \'Files\', and is mostly empty.',
@@ -60,6 +63,18 @@ export class MemorySticks {
     this.assertMounted(index, true);
 
     this.machine.detach(this.sticks[index]);
+  }
+
+  exportSave() {
+    return this.sticks.reduce((acc, stick) => ({...acc, [stick.id]: stick.exportSave()}), {});
+  }
+
+  importSave(save) {
+    for (const [id, stickSave] of Object.entries(save)) {
+      const stick = this.sticks.find((stick) => stick.id === id);
+      if (!stick) continue;
+      stick.importSave(stickSave);
+    }
   }
 
   async mount(index) {

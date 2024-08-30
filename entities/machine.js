@@ -144,6 +144,18 @@ export class Machine {
     this.state = 'suspended';
   }
 
+  exportSave() {
+    return {
+      filesystem: this.storedFilesystem.exportSave(),
+      specs: this.specs,
+    };
+  }
+
+  importSave(save) {
+    this.storedFilesystem.importSave(save.filesystem);
+    this.specs = save.specs;
+  }
+
   renderStats() {
     const ramSizeString = formatSize(this.specs.ram.size, 'G', {space: true});
     const ramFreqString = formatSize(this.specs.ram.frequency, 'M', {space: true});

@@ -16,6 +16,14 @@ export class DeskSideBags {
     this.bags = this.bags.filter((bag) => !bag.trash);
   }
 
+  importSave(save) {
+    this.bags = save;
+  }
+
+  exportSave() {
+    return [...this.bags];
+  }
+
   render() {
     if (this.areEmpty()) {
       const prob = Math.random();

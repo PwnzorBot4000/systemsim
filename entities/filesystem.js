@@ -33,6 +33,18 @@ export class Filesystem {
     return absPath2 === '/' ? absPath2 : absPath2.replace(/\/$/, '');
   }
 
+  exportSave() {
+    return {
+      fsMap: [...this.fsMap.entries()],
+      pwd: this.pwd,
+    };
+  }
+
+  importSave(save) {
+    this.fsMap = new Map(save.fsMap);
+    this.pwd = save.pwd;
+  }
+
   get(path) {
     const absPath = this.abspath(path);
 

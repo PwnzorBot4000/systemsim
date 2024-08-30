@@ -107,13 +107,13 @@ export class Game {
       ],
     }),
   }
-  state = 'init';
 
   // Transient state
   input = '';
   inputHistory = new InputHistory();
   possibleActions = [];
   prompt = '';
+  state = 'init';
   terminalBuffer = [];
   terminalState = 'exec';
 
@@ -133,8 +133,23 @@ export class Game {
     await sleep(1000);
     terminalElem.classList.add('nocursor');
     await sleep(500);
-    terminalElem.innerHTML += 'No player data found. Starting new game.';
-    await sleep(1500);
+    await this.load('current', async (stage) => {
+      switch (stage) {
+        case 'init':
+          terminalElem.innerHTML += 'Saved player data found. Resuming...<br /><br />';
+          await sleep(500);
+          break;
+        case 'fail':
+          terminalElem.innerHTML += 'No player data found. Starting new game.';
+          await sleep(1000);
+          break;
+        default:
+          terminalElem.innerHTML += `Loading ${stage}...<br />`;
+          await sleep(100);
+          break;
+      }
+    });
+    await sleep(500);
     terminalElem.innerHTML = '';
     await sleep(1500);
 
@@ -206,12 +221,14 @@ export class Game {
   async refresh() {
     if (this.terminalState === 'exec') {
       try {
-        return await this.executeState();
+        await this.executeState();
       } catch (e) {
         console.warn(e);
         this.print(e.message + '<br />');
         this.waitInput();
       }
+
+      this.save('autosave');
     }
   }
 
@@ -640,6 +657,61 @@ export class Game {
   print(text) {
     this.terminalBuffer.push(text);
     this.render();
+  }
+
+  async load(saveIndex = 'current', dramaFunction = async (stage) => {}) {
+    const saveKey = `systemsim-save-${saveIndex}`;
+    const saveJson = localStorage.getItem(saveKey);
+    if (!saveJson) {
+      await dramaFunction('fail');
+      return false;
+    }
+
+    await dramaFunction('init');
+    const save = JSON.parse(saveJson);
+    await dramaFunction('machine state');
+    this.computer.importSave(save.computer);
+    await dramaFunction('room state');
+    this.deskSideBags.importSave(save.deskSideBags);
+    await dramaFunction('devices');
+    this.memorySticks.importSave(save.memorySticks);
+    await dramaFunction('servers');
+    for (const [name, serverSave] of Object.entries(save.servers)) {
+      const server = this.servers[name];
+      if (!server) continue;
+      server.filesystem.importSave(serverSave.filesystem);
+    }
+
+    return true;
+  }
+
+  save(saveType = 'autosave', message = '') {
+    const data = {
+      computer: this.computer.exportSave(),
+      deskSideBags: this.deskSideBags.exportSave(),
+      memorySticks: this.memorySticks.exportSave(),
+      servers: Object.entries(this.servers)
+        .reduce((acc, [name, server]) => ({...acc, [name]: {
+          filesystem: server.filesystem.exportSave()
+        }}), {}),
+    };
+
+    let saveKey = 'systemsim-save-current';
+    if (saveType !== 'autosave') {
+      const metadataJson = localStorage.getItem('systemsim-saves-metadata');
+      const metadata = metadataJson ? JSON.parse(metadataJson) : {};
+
+      const saveIndex = Object.keys(metadata)
+        .map((k) => parseInt(k.replace('systemsim-save-', '')))
+        .sort((a, b) => a - b).pop() + 1;
+
+      metadata[`systemsim-save-${saveIndex}`] = {saveType, message, timestamp: Date.now()};
+      saveKey = `systemsim-save-${saveIndex}`;
+
+      localStorage.setItem('systemsim-saves-metadata', JSON.stringify(metadata));
+    }
+
+    localStorage.setItem(saveKey, JSON.stringify(data));
   }
 
   setAsciiArt(asciiArtId) {
