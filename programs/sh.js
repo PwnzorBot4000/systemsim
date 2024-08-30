@@ -2,6 +2,21 @@ import {helpData} from "../data/help.js";
 import {decodeExeName, sanitizeHtml, sleep} from "../utils.js";
 import {Filesystem} from "../entities/filesystem.js";
 
+const completionsMap = {
+  cat: 'cat PATH',
+  cd: 'cd PATH',
+  cp: 'cp PATH PATH',
+  help: 'help [COMMAND]',
+  ls: 'ls [PATH]',
+  poweroff: 'poweroff',
+  rm: 'rm PATH',
+  // Note: actual exec name is replaced in the list below
+  curl: 'curl [-O] METHOD',
+  m4r10k4rt: 'm4r10k4rt',
+  noop: 'noop',
+  installos: 'installos [PATH]',
+}
+
 export class Shell {
   game;
   computer;
@@ -11,7 +26,7 @@ export class Shell {
     this.computer = ctx.computer;
 
     this.game.enableInputHistory(true);
-    this.game.setupCompletion(['cat [path]', 'cd [path]', 'help [command]', 'ls [path]', 'poweroff', 'rm [path]']);
+    this.refreshCompletions();
     this.game.waitInput(`%pwd% # `);
   }
 
@@ -34,19 +49,25 @@ export class Shell {
 
     const programName = decodeExeName(localProgram?.contents ?? binProgram?.contents);
     await this.executeProgram(programName);
+
+    // Cleanup
+    if (!this.computer.fs()) return;  // Nothing to do, last command has shut down the pc / unmounted the fs
+    this.refreshCompletions();
   }
 
   async executeProgram(programName) {
     // Dynamically import programs, to make initial load faster and for realism
     switch (programName) {
-      case 'curl':
+      case 'curl': {
         const curlModule = await import('./curl.js');
         curlModule.curl(this.game);
         break;
-      case 'm4r10k4rt':
+      }
+      case 'm4r10k4rt': {
         const m4r10k4rtModule = await import('./m4r10k4rt.js');
         await m4r10k4rtModule.m4r10k4rt(this.game);
         break;
+      }
       case 'noop':
         this.computer.print('<br />');
         break;
@@ -59,6 +80,30 @@ export class Shell {
         this.computer.print(`${this.game.getArgv(0)} is not an executable file.<br /><br />`);
         break;
     }
+  }
+
+  refreshCompletions() {
+    const completions = Object.keys(this.getCommandsDict()).map((c) => completionsMap[c]);
+
+    const localFiles = this.computer.fs().ls();
+    const binFiles = this.computer.fs().ls('/bin');
+
+    const programFiles = [
+      ...localFiles.map((f) => ({ name: f, path: this.computer.fs().abspath(f) })),
+      ...binFiles.map((f) => ({ name: f, path: this.computer.fs().abspath(Filesystem.joinpath('/bin', f)) })),
+    ];
+
+    for (const file of programFiles) {
+      const program = this.computer.fs().get(file.path);
+      if (!program || program.type !== 'exe') continue;
+      const programName = decodeExeName(program.contents);
+      let completion = completionsMap[programName];
+      if (!completion) continue;
+      completion = completion.replace(programName, file.name);
+      completions.push(completion);
+    }
+
+    this.game.setupCompletion([...new Set(completions.filter((c) => !!c))]);
   }
 
   // Commands
