@@ -15,7 +15,44 @@ html, body, .layer {
 .layer {
     position: absolute;
 }
+.inline-keyboard-key {
+    background: none;
+    border: 1px solid;
+    border-radius: 0.2em;
+    display: inline-block;
+    font-family: 'Courier New', monospace;
+    text-shadow: 0 0 1px white;
+    font-size: 1rem;
+    margin: 0 0.2em;
+    padding: 0 0.5em;
+    text-align: center;
+}
+
 /* layer styles */
+.ui h1 {
+    color: #c0c0c0;
+    font-family: 'Courier New', monospace;
+    font-size: 3.5rem;
+    text-shadow: 0 0 2px white;
+    text-transform: uppercase;
+}
+.ui h2 {
+    color: #c0c0c0;
+    font-family: 'Courier New', monospace;
+    font-size: 2rem;
+    text-shadow: 0 0 2px white;
+}
+.ui h3 {
+    color: gray;
+    font-family: 'Verdana', sans-serif;
+    font-size: 1.2rem;
+    font-weight: normal;
+}
+.ui p {
+    color: lightgray;
+    font-family: 'Arial', sans-serif;
+    font-size: 0.8rem;
+}
 .ui button {
     background-color: black;
     border: 1px #c0c0c0 solid;
@@ -36,6 +73,11 @@ html, body, .layer {
 .ui button[primary] {
     border: 3px lightgray double;
 }
+.ui button[danger]:hover {
+    border-color: crimson;
+    background-color: crimson;
+}
+
 /* layers */
 .asciiart {
     align-items: flex-end;
@@ -59,14 +101,103 @@ html, body, .layer {
     display: flex;
     justify-content: center;
 }
-#esc-ui {
-    align-items: flex-end;
+/* menu */
+#menu-ui {
+    display: flex;
+    flex-direction: row;
+    padding: 1rem;
+}
+#menu-controls-column, #menu-stats-column {
+    background-color: #000000c0;
+    border: 1px #c0c0c0 solid;
+    color: #c0c0c0;
     display: flex;
     flex-direction: column;
+    height: 100%;
+    padding: 1rem;
+}
+#menu-controls-column {
+    align-items: flex-start;
+    flex: auto;
+    gap: 2rem;
+}
+.menu-controls-group {
+    align-items: baseline;
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+}
+.menu-controls-group-column {
+    align-items: flex-start;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+#save-points-list {
+    display: flex;
+    flex-direction: column;
+    padding: 0.5rem 0;
+    max-height: 20rem;
+    overflow-y: auto;
+}
+#save-points-list p {
+    display: flex;
+    flex-direction: row;
+}
+#save-points-list p:first-child {
+    background-color: #c0c0c0;
+    color: black;
+    font-weight: bold;
+}
+#save-points-list p:not(:first-child):hover {
+    background-color: #c0c0c0;
+    color: black;
+}
+.save-point-time {
+    border: 1px #c0c0c0 solid;
+    display: inline-block;
+    width: 10rem;
+}
+.save-point-name {
+    border: 1px #c0c0c0 solid;
+    display: inline-block;
+    width: 30rem;
+}
+#achievements-list {
+    padding: 0.5rem 0;
+    max-height: 20rem;
+    overflow-y: auto;
+}
+#menu-stats-column {
+    justify-content: space-between;
+    padding: 7.5rem 1rem;
+    width: 20rem;
+}
+#menu-stat-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+#menu-stat-controls button {
+    width: 100%;
+}
+/* esc ui */
+#esc-ui {
+    align-items: flex-start;
+    display: flex;
+    flex-direction: row;
     gap: 0.5em;
-    justify-content: flex-start;
+    justify-content: flex-end;
     padding: 1em;
 }
+#esc-ui button {
+    height: 4rem;
+    width: 3rem;
+}
+:is(:fullscreen, :-webkit-full-screen, :-moz-full-screen, :-ms-fullscreen) #esc-ui {
+    display: none;
+}
+/* achievements popup */
 #achievements-popup {
     align-items: flex-end;
     display: flex;
@@ -102,9 +233,7 @@ html, body, .layer {
     font-size: 0.8rem;
     text-shadow: 0 0 10px lightgray;
 }
-:is(:fullscreen, :-webkit-full-screen, :-moz-full-screen, :-ms-fullscreen) #esc-ui {
-    display: none;
-}
+
 /* layer overrides */
 .nocursor {
     cursor: none;
@@ -115,6 +244,7 @@ html, body, .layer {
 .terminal12px {
     font-size: 12px;
 }
+
 /* animations */
 @keyframes periodic-ripple {
     0% {

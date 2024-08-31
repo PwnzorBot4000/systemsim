@@ -10,6 +10,8 @@ import {MemorySticks} from "./managers/memorysticks.js";
 import {Book} from "./entities/book.js";
 import {Server} from "./entities/server.js";
 import {Machine} from "./entities/machine.js";
+import {Achievements} from "./managers/achievements.js";
+import {achievementsData} from "./data/achievements.js";
 
 export class Game {
   // Persistent state
@@ -166,12 +168,15 @@ export class Game {
       e.stopPropagation();
       if (this.terminalState !== 'input') return;
 
-      if (/^[\w !@#$%^&*()\-+{}|~=`<>,.?/\\;:"']$/.test(e.key)) {
+      if (/^[\w !@#$%^&*()\-+{}|=<>,.?/\\;:"']$/.test(e.key)) {
         this.input = this.input + e.key;
         this.inputHistory.type(this.input);
         await this.render();
       } else {
         switch (e.key) {
+          case '`':
+            this.toggleMenu();
+            break;
           case 'Enter':
             if (this.input.length <= 0) return;
             this.terminalBuffer.push(this.renderPrompt() + this.input + '<br />');
@@ -768,6 +773,25 @@ export class Game {
     }
 
     return this.refresh();
+  }
+
+  toggleMenu() {
+    const menuElm = document.getElementById('menu-ui');
+    if (menuElm.style.display === 'none') {
+      menuElm.style.display = null;
+      document.getElementById('achievements-list').innerHTML = '';
+      for (const [name, achievement] of achievementsData) {
+        if (!Achievements.has(name)) continue;
+        const achievementElm = document.createElement('div');
+        achievementElm.innerHTML = `<h3>${achievement.title}</h3><p>${achievement.description}</p>`;
+        document.getElementById('achievements-list').appendChild(achievementElm);
+      }
+      if (document.getElementById('achievements-list').children.length === 0) {
+        document.getElementById('achievements-list').innerHTML = '<p>(None yet.)</p>';
+      }
+    } else {
+      menuElm.style.display = 'none';
+    }
   }
 
   waitInput(prompt) {

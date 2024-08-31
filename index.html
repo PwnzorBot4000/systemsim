@@ -16,6 +16,10 @@
           await game.enableFullscreen();
         });
 
+        document.getElementById('menu-btn').addEventListener('click', async () => {
+          await game.toggleMenu();
+        });
+
         document.getElementById('init-btn').addEventListener('click', async () => {
           await game.enableFullscreen();
 
@@ -56,11 +60,51 @@
     </div>
     <div id="terminal" class="layer" style="z-index: 10;">
     </div>
-    <div id="esc-ui" class="ui layer" style="z-index: 19; display: none;">
-      <button id="fs-btn">&#x2922;</button>
-    </div>
-    <div id="init-ui" class="ui layer" style="z-index: 20; display: none;">
+    <div id="init-ui" class="ui layer" style="z-index: 18; display: none;">
       <button primary id="init-btn">Launch Game</button>
+    </div>
+    <div id="menu-ui" class="ui layer" style="z-index: 19; display: none;">
+      <div id="menu-controls-column">
+        <div class="menu-controls-group">
+          <h1>Pause Menu</h1>
+          <h3>Tap <span class="inline-keyboard-key">~<br />`</span> at any time to show / hide this menu.</h3>
+        </div>
+        <div class="menu-controls-group">
+          <button>Save game</button>
+          <p>
+            Game saves automatically after each input.<br />
+            Click the button to create a manual save.
+          </p>
+        </div>
+        <div class="menu-controls-group-column">
+          <h3>Save points</h3>
+          <div id="save-points-list">
+            <p><span class="save-point-time">Timestamp</span><span class="save-point-name">Title</span></p>
+            <p><span class="save-point-time">Now</span><span class="save-point-name">Current</span></p>
+          </div>
+          <div class="menu-controls-group">
+            <button>Load game</button>
+            <button>Delete save</button>
+          </div>
+        </div>
+      </div>
+      <div id="menu-stats-column">
+        <div>
+          <h2>Achievements</h2>
+          <div id="achievements-list">
+            <p>(None yet.)</p>
+          </div>
+        </div>
+        <div id="menu-stat-controls">
+          <button>License</button>
+          <button>Credits</button>
+          <button danger>Delete data</button>
+        </div>
+      </div>
+    </div>
+    <div id="esc-ui" class="ui layer" style="z-index: 20; display: none;">
+      <button id="fs-btn">&#x2922;</button>
+      <button id="menu-btn">&#x2630;</button>
     </div>
     <div id="achievements-popup" class="ui layer" style="z-index: 21; display: none;">
       <div id="achievements-popup-container">
