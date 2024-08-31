@@ -1,6 +1,6 @@
 export const achievementsData = new Map([
   ['m4r10k4rt', {
-    title: 'm4r10k4rt',
+    title: 'm4r10k4rt.exe',
     description: 'Get your kernel deleted by m4r10k4rt malware',
   }],
   ['deepnet', {
@@ -9,6 +9,6 @@ export const achievementsData = new Map([
   }],
   ['systemsim', {
     title: 'Systemsim',
-    description: 'Enter the system',
+    description: 'Launch systemsim.exe',
   }],
 ]);

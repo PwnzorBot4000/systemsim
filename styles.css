@@ -6,6 +6,7 @@
 }
 html, body {
     background-color: black;
+    overflow: hidden;
 }
 html, body, .layer {
     height: 100%;
@@ -71,13 +72,35 @@ html, body, .layer {
     display: flex;
     justify-content: flex-end;
     opacity: 0;
+    pointer-events: none;
     transition: 1s;
+    translate: 0 10rem;
 }
 #achievements-popup-container {
     background-color: black;
     border: 1px #c0c0c0 solid;
     color: #c0c0c0;
-    padding: 1em;
+    padding: 0.5rem;
+    min-width: 25rem;
+}
+#achievements-popup h3 {
+    font-family: 'Arial', sans-serif;
+    font-size: 0.8rem;
+    font-style: italic;
+    padding-bottom: 0.5rem;
+}
+#achievements-popup-inner-container {
+    padding: 0.5rem 1rem;
+}
+#achievements-popup h2 {
+    font-family: 'Courier New', monospace;
+    font-size: 1.5rem;
+    text-shadow: 0 0 10px lightgray;
+}
+#achievements-popup p {
+    font-family: 'Arial', sans-serif;
+    font-size: 0.8rem;
+    text-shadow: 0 0 10px lightgray;
 }
 :is(:fullscreen, :-webkit-full-screen, :-moz-full-screen, :-ms-fullscreen) #esc-ui {
     display: none;

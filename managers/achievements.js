@@ -35,14 +35,16 @@ export class Achievements {
 
     setTimeout(() => {
       document.getElementById('achievements-popup').style.opacity = 1;
-    });
+      document.getElementById('achievements-popup').style.translate = '0 0';
+    }, 10);
 
     setTimeout(() => {
-      document.getElementById('achievements-popup').style.opacity = 0;
-    }, 4000);
+      document.getElementById('achievements-popup').style.opacity = null;
+      document.getElementById('achievements-popup').style.translate = null;
+    }, 5000);
 
     setTimeout(() => {
       document.getElementById('achievements-popup').style.display = 'none';
-    }, 5000);
+    }, 6000);
   }
 }
