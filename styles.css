@@ -29,6 +29,12 @@ html, body, .layer {
 }
 
 /* layer styles */
+.layer.ui {
+    pointer-events: none;
+}
+.layer.ui * {
+    pointer-events: auto;
+}
 .ui h1 {
     color: #c0c0c0;
     font-family: 'Courier New', monospace;
@@ -235,7 +241,7 @@ html, body, .layer {
 }
 
 /* layer overrides */
-.nocursor {
+:is(:fullscreen, :-webkit-full-screen, :-moz-full-screen, :-ms-fullscreen) .nocursor {
     cursor: none;
 }
 .monospace {
