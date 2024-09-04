@@ -43,6 +43,16 @@ export class Game {
         fsMap: new Map(filesystemsData['owasp.org'])
       }),
     }),
+    'projects.mikl-ptoska.cz': new Server({
+      filesystem: new Filesystem({
+        fsMap: new Map(filesystemsData['projects.mikl-ptoska.cz'])
+      }),
+    }),
+    'www.watrar.com': new Server({
+      filesystem: new Filesystem({
+        fsMap: new Map(filesystemsData['www.watrar.com'])
+      }),
+    }),
     '104.122.199.11': new Server({
       filesystem: new Filesystem({
         fsMap: new Map(filesystemsData['104.122.199.11'])
@@ -163,6 +173,8 @@ export class Game {
       if (e.key === 'PrintScreen' || (e.ctrlKey && e.shiftKey && e.key === 'KeyP') || e.key === 'F12') return;
       // Allow dev tools (ctrl+shift+i, F12)
       if (e.ctrlKey && e.shiftKey && e.key === 'KeyI') return;
+      // Allow pasting
+      if (e.key === 'Paste' || e.key === 'KeyV' && e.ctrlKey) return;
 
       e.preventDefault();
       e.stopPropagation();

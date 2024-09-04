@@ -1,7 +1,7 @@
 export function decodeExeName(contents) {
   const controlCharsRange = 256 - 48 * 5;
   let datastart = 1;
-  if (!contents) return undefined;
+  if (!contents || typeof contents !== 'string') return undefined;
   if (contents.startsWith('MZ')) {
     datastart = 3;
   } else if (contents.startsWith('ELF')) {
@@ -75,6 +75,10 @@ export function longestCommonPrefixSorted(strings, position = 0) {
   if (commonPrefix.length === 0) return '';
   if (rest.every(s => s.startsWith(commonPrefix))) return commonPrefix;
   return longestCommonPrefixSorted(strings, position - 1);
+}
+
+export function printBinaryObject(obj) {
+  return String.fromCharCode(...[...JSON.stringify(obj)].map((c) => 16 + c.charCodeAt(0) % 240));
 }
 
 export function sanitizeHtml(html) {

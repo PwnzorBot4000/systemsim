@@ -2,12 +2,14 @@ import {encodeExeName} from "../utils.js";
 
 const binaries = new Map([
   ['curl', { type: 'exe', contents: 'ELF' + encodeExeName('curl', 306) }],
+  ['initrd', { type: 'bin', contents: 'ELF' + encodeExeName('initrd', 3211) }],
+  ['install-os', { type: 'exe', contents: 'ELF' + encodeExeName('installos', 120) }],
+  ['kernel', { type: 'bin', contents: 'ELF' + encodeExeName('kernel', 2210) }],
+  ['links', { type: 'exe', contents: 'ELF' + encodeExeName('links', 500) }],
+  ['m4r10k4rt', { type: 'exe', contents: 'MZ' + encodeExeName('m4r10k4rt', 48) }],
   ['nologin', { type: 'exe', contents: 'ELF' + encodeExeName('noop', 10) }],
   ['sh', { type: 'exe', contents: 'ELF' + encodeExeName('noop', 920) }],
-  ['kernel', { type: 'bin', contents: 'ELF' + encodeExeName('kernel', 2210) }],
-  ['initrd', { type: 'bin', contents: 'ELF' + encodeExeName('initrd', 3211) }],
-  ['m4r10k4rt', { type: 'exe', contents: 'MZ' + encodeExeName('m4r10k4rt', 48) }],
-  ['install-os', { type: 'exe', contents: 'ELF' + encodeExeName('installos', 120) }],
+  ['watrar', { type: 'exe', contents: 'MZ' + encodeExeName('watrar', 48) }],
 ]);
 
 export const filesystemsData = {
@@ -103,6 +105,50 @@ export const filesystemsData = {
         'the application will return a debug page that contains sensitive information like the server software and version, which can be used to find exploits.</td></tr>'
     }]
   ],
+  'projects.mikl-ptoska.cz': [
+    ['/srv', 'dir'],
+    ['/srv/index.html', {
+      contents: '<h1>Toobright labs - Projects</h1>\n' +
+        '<h2>Free software - first grade</h2>\n' +
+        '<ul><li><a href="/projects/links">Links</a></li></ul>' +
+        '<h2>Second grade - commandline skill required</h2>\n' +
+        '<ul><li><a href="/projects/jpeginsert">JpegInsert</a></li></ul>',
+    }],
+    ['/srv/projects/links', 'dir'],
+    ['/srv/projects/links/index.html', {
+      contents: '<h1>Links</h1>\n' +
+        '<p>Web browser running in both graphics and text mode. No Flash, CSS, Javascript supported. High speed and graphics display quality</p>\n' +
+        '<a href="/projects/links/links.zip">Download</a>',
+    }],
+    ['/srv/projects/links/links.zip', {
+      type: 'zip',
+      contents: [
+        ['links', binaries.get('links')],
+        ['README.txt', {
+          contents: 'To install, extract the zip file to a directory, ' +
+            'and copy / move the extracted \'links\' file to  your system\'s /bin directory.\n' +
+            'Then run \'links (url)\' to start the browser.\n'
+        }],
+      ],
+    }],
+    ['/srv/projects/jpeginsert', 'dir'],
+    ['/srv/projects/jpeginsert/index.html', {
+      contents: '<h1>JpegInsert</h1>\n' +
+        '<p>Insert large data into 1992 spec. JPEG files without using steganography or EXIF</p>\n' +
+        '<a href="/projects/jpeginsert/jpeginsert.zip">Coming soon</a>',
+    }],
+  ],
+  'www.watrar.com': [
+    ['/srv', 'dir'],
+    ['/srv/index.html', {
+      contents: '<h1>Watrar</h1>\n' +
+        '<p>Compression and decompression tools</p>\n' +
+        '<p>Watrar can be downloaded for evaluation. It is free for non-commercial use.\n' +
+        'After the trial period expires, you will be asked to buy a license.</p>\n' +
+        '<ul><li><a href="/watrar.exe">Download Watrar</a></li></ul>',
+    }],
+    ['/srv/watrar.exe', binaries.get('watrar')],
+  ],
   '104.122.199.11': [
     ['/', 'dir'],
     ['/etc', 'dir'],
@@ -134,7 +180,7 @@ export const filesystemsData = {
     ['/students/guest/m4r10k4rt.exe', { type: 'exe', contents: 'MZ' + encodeExeName('m4r10k4rt', 48) }],
     ['/students/hack3d222222', 'dir'],
     ['/students/hack3d222222/notes.txt', {
-      contents: 'Lol school servers are total swiss cheese, I got in in like 3 minutes and an exploit search. ' +
+      contents: 'Lol school servers are total swiss cheese, I got in in like 3 minutes and an exploitdb search. ' +
         'Im gonna try crack the root pass, the specs are ok for a ddos zombie. Any other bros are welcome to install their own worms for attacks, it\'s not ' +
         'like this teapot can mine crypto.\n' +
         'If you are the admin reading this, upgrade your rotting nginx man, like, you\'re being paid a wage to *at least* do this once in a while.'

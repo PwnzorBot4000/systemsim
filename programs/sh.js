@@ -1,5 +1,5 @@
 import {helpData} from "../data/help.js";
-import {decodeExeName, sanitizeHtml, sleep} from "../utils.js";
+import {decodeExeName, printBinaryObject, sanitizeHtml, sleep} from "../utils.js";
 import {Filesystem} from "../entities/filesystem.js";
 
 const completionsMap = {
@@ -12,6 +12,7 @@ const completionsMap = {
   rm: 'rm PATH',
   // Note: actual exec name is replaced in the list below
   curl: 'curl [-O] METHOD',
+  links: 'links URL',
   m4r10k4rt: 'm4r10k4rt',
   noop: 'noop',
   installos: 'installos [PATH]',
@@ -63,6 +64,16 @@ export class Shell {
         curlModule.curl(this.game);
         break;
       }
+      case 'installos': {
+        const installOsModule = await import('./install-os.js');
+        await installOsModule.installOs(this.game, this.computer);
+        break;
+      }
+      case 'links': {
+        const linksModule = await import('./links.js');
+        await linksModule.links(this.game);
+        break;
+      }
       case 'm4r10k4rt': {
         const m4r10k4rtModule = await import('./m4r10k4rt.js');
         await m4r10k4rtModule.m4r10k4rt(this.game);
@@ -71,9 +82,9 @@ export class Shell {
       case 'noop':
         this.computer.print('<br />');
         break;
-      case 'installos': {
-        const installOsModule = await import('./install-os.js');
-        await installOsModule.installOs(this.game, this.computer);
+      case 'watrar': {
+        const watrarModule = await import('./watrar.js');
+        await watrarModule.watrar(this.game);
         break;
       }
       default:
@@ -118,7 +129,9 @@ export class Shell {
     const file = this.computer.fs().get(path);
     if (!file) this.computer.print('cat: File not found<br />');
     else if (file === 'dir') this.computer.print('cat: Is a directory<br />');
-    else this.computer.print(sanitizeHtml(file?.contents ?? '') + '<br />');
+    else if (!file.contents) this.computer.print('<br />');
+    else if (typeof file.contents === 'string') this.computer.print(sanitizeHtml(file.contents) + '<br />');
+    else this.computer.print(sanitizeHtml(printBinaryObject(file.contents)) + '<br />');
   }
 
   async cd() {

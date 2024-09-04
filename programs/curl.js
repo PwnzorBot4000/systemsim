@@ -1,7 +1,7 @@
-import {sanitizeHtml} from "../utils.js";
+import {printBinaryObject, sanitizeHtml} from "../utils.js";
 
 export function curl(game) {
-  const matches = game.input.match(/curl (-[A-Za-z]+ )*([A-Z]+) ([A-Za-z0-9-.]+)(\/[^ ]+)? ?(.*)?/);
+  const matches = game.input.match(/[^ ]+ (-[A-Za-z]+ )*([A-Z]+) ([A-Za-z0-9-.]+)(\/[^ ]+)? ?(.*)?/);
   if (!matches) {
     game.print('Usage: curl [options] METHOD HOST[/path] [BODY]<br />' +
       'Example: curl GET www.example.com<br />' +
@@ -19,6 +19,9 @@ export function curl(game) {
   const body = matches[matches.length - 1] ?? '';
 
   const response = server.request(method, path, body);
+  const responseBodyFlat = !response.body ? '' :
+    typeof response.body === 'string' ? response.body :
+      printBinaryObject(response.body);
 
   if (!response.body || response.status !== 200) {
     let statusText;
@@ -56,15 +59,15 @@ export function curl(game) {
     }
 
     game.print(`${serverName} responded with: HTTP ${response.status} ${statusText}<br />`);
-    if (response.body) game.print(sanitizeHtml(response.body) + '<br />');
+    if (response.body) game.print(sanitizeHtml(responseBodyFlat) + '<br />');
     return;
   }
 
   // Output
   if (game.getSwitch('O', 'output')) {
     game.computer.fs().put(response.filename, response.body, { type: response.headers['Content-Type'] });
-    game.print(`Downloaded ${response.filename} (${response.body.length} bytes)<br />`);
+    game.print(`Downloaded ${response.filename} (${responseBodyFlat.length} bytes)<br />`);
   } else {
-    game.print(sanitizeHtml(response.body ?? '') + '<br />');
+    game.print(sanitizeHtml(responseBodyFlat) + '<br />');
   }
 }
