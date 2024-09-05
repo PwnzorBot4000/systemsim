@@ -1,0 +1,15 @@
+#esc-ui {
+    align-items: flex-start;
+    display: flex;
+    flex-direction: row;
+    gap: 0.5em;
+    justify-content: flex-end;
+    padding: 1em;
+}
+#esc-ui button {
+    height: 4rem;
+    width: 3rem;
+}
+:is(:fullscreen, :-webkit-full-screen, :-moz-full-screen, :-ms-fullscreen) #esc-ui {
+    display: none;
+}

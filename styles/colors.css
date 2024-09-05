@@ -1,0 +1,16 @@
+:root {
+    --font-monospace: 'Courier New', monospace;
+    --font-ui: 'Arial', sans-serif;
+    --font-ui-spacious: 'Verdana', sans-serif;
+
+    --color-terminal-primary: white;
+    --color-terminal-secondary: #383838;
+    --color-terminal-contrast: black;
+
+    --color-ui-primary: lightgray;
+    --color-ui-secondary: #c0c0c0;
+    --color-ui-contrast: black;
+    --color-ui-accent: gray;
+    --color-ui-danger: crimson;
+    --color-ui-shadow: white;
+}

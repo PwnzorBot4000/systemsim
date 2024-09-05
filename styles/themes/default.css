@@ -1,0 +1,8 @@
+html, body {
+    --color-primary: var(--color-terminal-primary);
+    --color-secondary: var(--color-terminal-secondary);
+    --color-contrast: var(--color-terminal-contrast);
+    --color-accent: var(--color-ui-accent);
+    --color-danger: var(--color-ui-danger);
+    --color-shadow: var(--color-ui-shadow);
+}

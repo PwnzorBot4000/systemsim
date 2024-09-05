@@ -1,0 +1,55 @@
+@import url('colors.css');
+@import url('inline-keyboard-key.css');
+@import url('save-points-list.css');
+
+#menu-ui {
+    display: flex;
+    flex-direction: row;
+    padding: 1rem;
+}
+#menu-controls-column, #menu-stats-column {
+    backdrop-filter: blur(1px);
+    -webkit-backdrop-filter: blur(1px);
+    background-color: color-mix(in srgb, var(--color-contrast) 75%, transparent);
+    border: 1px var(--color-secondary) solid;
+    color: var(--color-secondary);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 1rem;
+}
+#menu-controls-column {
+    align-items: flex-start;
+    flex: auto;
+    gap: 2rem;
+}
+.menu-controls-group {
+    align-items: baseline;
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+}
+.menu-controls-group-column {
+    align-items: flex-start;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+#achievements-list {
+    padding: 0.5rem 0;
+    max-height: 20rem;
+    overflow-y: auto;
+}
+#menu-stats-column {
+    justify-content: space-between;
+    padding: 7.5rem 1rem;
+    width: 20rem;
+}
+#menu-stat-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+#menu-stat-controls button {
+    width: 100%;
+}

@@ -1,0 +1,56 @@
+.ui {
+    --color-primary: var(--color-ui-primary);
+    --color-secondary: var(--color-ui-secondary);
+    --color-contrast: var(--color-ui-contrast);
+    --color-accent: var(--color-ui-accent);
+    --color-danger: var(--color-ui-danger);
+    --color-shadow: var(--color-ui-shadow);
+}
+.ui h1 {
+    color: var(--color-secondary);
+    font-family: var(--font-monospace);
+    font-size: 3.5rem;
+    text-shadow: 0 0 2px var(--color-shadow);
+    text-transform: uppercase;
+}
+.ui h2 {
+    color: var(--color-secondary);
+    font-family: var(--font-monospace);
+    font-size: 2rem;
+    text-shadow: 0 0 2px var(--color-shadow);
+}
+.ui h3 {
+    color: var(--color-accent);
+    font-family: var(--font-ui-spacious);
+    font-size: 1.2rem;
+    font-weight: normal;
+}
+.ui p {
+    color: var(--color-primary);
+    font-family: var(--font-ui);
+    font-size: 0.8rem;
+}
+.ui button {
+    background-color: var(--color-contrast);
+    border: 1px var(--color-secondary) solid;
+    color: var(--color-secondary);
+    font-family: var(--font-monospace);
+    font-size: 1.5em;
+    text-shadow: 0 0 2px var(--color-shadow);
+    padding: 0.5em;
+    text-align: center;
+    text-decoration: none;
+    transition: 0.2s;
+}
+.ui button:hover {
+    background-color: var(--color-primary);
+    color: var(--color-contrast);
+    text-shadow: 0 0 2px var(--color-contrast);
+}
+.ui button[primary] {
+    border: 3px var(--color-primary) double;
+}
+.ui button[danger]:hover {
+    border-color: var(--color-danger);
+    background-color: var(--color-danger);
+}

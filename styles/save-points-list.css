@@ -1,0 +1,32 @@
+@import url('colors.css');
+
+#save-points-list {
+    display: flex;
+    flex-direction: column;
+    padding: 0.5rem 0;
+    max-height: 20rem;
+    overflow-y: auto;
+}
+#save-points-list p {
+    display: flex;
+    flex-direction: row;
+}
+#save-points-list p:first-child {
+    background-color: var(--color-secondary);
+    color: var(--color-contrast);
+    font-weight: bold;
+}
+#save-points-list p:not(:first-child):hover {
+    background-color: var(--color-secondary);
+    color: var(--color-contrast);
+}
+.save-point-time {
+    border: 1px var(--color-secondary) solid;
+    display: inline-block;
+    width: 10rem;
+}
+.save-point-name {
+    border: 1px var(--color-secondary) solid;
+    display: inline-block;
+    width: 30rem;
+}

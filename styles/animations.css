@@ -1,0 +1,42 @@
+@keyframes periodic-ripple {
+    0% {
+        opacity: 0;
+    }
+    33% {
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    66% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+@keyframes neon-ripple {
+    0% {
+        opacity: 0.75;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0.75;
+    }
+}
+@keyframes static-crackle {
+    0% {
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    54% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 0;
+    }
+}
