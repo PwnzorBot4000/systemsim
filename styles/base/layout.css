@@ -13,3 +13,14 @@ html, body {
     width: 100%;
     position: absolute;
 }
+.container {
+    display: flex;
+}
+.row {
+    display: flex;
+    flex-direction: row;
+}
+.column {
+    display: flex;
+    flex-direction: column;
+}

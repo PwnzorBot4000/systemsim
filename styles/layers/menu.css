@@ -1,54 +1,62 @@
 @import url('../components/inline-keyboard-key.css');
 @import url('../components/save-points-list.css');
+@import url('../components/achievements-list.css');
 
 #menu-ui {
-    display: flex;
-    flex-direction: row;
     padding: 1rem;
+    color: var(--color-secondary);
 }
-#menu-controls-column, #menu-stats-column {
+#menu-ui .container {
+    display: grid;
+    grid-template-columns: 1fr 15rem 20rem;
+    grid-template-rows: auto 1fr 15rem;
+    grid-template-areas:
+        "title title stats"
+        "controls extras stats"
+        "tools tools stats";
     backdrop-filter: blur(1px);
     -webkit-backdrop-filter: blur(1px);
     background-color: color-mix(in srgb, var(--color-contrast) 75%, transparent);
     border: 1px var(--color-secondary) solid;
-    color: var(--color-secondary);
-    display: flex;
-    flex-direction: column;
     height: 100%;
+    width: 100%;
+}
+#menu-title {
+    align-items: baseline;
+    gap: 1rem;
+    grid-area: title;
     padding: 1rem;
 }
-#menu-controls-column {
+#menu-controls {
+    grid-area: controls;
     align-items: flex-start;
-    flex: auto;
     gap: 2rem;
+    padding: 1rem;
 }
-.menu-controls-group {
+#menu-controls .row {
     align-items: baseline;
-    display: flex;
-    flex-direction: row;
     gap: 1rem;
 }
-.menu-controls-group-column {
+#menu-controls .column {
     align-items: flex-start;
-    display: flex;
-    flex-direction: column;
     gap: 0.5rem;
 }
-#achievements-list {
-    padding: 0.5rem 0;
-    max-height: 20rem;
-    overflow-y: auto;
+#menu-extras {
+    grid-area: extras;
+    align-items: center;
+    text-align: center;
+    gap: 1rem;
+    padding: 3.5rem 1rem;
 }
-#menu-stats-column {
+#menu-stats {
+    border-left: 1px var(--color-secondary) solid;
+    grid-area: stats;
     justify-content: space-between;
     padding: 7.5rem 1rem;
-    width: 20rem;
 }
-#menu-stat-controls {
-    display: flex;
-    flex-direction: column;
+#menu-stats .column {
     gap: 0.5rem;
 }
-#menu-stat-controls button {
+#menu-stats button {
     width: 100%;
 }

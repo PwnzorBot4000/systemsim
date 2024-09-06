@@ -134,17 +134,26 @@ export class Game {
 
   async init() {
     // Game init sequence
+    this.setAsciiArt(undefined);
+    document.getElementById('init-ui').style.display = 'none';
+    await this.enableFullscreen();
+    document.getElementById('esc-ui').style.display = null;
     const terminalElem = document.getElementById('terminal');
     terminalElem.innerHTML = '';
     await sleep(100);
-    terminalElem.innerHTML = 'Entering fullscreen mode...<br /><br />';
-    await sleep(400);
-    terminalElem.classList.add('monospace');
-    await sleep(1000);
-    terminalElem.classList.add('terminal12px');
-    await sleep(1000);
-    terminalElem.classList.add('nocursor');
-    await sleep(500);
+    if (this.isFullscreen()) {
+      terminalElem.innerHTML = 'Searching for player data...<br /><br />';
+      await sleep(2000);
+    } else {
+      terminalElem.innerHTML = 'Entering fullscreen mode...<br /><br />';
+      await sleep(400);
+      terminalElem.classList.add('monospace');
+      await sleep(1000);
+      terminalElem.classList.add('terminal12px');
+      await sleep(1000);
+      terminalElem.classList.add('nocursor');
+      await sleep(500);
+    }
     await this.load('current', async (stage) => {
       switch (stage) {
         case 'init':
@@ -166,70 +175,7 @@ export class Game {
     await sleep(1500);
 
     // Bind events
-    document.addEventListener('keydown', async (e) => {
-      // Allow F11 fullscreen toggle
-      if (e.key === 'F11') return;
-      // Allow taking screenshots (print screen, ctrl+shift+p, F12)
-      if (e.key === 'PrintScreen' || (e.ctrlKey && e.shiftKey && e.key === 'KeyP') || e.key === 'F12') return;
-      // Allow dev tools (ctrl+shift+i, F12)
-      if (e.ctrlKey && e.shiftKey && e.key === 'KeyI') return;
-      // Allow pasting
-      if (e.key === 'Paste' || e.key === 'KeyV' && e.ctrlKey) return;
-
-      e.preventDefault();
-      e.stopPropagation();
-      if (this.terminalState !== 'input') return;
-
-      if (/^[\w !@#$%^&*()\-+{}|=<>,.?/\\;:"']$/.test(e.key)) {
-        this.input = this.input + e.key;
-        this.inputHistory.type(this.input);
-        await this.render();
-      } else {
-        switch (e.key) {
-          case '`':
-            this.toggleMenu();
-            break;
-          case 'Enter':
-            if (this.input.length <= 0) return;
-            this.terminalBuffer.push(this.renderPrompt() + this.input + '<br />');
-            this.inputHistory.push(this.input);
-            this.terminalState = 'exec';
-            await this.refresh();
-            break;
-          case 'Backspace':
-            this.input = this.input.slice(0, -1);
-            this.inputHistory.type(this.input);
-            await this.render();
-            break;
-          case 'Tab': {
-            const matches = this.possibleActions
-              .flatMap(action => typeof action === 'string' ? [action] : action.actions)
-              .filter(action => action.startsWith(this.input))
-              .map(action => action.split(' ')[0])
-              .sort((a, b) => b.length - a.length);
-            const commonPrefix = longestCommonPrefixSorted(matches);
-
-            if (commonPrefix.length > 0) {
-              this.input = commonPrefix.split(' ')[0];
-              this.inputHistory.type(this.input);
-              await this.render();
-            }
-            break;
-          }
-          case 'ArrowUp':
-            this.input = this.inputHistory.retrieve(-1) ?? this.input;
-            await this.render();
-            break;
-          case 'ArrowDown':
-            this.input = this.inputHistory.retrieve(1) ?? this.input;
-            await this.render();
-            break;
-          default:
-            console.warn(`Unhandled key: ${e.key}`);
-            break;
-        }
-      }
-    });
+    document.addEventListener('keydown', this.keyDownHandler);
 
     // Main game loop
     await this.refresh();
@@ -246,6 +192,71 @@ export class Game {
       }
 
       this.save('autosave');
+    }
+  }
+
+  keyDownHandler = async (e) => {
+    // Allow F11 fullscreen toggle
+    if (e.key === 'F11') return;
+    // Allow taking screenshots (print screen, ctrl+shift+p, F12)
+    if (e.key === 'PrintScreen' || (e.ctrlKey && e.shiftKey && e.key === 'KeyP') || e.key === 'F12') return;
+    // Allow dev tools (ctrl+shift+i, F12)
+    if (e.ctrlKey && e.shiftKey && e.key === 'KeyI') return;
+    // Allow pasting
+    if (e.key === 'Paste' || e.key === 'KeyV' && e.ctrlKey) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+    if (this.terminalState !== 'input') return;
+
+    if (/^[\w !@#$%^&*()\-+{}|=<>,.?/\\;:"']$/.test(e.key)) {
+      this.input = this.input + e.key;
+      this.inputHistory.type(this.input);
+      await this.render();
+    } else {
+      switch (e.key) {
+        case '`':
+          this.toggleMenu();
+          break;
+        case 'Enter':
+          if (this.input.length <= 0) return;
+          this.terminalBuffer.push(this.renderPrompt() + this.input + '<br />');
+          this.inputHistory.push(this.input);
+          this.terminalState = 'exec';
+          await this.refresh();
+          break;
+        case 'Backspace':
+          this.input = this.input.slice(0, -1);
+          this.inputHistory.type(this.input);
+          await this.render();
+          break;
+        case 'Tab': {
+          const matches = this.possibleActions
+            .flatMap(action => typeof action === 'string' ? [action] : action.actions)
+            .filter(action => action.startsWith(this.input))
+            .map(action => action.split(' ')[0])
+            .sort((a, b) => b.length - a.length);
+          const commonPrefix = longestCommonPrefixSorted(matches);
+
+          if (commonPrefix.length > 0) {
+            this.input = commonPrefix.split(' ')[0];
+            this.inputHistory.type(this.input);
+            await this.render();
+          }
+          break;
+        }
+        case 'ArrowUp':
+          this.input = this.inputHistory.retrieve(-1) ?? this.input;
+          await this.render();
+          break;
+        case 'ArrowDown':
+          this.input = this.inputHistory.retrieve(1) ?? this.input;
+          await this.render();
+          break;
+        default:
+          console.warn(`Unhandled key: ${e.key}`);
+          break;
+      }
     }
   }
 
@@ -605,6 +616,20 @@ export class Game {
     }
   }
 
+  isFullscreen() {
+    const fsElm = document.body;
+    if (fsElm.fullcreenEnabled) {
+      return true;
+    } else if (fsElm.msFullscreenEnabled) {
+      return true;
+    } else if (fsElm.mozFullScreenEnabled) {
+      return true;
+    } else if (fsElm.webkitFullscreenEnabled) {
+      return true;
+    }
+    return false;
+  }
+
   enableInputHistory(value) {
     this.inputHistory.enabled = value;
   }
@@ -787,10 +812,156 @@ export class Game {
     return this.refresh();
   }
 
+  async showCredits() {
+    await this.showDialog({
+      title: 'Credits',
+      text: `
+        <h3>Thanks to:</h3><br />
+        <p>(No-one yet, all the stuff here was made by my massive, muscular fingers.)</p><br />
+        <h3>Special thanks to:</h3><br />
+        <p>Ruurtjan Pul for the <a href="https://www.nslookup.io/dns-course/">DNS for developers course</a>, which was a catalyst for beginning my search.</p>
+        <p>Team Fractal Alligator for <a href="https://store.steampowered.com/app/365450/Hacknet/">Hacknet</a>, which was an inspiration for this game.</p>
+        <p>Jacob Jackson for <a href="https://supermaven.com/">Supermaven</a>, an excellent (and fast) AI assistant.  // &lt;-- THE ASSISTANT WROTE THIS ASDFASDFASDF HELP</p>
+        <p><a href="https://stackoverflow.com/">Stack Overflow</a>, for obvious reasons.</p>
+        <p><a href="https://www.jetbrains.com/">Jetbrains</a> for the powerful IDEs they provide.</p>
+        <p><a href="https://github.com/">GitHub</a>, for hosting the code, and for hosting the game on GitHub pages.</p>
+        <p><a href="https://itch.io/">itch.io</a>, for hosting the game on itch.io.</p>
+      `,
+      buttons: [{ text: 'Close', attributes: { primary: true } }],
+    });
+  }
+
+  async showDeleteDialog() {
+    await this.showDialog({
+      title: 'Delete data',
+      text: 'WARNING: This will reset your progress to zero. Are you sure you want to continue?',
+      buttons: [
+        { text: 'Cancel', attributes: { primary: true } },
+        {
+          text: 'Delete everything',
+          attributes: { danger: true },
+          callback: async () => {
+            await this.showDialog({
+              title: 'Delete data',
+              text: 'WARNING: This will delete all your data, including your achievements, save points, and any other saved data.' +
+                ' Are you <b>really</b> sure you want to continue?',
+              buttons: [
+                { text: 'Cancel', attributes: { primary: true } },
+                {
+                  text: 'Delete everything',
+                  attributes: { danger: true },
+                  callback: async () => {
+                    this.cls();
+                    this.setAsciiArt(undefined);
+                    await sleep(800);
+                    this.toggleMenu();
+                    await sleep(800);
+                    setTimeout(async () => {
+                      localStorage.clear();
+                      document.removeEventListener('keydown', this.keyDownHandler);
+                      window.game = new Game();
+                      await window.game.init();
+                    }, 1600);
+                  }
+                },
+              ],
+            });
+          }
+        },
+        { text: 'Delete progress',
+          attributes: { danger: true },
+          callback: async () => {
+            this.cls();
+            await sleep(1000);
+            this.toggleMenu();
+            setTimeout(async () => {
+              for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('systemsim-save-')) {
+                  localStorage.removeItem(key);
+                }
+              }
+              document.removeEventListener('keydown', this.keyDownHandler);
+              window.game = new Game();
+              await window.game.init();
+            }, 1500);
+        } },
+      ],
+    });
+  }
+
+  async showDialog(options) {
+    const dialogElm = document.getElementById('dialog-ui');
+    const dialogTitleElm = document.getElementById('dialog-ui-title');
+    const dialogTextElm = document.getElementById('dialog-ui-text');
+    const dialogButtonsElm = document.getElementById('dialog-ui-buttons');
+
+    return new Promise((resolve) => {
+      if (typeof options.title === 'string') {
+        dialogTitleElm.innerHTML = options.title;
+      } else {
+        options.title?.(dialogTitleElm);
+      }
+
+      if (typeof options.text === 'string') {
+        dialogTextElm.innerHTML = options.text;
+      } else {
+        options.text?.(dialogTextElm);
+      }
+
+      dialogButtonsElm.innerHTML = '';
+      for (const button of options.buttons) {
+        const buttonElm = document.createElement('button');
+        buttonElm.innerHTML = button.text;
+        for (const [key, value] of Object.entries(button.attributes ?? {})) {
+          buttonElm.setAttribute(key, value);
+        }
+        buttonElm.addEventListener('click', async () => {
+          resolve(await button.callback?.());
+          dialogElm.style.display = 'none';
+        });
+        dialogButtonsElm.appendChild(buttonElm);
+      }
+
+      dialogElm.style.display = null;
+    });
+  }
+
+  async showLicense() {
+    const licenseText = await fetch('LICENSE').then(res => res.text());
+    await this.showDialog({
+      title: (elem) => {
+        const random = Math.random();
+        if (random < 0.33) elem.innerHTML = 'Loicense';
+        else elem.innerHTML = 'License';
+
+        setTimeout(() => {
+          elem.innerHTML = 'License';
+        }, 1000);
+      },
+      text: licenseText.replace(/\n\n/g, '<br /><br />'),
+      buttons: [{ text: 'Close', attributes: { primary: true } }],
+    });
+  }
+
   toggleMenu() {
     const menuElm = document.getElementById('menu-ui');
     if (menuElm.style.display === 'none') {
-      menuElm.style.display = null;
+      // Adjust text
+      const stuckBtnQuotes = [
+        'Halp',
+        "I'm so sorry",
+        'I did an oopsie',
+        '/stuck',
+        "I've done goofed up",
+        'I accidentally the whole system',
+        'I messed up',
+        'Everything is horrible',
+      ];
+      const randomInt = Math.floor(Math.random() * stuckBtnQuotes.length);
+      document.getElementById('stuck-btn').innerHTML = stuckBtnQuotes[randomInt];
+
+      // Load achievements
       document.getElementById('achievements-list').innerHTML = '';
       for (const [name, achievement] of achievementsData) {
         if (!Achievements.has(name)) continue;
@@ -801,6 +972,8 @@ export class Game {
       if (document.getElementById('achievements-list').children.length === 0) {
         document.getElementById('achievements-list').innerHTML = '<p>(None yet.)</p>';
       }
+
+      menuElm.style.display = null;
     } else {
       menuElm.style.display = 'none';
     }

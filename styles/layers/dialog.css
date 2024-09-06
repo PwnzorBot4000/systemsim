@@ -1,0 +1,44 @@
+#dialog-ui {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    pointer-events: auto;
+    backdrop-filter: blur(1px);
+    -webkit-backdrop-filter: blur(1px);
+}
+
+#dialog-ui .container {
+    align-items: center;
+    background-color: var(--color-contrast);
+    border: 4px var(--color-secondary) double;
+    flex-direction: column;
+    min-width: 30rem;
+}
+
+#dialog-ui .row {
+    justify-content: center;
+    gap: 1rem;
+    padding: 1rem;
+    width: 100%;
+}
+
+#dialog-ui .column {
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    width: 100%;
+}
+
+#dialog-ui button {
+    min-width: 8rem;
+}
+
+#dialog-ui-text {
+    /* Default style as p */
+    color: var(--color-primary);
+    font-family: var(--font-ui);
+    font-size: 0.8rem;
+    overflow-y: auto;
+    max-height: 50dvh;
+    max-width: 30rem;
+}

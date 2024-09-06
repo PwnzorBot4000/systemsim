@@ -6,6 +6,7 @@
 /* Layers */
 @import url('styles/layers/asciiart.css');
 @import url('styles/layers/achievements-popup.css');
+@import url('styles/layers/dialog.css');
 @import url('styles/layers/esc-ui.css');
 @import url('styles/layers/init-ui.css');
 @import url('styles/layers/menu.css');

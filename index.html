@@ -9,27 +9,9 @@
       import { Game } from './game.js';
 
       const game = new Game();
+      window.game = game;
 
       document.addEventListener('DOMContentLoaded', async () => {
-        // Bind events
-        document.getElementById('fs-btn').addEventListener('click', async () => {
-          await game.enableFullscreen();
-        });
-
-        document.getElementById('menu-btn').addEventListener('click', async () => {
-          await game.toggleMenu();
-        });
-
-        document.getElementById('init-btn').addEventListener('click', async () => {
-          await game.enableFullscreen();
-
-          document.getElementById('init-ui').style.display = 'none';
-          document.getElementById('esc-ui').style.display = null;
-          game.setAsciiArt(undefined);
-
-          await game.init();
-        });
-
         // Show init UI
         game.setAsciiArt('logo');
         document.getElementById('init-ui').style.display = null;
@@ -61,50 +43,57 @@
     <div id="terminal" class="layer" style="z-index: 10;">
     </div>
     <div id="init-ui" class="ui layer" style="z-index: 18; display: none;">
-      <button primary id="init-btn">Launch Game</button>
+      <button primary onclick="game.init()">Launch Game</button>
     </div>
     <div id="menu-ui" class="ui layer" style="z-index: 19; display: none;">
-      <div id="menu-controls-column">
-        <div class="menu-controls-group">
+      <div class="container">
+        <div id="menu-title" class="row">
           <h1>Pause Menu</h1>
           <h3>Tap <span class="inline-keyboard-key">~<br />`</span> at any time to show / hide this menu.</h3>
         </div>
-        <div class="menu-controls-group">
-          <button>Save game</button>
-          <p>
-            Game saves automatically after each input.<br />
-            Click the button to create a manual save.
-          </p>
-        </div>
-        <div class="menu-controls-group-column">
-          <h3>Save points</h3>
-          <div id="save-points-list">
-            <p><span class="save-point-time">Timestamp</span><span class="save-point-name">Title</span></p>
-            <p><span class="save-point-time">Now</span><span class="save-point-name">Current</span></p>
+        <div id="menu-controls" class="column">
+          <div class="row">
+            <button primary>Save game</button>
+            <p>
+              Game saves automatically after each input.<br />
+              Click the button to create a manual save.
+            </p>
           </div>
-          <div class="menu-controls-group">
-            <button>Load game</button>
-            <button>Delete save</button>
-          </div>
-        </div>
-      </div>
-      <div id="menu-stats-column">
-        <div>
-          <h2>Achievements</h2>
-          <div id="achievements-list">
-            <p>(None yet.)</p>
+          <div class="column">
+            <h3>Save points</h3>
+            <div id="save-points-list">
+              <p><span class="save-point-time">Timestamp</span><span class="save-point-name">Title</span></p>
+              <p><span class="save-point-time">Now</span><span class="save-point-name">Current</span></p>
+            </div>
+            <div class="row">
+              <button primary>Load game</button>
+              <button>Delete save</button>
+            </div>
           </div>
         </div>
-        <div id="menu-stat-controls">
-          <button>License</button>
-          <button>Credits</button>
-          <button danger>Delete data</button>
+        <div id="menu-extras" class="column">
+          <p>If by any chance you have deleted or destroyed something important, and you are unable to
+            progress in the game, try clicking this button. Our character is smart, and maybe can help you.</p>
+          <button id="stuck-btn">I did an oopsie</button>
+        </div>
+        <div id="menu-stats" class="column">
+          <div>
+            <h2>Achievements</h2>
+            <div id="achievements-list">
+              <p>(None yet.)</p>
+            </div>
+          </div>
+          <div class="column">
+            <button onclick="game.showLicense()">License</button>
+            <button onclick="game.showCredits()">Credits</button>
+            <button danger onclick="game.showDeleteDialog()">Delete data</button>
+          </div>
         </div>
       </div>
     </div>
     <div id="esc-ui" class="ui layer" style="z-index: 20; display: none;">
-      <button id="fs-btn">&#x2922;</button>
-      <button id="menu-btn">&#x2630;</button>
+      <button onclick="game.enableFullscreen()">&#x2922;</button>
+      <button onclick="game.toggleMenu()">&#x2630;</button>
     </div>
     <div id="achievements-popup" class="popup layer" style="z-index: 21; display: none;">
       <div id="achievements-popup-container">
@@ -112,6 +101,16 @@
         <div id="achievements-popup-inner-container">
           <h2 id="new-achievement-title"></h2>
           <p id="new-achievement-description"></p>
+        </div>
+      </div>
+    </div>
+    <div id="dialog-ui" class="ui layer" style="z-index: 22; display: none;">
+      <div class="container">
+        <div id="dialog-ui-content" class="column">
+          <h2 id="dialog-ui-title">title</h2>
+          <div id="dialog-ui-text">text</div>
+        </div>
+        <div id="dialog-ui-buttons" class="row">
         </div>
       </div>
     </div>
