@@ -1,71 +1,18 @@
-@import url('styles/colors.css');
-@import url('styles/achievements-popup.css');
-@import url('styles/esc-ui.css');
-@import url('styles/menu.css');
+/* Base */
+@import url('styles/base/colors.css');
+@import url('styles/base/fonts.css');
+@import url('styles/base/reset.css');
+@import url('styles/base/layout.css');
+/* Layers */
+@import url('styles/layers/asciiart.css');
+@import url('styles/layers/achievements-popup.css');
+@import url('styles/layers/esc-ui.css');
+@import url('styles/layers/init-ui.css');
+@import url('styles/layers/menu.css');
+@import url('styles/layers/terminal.css');
+/* Animations */
 @import url('styles/animations.css');
 /* Themes */
 @import url('styles/themes/default.css');
+@import url('styles/themes/popup.css');
 @import url('styles/themes/ui.css');
-
-/* CSS reset and page layout */
-*, *::before, *::after {
-    box-sizing: border-box;
-}
-* {
-    margin: 0;
-}
-html, body {
-    background-color: var(--color-contrast);
-    overflow: hidden;
-}
-html, body {
-    height: 100%;
-    width: 100%;
-}
-
-/* layer styles */
-.layer {
-    height: 100%;
-    width: 100%;
-    position: absolute;
-}
-.layer.ui {
-    pointer-events: none;
-}
-.layer.ui * {
-    pointer-events: auto;
-}
-
-/* layers */
-.asciiart {
-    align-items: flex-end;
-    color: var(--color-secondary);
-    display: flex;
-    font-family: var(--font-monospace);
-    justify-content: flex-end;
-    white-space: pre-wrap;
-    font-size: min(1.8vh, 1.8vw);  /* Equivalent to 'large' in a 16:9 screen */
-    line-height: 1.12em;
-    letter-spacing: 0;
-}
-#terminal {
-    color: var(--color-primary);
-    padding: 1em;
-    white-space: pre-wrap;
-    overflow: hidden;
-}
-#init-ui {
-    align-items: center;
-    display: flex;
-    justify-content: center;
-}
-/* layer overrides */
-:is(:fullscreen, :-webkit-full-screen, :-moz-full-screen, :-ms-fullscreen) .nocursor {
-    cursor: none;
-}
-.monospace {
-    font-family: var(--font-monospace);
-}
-.terminal12px {
-    font-size: 12px;
-}

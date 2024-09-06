@@ -1,0 +1,11 @@
+.asciiart {
+    align-items: flex-end;
+    color: var(--color-secondary);
+    display: flex;
+    font-family: var(--font-monospace);
+    justify-content: flex-end;
+    white-space: pre-wrap;
+    font-size: min(1.8vh, 1.8vw);  /* Equivalent to 'large' in a 16:9 screen */
+    line-height: 1.12em;
+    letter-spacing: 0;
+}

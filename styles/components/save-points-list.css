@@ -1,5 +1,3 @@
-@import url('colors.css');
-
 #save-points-list {
     display: flex;
     flex-direction: column;

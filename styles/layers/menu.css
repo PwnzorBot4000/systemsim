@@ -1,6 +1,5 @@
-@import url('colors.css');
-@import url('inline-keyboard-key.css');
-@import url('save-points-list.css');
+@import url('../components/inline-keyboard-key.css');
+@import url('../components/save-points-list.css');
 
 #menu-ui {
     display: flex;

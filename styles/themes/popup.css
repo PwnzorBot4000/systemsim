@@ -1,0 +1,29 @@
+.popup {
+    --color-primary: var(--color-ui-primary);
+    --color-secondary: var(--color-ui-secondary);
+    --color-contrast: var(--color-ui-contrast);
+    --color-accent: var(--color-ui-accent);
+    --color-danger: var(--color-ui-danger);
+    --color-shadow: var(--color-ui-primary);
+
+    pointer-events: none;
+}
+.popup h2 {
+    color: var(--color-secondary);
+    font-family: var(--font-monospace);
+    font-size: 1.5rem;
+    text-shadow: 0 0 10px var(--color-shadow);
+}
+.popup h3 {
+    color: var(--color-accent);
+    font-family: var(--font-ui);
+    font-size: 0.8rem;
+    font-style: italic;
+    font-weight: normal;
+}
+.popup p {
+    color: var(--color-primary);
+    font-family: var(--font-ui);
+    font-size: 0.8rem;
+    text-shadow: 0 0 10px var(--color-shadow);
+}

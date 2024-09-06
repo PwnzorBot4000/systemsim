@@ -54,3 +54,11 @@
     border-color: var(--color-danger);
     background-color: var(--color-danger);
 }
+
+/* layout overrides */
+.layer.ui {
+    pointer-events: none;
+}
+.layer.ui * {
+    pointer-events: auto;
+}
