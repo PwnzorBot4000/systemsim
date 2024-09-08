@@ -10,8 +10,7 @@ import {MemorySticks} from "./managers/memorysticks.js";
 import {Book} from "./entities/book.js";
 import {Server} from "./entities/server.js";
 import {Machine} from "./entities/machine.js";
-import {Achievements} from "./managers/achievements.js";
-import {achievementsData} from "./data/achievements.js";
+import {Menu} from "./managers/menu.js";
 
 export class Game {
   // Persistent state
@@ -123,6 +122,7 @@ export class Game {
   // Transient state
   input = '';
   inputHistory = new InputHistory();
+  menu = new Menu(this);
   possibleActions = [];
   prompt = '';
   state = 'init';
@@ -181,6 +181,17 @@ export class Game {
     await this.refresh();
   }
 
+  async terminate() {
+    // Unbind events
+    document.removeEventListener('keydown', this.keyDownHandler);
+  }
+
+  async restart() {
+    await this.terminate();
+    window.game = new Game();
+    await window.game.init();
+  }
+
   async refresh() {
     if (this.terminalState === 'exec') {
       try {
@@ -204,6 +215,8 @@ export class Game {
     if (e.ctrlKey && e.shiftKey && e.key === 'KeyI') return;
     // Allow pasting
     if (e.key === 'Paste' || e.key === 'KeyV' && e.ctrlKey) return;
+    // Allow writing when we are in a UI input field
+    if (e.target.closest('.ui input')) return;
 
     e.preventDefault();
     e.stopPropagation();
@@ -216,7 +229,7 @@ export class Game {
     } else {
       switch (e.key) {
         case '`':
-          this.toggleMenu();
+          this.menu.toggle();
           break;
         case 'Enter':
           if (this.input.length <= 0) return;
@@ -743,9 +756,9 @@ export class Game {
       const metadataJson = localStorage.getItem('systemsim-saves-metadata');
       const metadata = metadataJson ? JSON.parse(metadataJson) : {};
 
-      const saveIndex = Object.keys(metadata)
+      const saveIndex = (Object.keys(metadata)
         .map((k) => parseInt(k.replace('systemsim-save-', '')))
-        .sort((a, b) => a - b).pop() + 1;
+        .sort((a, b) => a - b).pop() ?? 0) + 1;
 
       metadata[`systemsim-save-${saveIndex}`] = {saveType, message, timestamp: Date.now()};
       saveKey = `systemsim-save-${saveIndex}`;
@@ -812,102 +825,31 @@ export class Game {
     return this.refresh();
   }
 
-  async showCredits() {
-    await this.showDialog({
-      title: 'Credits',
-      text: `
-        <h3>Thanks to:</h3><br />
-        <p>(No-one yet, all the stuff here was made by my massive, muscular fingers.)</p><br />
-        <h3>Special thanks to:</h3><br />
-        <p>Ruurtjan Pul for the <a href="https://www.nslookup.io/dns-course/">DNS for developers course</a>, which was a catalyst for beginning my search.</p>
-        <p>Team Fractal Alligator for <a href="https://store.steampowered.com/app/365450/Hacknet/">Hacknet</a>, which was an inspiration for this game.</p>
-        <p>Jacob Jackson for <a href="https://supermaven.com/">Supermaven</a>, an excellent (and fast) AI assistant.  // &lt;-- THE ASSISTANT WROTE THIS ASDFASDFASDF HELP</p>
-        <p><a href="https://stackoverflow.com/">Stack Overflow</a>, for obvious reasons.</p>
-        <p><a href="https://www.jetbrains.com/">Jetbrains</a> for the powerful IDEs they provide.</p>
-        <p><a href="https://github.com/">GitHub</a>, for hosting the code, and for hosting the game on GitHub pages.</p>
-        <p><a href="https://itch.io/">itch.io</a>, for hosting the game on itch.io.</p>
-      `,
-      buttons: [{ text: 'Close', attributes: { primary: true } }],
-    });
-  }
-
-  async showDeleteDialog() {
-    await this.showDialog({
-      title: 'Delete data',
-      text: 'WARNING: This will reset your progress to zero. Are you sure you want to continue?',
-      buttons: [
-        { text: 'Cancel', attributes: { primary: true } },
-        {
-          text: 'Delete everything',
-          attributes: { danger: true },
-          callback: async () => {
-            await this.showDialog({
-              title: 'Delete data',
-              text: 'WARNING: This will delete all your data, including your achievements, save points, and any other saved data.' +
-                ' Are you <b>really</b> sure you want to continue?',
-              buttons: [
-                { text: 'Cancel', attributes: { primary: true } },
-                {
-                  text: 'Delete everything',
-                  attributes: { danger: true },
-                  callback: async () => {
-                    this.cls();
-                    this.setAsciiArt(undefined);
-                    await sleep(800);
-                    this.toggleMenu();
-                    await sleep(800);
-                    setTimeout(async () => {
-                      localStorage.clear();
-                      document.removeEventListener('keydown', this.keyDownHandler);
-                      window.game = new Game();
-                      await window.game.init();
-                    }, 1600);
-                  }
-                },
-              ],
-            });
-          }
-        },
-        { text: 'Delete progress',
-          attributes: { danger: true },
-          callback: async () => {
-            this.cls();
-            await sleep(1000);
-            this.toggleMenu();
-            setTimeout(async () => {
-              for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                if (key.startsWith('systemsim-save-')) {
-                  localStorage.removeItem(key);
-                }
-              }
-              document.removeEventListener('keydown', this.keyDownHandler);
-              window.game = new Game();
-              await window.game.init();
-            }, 1500);
-        } },
-      ],
-    });
-  }
-
   async showDialog(options) {
     const dialogElm = document.getElementById('dialog-ui');
     const dialogTitleElm = document.getElementById('dialog-ui-title');
     const dialogTextElm = document.getElementById('dialog-ui-text');
     const dialogButtonsElm = document.getElementById('dialog-ui-buttons');
+    const dialogErrorElm = document.getElementById('dialog-ui-error');
 
     return new Promise((resolve) => {
+      dialogTitleElm.style = null;
+      dialogTitleElm.className = null;
       if (typeof options.title === 'string') {
         dialogTitleElm.innerHTML = options.title;
       } else {
         options.title?.(dialogTitleElm);
       }
 
+      dialogTextElm.style = null;
+      dialogTextElm.className = null;
       if (typeof options.text === 'string') {
         dialogTextElm.innerHTML = options.text;
       } else {
         options.text?.(dialogTextElm);
       }
+
+      dialogErrorElm.style.display = 'none';
 
       dialogButtonsElm.innerHTML = '';
       for (const button of options.buttons) {
@@ -917,66 +859,22 @@ export class Game {
           buttonElm.setAttribute(key, value);
         }
         buttonElm.addEventListener('click', async () => {
-          resolve(await button.callback?.());
-          dialogElm.style.display = 'none';
+          try {
+            buttonElm.disabled = true;
+            resolve(await button.callback?.());
+            dialogElm.style.display = 'none';
+          } catch (e) {
+            dialogErrorElm.style.display = null;
+            dialogErrorElm.innerHTML = e.message;
+          } finally {
+            buttonElm.disabled = false;
+          }
         });
         dialogButtonsElm.appendChild(buttonElm);
       }
 
       dialogElm.style.display = null;
     });
-  }
-
-  async showLicense() {
-    const licenseText = await fetch('LICENSE').then(res => res.text());
-    await this.showDialog({
-      title: (elem) => {
-        const random = Math.random();
-        if (random < 0.33) elem.innerHTML = 'Loicense';
-        else elem.innerHTML = 'License';
-
-        setTimeout(() => {
-          elem.innerHTML = 'License';
-        }, 1000);
-      },
-      text: licenseText.replace(/\n\n/g, '<br /><br />'),
-      buttons: [{ text: 'Close', attributes: { primary: true } }],
-    });
-  }
-
-  toggleMenu() {
-    const menuElm = document.getElementById('menu-ui');
-    if (menuElm.style.display === 'none') {
-      // Adjust text
-      const stuckBtnQuotes = [
-        'Halp',
-        "I'm so sorry",
-        'I did an oopsie',
-        '/stuck',
-        "I've done goofed up",
-        'I accidentally the whole system',
-        'I messed up',
-        'Everything is horrible',
-      ];
-      const randomInt = Math.floor(Math.random() * stuckBtnQuotes.length);
-      document.getElementById('stuck-btn').innerHTML = stuckBtnQuotes[randomInt];
-
-      // Load achievements
-      document.getElementById('achievements-list').innerHTML = '';
-      for (const [name, achievement] of achievementsData) {
-        if (!Achievements.has(name)) continue;
-        const achievementElm = document.createElement('div');
-        achievementElm.innerHTML = `<h3>${achievement.title}</h3><p>${achievement.description}</p>`;
-        document.getElementById('achievements-list').appendChild(achievementElm);
-      }
-      if (document.getElementById('achievements-list').children.length === 0) {
-        document.getElementById('achievements-list').innerHTML = '<p>(None yet.)</p>';
-      }
-
-      menuElm.style.display = null;
-    } else {
-      menuElm.style.display = 'none';
-    }
   }
 
   waitInput(prompt) {

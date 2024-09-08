@@ -14,7 +14,11 @@
     color: var(--color-contrast);
     font-weight: bold;
 }
-#save-points-list p:not(:first-child):hover {
+#save-points-list p:not(:first-child):not(:nth-child(2)):hover {
+    background-color: var(--color-secondary);
+    color: var(--color-contrast);
+}
+#save-points-list p.selected {
     background-color: var(--color-secondary);
     color: var(--color-contrast);
 }

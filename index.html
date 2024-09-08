@@ -53,7 +53,7 @@
         </div>
         <div id="menu-controls" class="column">
           <div class="row">
-            <button primary>Save game</button>
+            <button primary onclick="game.menu.showSavePointDialog()">Save game</button>
             <p>
               Game saves automatically after each input.<br />
               Click the button to create a manual save.
@@ -84,16 +84,16 @@
             </div>
           </div>
           <div class="column">
-            <button onclick="game.showLicense()">License</button>
-            <button onclick="game.showCredits()">Credits</button>
-            <button danger onclick="game.showDeleteDialog()">Delete data</button>
+            <button onclick="game.menu.showLicense()">License</button>
+            <button onclick="game.menu.showCredits()">Credits</button>
+            <button danger onclick="game.menu.showDeleteDialog()">Delete data</button>
           </div>
         </div>
       </div>
     </div>
     <div id="esc-ui" class="ui layer" style="z-index: 20; display: none;">
       <button onclick="game.enableFullscreen()">&#x2922;</button>
-      <button onclick="game.toggleMenu()">&#x2630;</button>
+      <button onclick="game.menu.toggle()">&#x2630;</button>
     </div>
     <div id="achievements-popup" class="popup layer" style="z-index: 21; display: none;">
       <div id="achievements-popup-container">
@@ -109,6 +109,7 @@
         <div id="dialog-ui-content" class="column">
           <h2 id="dialog-ui-title">title</h2>
           <div id="dialog-ui-text">text</div>
+          <p danger id="dialog-ui-error"></p>
         </div>
         <div id="dialog-ui-buttons" class="row">
         </div>
