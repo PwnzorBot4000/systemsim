@@ -136,15 +136,16 @@ export class Game {
     // Game init sequence
     this.setAsciiArt(undefined);
     document.getElementById('init-ui').style.display = 'none';
-    await this.enableFullscreen();
-    document.getElementById('esc-ui').style.display = null;
     const terminalElem = document.getElementById('terminal');
     terminalElem.innerHTML = '';
-    await sleep(100);
     if (this.isFullscreen()) {
+      await sleep(100);
       terminalElem.innerHTML = 'Searching for player data...<br /><br />';
-      await sleep(2000);
+      await sleep(1500);
     } else {
+      await this.enableFullscreen();
+      document.getElementById('esc-ui').style.display = null;
+      await sleep(100);
       terminalElem.innerHTML = 'Entering fullscreen mode...<br /><br />';
       await sleep(400);
       terminalElem.classList.add('monospace');
@@ -631,16 +632,8 @@ export class Game {
 
   isFullscreen() {
     const fsElm = document.body;
-    if (fsElm.fullcreenEnabled) {
-      return true;
-    } else if (fsElm.msFullscreenEnabled) {
-      return true;
-    } else if (fsElm.mozFullScreenEnabled) {
-      return true;
-    } else if (fsElm.webkitFullscreenEnabled) {
-      return true;
-    }
-    return false;
+    return !!fsElm.closest(':is(:fullscreen, :-webkit-full-screen, :-moz-full-screen, :-ms-fullscreen)');
+
   }
 
   enableInputHistory(value) {

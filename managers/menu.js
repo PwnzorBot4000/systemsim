@@ -56,12 +56,19 @@ export class Menu {
     };
     addSavePointRow('Title', 'Timestamp');
     addSavePointRow('Current', 'Now');
+    const entriesToAdd = [];
     for (const [name, metadata] of Object.entries(savesMetadata)) {
       if (name.startsWith('systemsim-save-')) {
-        const message = metadata.message;
-        const timestamp = new Date(metadata.timestamp).toLocaleString();
-        addSavePointRow(message, timestamp, name.replace('systemsim-save-', ''));
+        entriesToAdd.push({
+          message: metadata.message,
+          timestamp: new Date(metadata.timestamp),
+          name: name.replace('systemsim-save-', '')
+        });
       }
+    }
+    entriesToAdd.sort((a, b) => b.timestamp - a.timestamp);
+    for (const entry of entriesToAdd) {
+      addSavePointRow(entry.message, entry.timestamp.toLocaleString(), entry.name);
     }
   }
 
@@ -76,6 +83,10 @@ export class Menu {
         child.classList.remove('selected');
       }
     }
+  }
+
+  deselectSavePoint() {
+    this.selectedSavePoint = null;
   }
 
   async showCredits() {
@@ -140,15 +151,47 @@ export class Menu {
             await sleep(1000);
             this.toggle();
             setTimeout(async () => {
+              const keysToRemove = [];
               for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
                 if (key.startsWith('systemsim-save-')) {
-                  localStorage.removeItem(key);
+                  keysToRemove.push(key);
                 }
+              }
+              for (const key of keysToRemove) {
+                localStorage.removeItem(key);
               }
               localStorage.removeItem('systemsim-saves-metadata');
               await window.game.restart();
             }, 1500);
+          }
+        },
+      ],
+    });
+  }
+
+  async showDeletePointDialog() {
+    if (!this.selectedSavePoint) return;
+    const metadata = localStorage.getItem('systemsim-saves-metadata');
+    if (!metadata) return;
+    const metadataJson = JSON.parse(metadata);
+    if (!metadataJson['systemsim-save-' + this.selectedSavePoint]) return;
+    const saveMeta = metadataJson['systemsim-save-' + this.selectedSavePoint];
+
+    await this.game.showDialog({
+      title: 'Delete save point',
+      text: `Are you sure? (Deleting save point "${saveMeta.message}")`,
+      buttons: [
+        { text: 'Cancel' },
+        {
+          text: 'Delete',
+          attributes: { primary: true },
+          callback: async () => {
+            localStorage.removeItem('systemsim-save-' + this.selectedSavePoint);
+            delete metadataJson['systemsim-save-' + this.selectedSavePoint];
+            localStorage.setItem('systemsim-saves-metadata', JSON.stringify(metadataJson));
+            this.deselectSavePoint();
+            this.refresh(true);
           }
         },
       ],
@@ -169,6 +212,33 @@ export class Menu {
       },
       text: licenseText.replace(/\n\n/g, '<br /><br />'),
       buttons: [{ text: 'Close', attributes: { primary: true } }],
+    });
+  }
+
+  async showLoadPointDialog() {
+    if (!this.selectedSavePoint) return;
+    const save = localStorage.getItem('systemsim-save-' + this.selectedSavePoint);
+    if (!save) return;
+
+    await this.game.showDialog({
+      title: 'Load game',
+      text: 'Are you sure? Current progress will be lost.',
+      buttons: [
+        { text: 'Cancel' },
+        {
+          text: 'Load',
+          attributes: { primary: true },
+          callback: async () => {
+            this.game.cls();
+            this.game.setAsciiArt(undefined);
+            this.toggle();
+            setTimeout(async () => {
+              localStorage.setItem('systemsim-save-current', save);
+              await window.game.restart();
+            }, 1500);
+          }
+        },
+      ],
     });
   }
 
