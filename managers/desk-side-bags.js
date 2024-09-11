@@ -1,31 +1,19 @@
-export class DeskSideBags {
-  bags = [
-    {
-      name: 'cologne-packaging',
-      description: 'A small bag containing the empty packaging of a cologne bottle.',
-      trash: true
-    },
-    {name: 'cooler-packaging', description: 'A large bag containing the empty packaging of a CPU cooler.', trash: true},
-  ];
+import {ItemContainer} from "../entities/item-container.js";
 
-  areEmpty() {
-    return this.bags.length === 0;
+export class DeskSideBags extends ItemContainer {
+  constructor() {
+    super([
+      {
+        name: 'cologne-packaging',
+        description: 'A small bag containing the empty packaging of a cologne bottle.',
+        trash: true
+      },
+      {name: 'cooler-packaging', description: 'A large bag containing the empty packaging of a CPU cooler.', trash: true},
+    ]);
   }
 
-  cleanupTrash() {
-    this.bags = this.bags.filter((bag) => !bag.trash);
-  }
-
-  importSave(save) {
-    this.bags = save;
-  }
-
-  exportSave() {
-    return [...this.bags];
-  }
-
-  render() {
-    if (this.areEmpty()) {
+  report() {
+    if (this.isEmpty()) {
       const prob = Math.random();
       if (prob > 0.95)
         return '(Nothing. Like your soul.)<br />';
@@ -35,6 +23,14 @@ export class DeskSideBags {
         return '(Nothing. The empty side of your desk is staring at you, menacingly.)<br />';
       return '(Nothing, the side of your desk is clean.)<br />';
     }
-    return this.bags.map((bag) => `- ${bag.description}`).join('<br />') + '<br />';
+    return super.report();
+  }
+
+  reportFirstTime() {
+    return 'You search the bags. There is:<br />' + this.report();
+  }
+
+  reportAfterChange() {
+    return 'Now there is:<br />' + this.report();
   }
 }

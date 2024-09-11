@@ -1,10 +1,35 @@
-export class Book {
-  name;
-  contents;
+import {StateManagingObject} from "./state-managing-object.js";
+import {sanitizeHtml} from "../utils.js";
 
-  constructor(name, contents) {
-    this.name = name;
-    this.contents = contents;
+export class Book extends StateManagingObject {
+  contents;
+  description;
+  name;
+  referredAsThe = 'book';
+  type = 'book';
+
+  constructor(options) {
+    super();
+    this.contents = options.contents;
+    this.description = options.description;
+    this.name = options.name;
+  }
+
+  determineActions() {
+    return ['chapter [x]', 'back'];
+  }
+
+  executeInput(game) {
+    // Execute 'chapter [x]' action
+    const index = game.getArgvInt(1) - 1;
+
+    try {
+      game.print(sanitizeHtml(this.readChapter(index)) + '<br />');
+    } catch (e) {
+      game.print(`${e.message}<br />`);
+    }
+
+    game.waitInput();
   }
 
   readChapter(index) {

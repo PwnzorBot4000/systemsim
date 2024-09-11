@@ -1,17 +1,74 @@
 import {formatNumberInOrdinal, formatSize, sleep} from "../utils.js";
 import {MemoryStick} from "./memory-stick.js";
+import {StateManagingObject} from "./state-managing-object.js";
+
+class MachineSpecs extends StateManagingObject {
+  ram;
+  cpu;
+  mb;
+  disk;
+  psu;
+
+  constructor(options) {
+    super();
+    Object.assign(this, options);
+  }
+
+  importSave(save) {
+    this.ram = save.ram;
+    this.cpu = save.cpu;
+    this.mb = save.mb;
+    this.disk = save.disk;
+    this.psu = save.psu;
+  }
+
+  exportSave() {
+    return {
+      ram: this.ram,
+      cpu: this.cpu,
+      mb: this.mb,
+      disk: this.disk,
+      psu: this.psu,
+    };
+  }
+
+  report() {
+    const ramSizeString = formatSize(this.ram.size, 'G', {space: true});
+    const ramFreqString = formatSize(this.ram.frequency, 'M', {space: true});
+    const cpuCoreString = this.cpu.cores === 1 ? 'single' : this.cpu.cores === 2 ? 'dual' : this.cpu.cores;
+    const cpuFreqString = formatSize(this.cpu.frequency, 'G', {space: true});
+    const cpuGenString = formatNumberInOrdinal(this.cpu.generation);
+    const cpuCacheString = formatSize(this.cpu.cache, 'M', {space: true});
+    const cpuOverclockString = formatSize(this.cpu.overclock, 'G', {space: true});
+    const mbGenSupportString = this.mb.minGen === this.mb.maxGen ? formatNumberInOrdinal(this.mb.minGen) : `${this.mb.minGen}-${formatNumberInOrdinal(this.mb.maxGen)}`;
+    const mbMaxRamString = formatSize(this.mb.maxRam, 'G');
+    const mbMaxFreqString = formatSize(this.mb.maxFrequency, 'M', {space: true});
+    const diskSizeString = formatSize(this.disk.size, 'G');
+
+    return `- ${ramSizeString}B of ${this.ram.type} RAM @${ramFreqString}Hz.<br />` +
+      `- A ${cpuCoreString}-core ${cpuGenString} generation CPU @${cpuFreqString}Hz w/ ${cpuCacheString}B cache, overclocked to ${cpuOverclockString}Hz.<br />` +
+      `- A ${mbGenSupportString} gen chipset motherboard with support for up to ${mbMaxRamString}B of RAM @${mbMaxFreqString}Hz.<br />` +
+      `- A ${diskSizeString}B ${this.disk.type} with a ${this.disk.interface} interface.<br />` +
+      `- No graphics card.<br />` +
+      `- A ${this.psu.watts} W power supply.<br />`;
+  }
+
+  reportFirstTime() {
+    return 'You open the computer tower. It is equipped with:<br />' + this.report();
+  }
+}
 
 export class Machine {
   game;
   shell;
   devices = [];
-  specs = {
+  specs = new MachineSpecs({
     ram: { size: 1, type: 'DDR3', frequency: 800 },
     cpu: { cores: 2, generation: 4, frequency: 2.7, cache: 2, overclock: 2.835 },
     mb: { minGen: 4, maxGen: 5, maxRam: 16, maxFrequency: 1600, usbPorts: 1 },
     disk: { size: 1000, interface: 'SATA', type: 'HDD' },
     psu: { watts: 300 }
-  }
+  });
   state = 'off';
   bootFilesystem;
   storedFilesystem;
@@ -147,33 +204,12 @@ export class Machine {
   exportSave() {
     return {
       filesystem: this.storedFilesystem.exportSave(),
-      specs: this.specs,
+      specs: this.specs.exportSave(),
     };
   }
 
   importSave(save) {
     this.storedFilesystem.importSave(save.filesystem);
-    this.specs = save.specs;
-  }
-
-  renderStats() {
-    const ramSizeString = formatSize(this.specs.ram.size, 'G', {space: true});
-    const ramFreqString = formatSize(this.specs.ram.frequency, 'M', {space: true});
-    const cpuCoreString = this.specs.cpu.cores === 1 ? 'single' : this.specs.cpu.cores === 2 ? 'dual' : this.specs.cpu.cores;
-    const cpuFreqString = formatSize(this.specs.cpu.frequency, 'G', {space: true});
-    const cpuGenString = formatNumberInOrdinal(this.specs.cpu.generation);
-    const cpuCacheString = formatSize(this.specs.cpu.cache, 'M', {space: true});
-    const cpuOverclockString = formatSize(this.specs.cpu.overclock, 'G', {space: true});
-    const mbGenSupportString = this.specs.mb.minGen === this.specs.mb.maxGen ? formatNumberInOrdinal(this.specs.mb.minGen) : `${this.specs.mb.minGen}-${formatNumberInOrdinal(this.specs.mb.maxGen)}`;
-    const mbMaxRamString = formatSize(this.specs.mb.maxRam, 'G');
-    const mbMaxFreqString = formatSize(this.specs.mb.maxFrequency, 'M', {space: true});
-    const diskSizeString = formatSize(this.specs.disk.size, 'G');
-
-    return `- ${ramSizeString}B of ${this.specs.ram.type} RAM @${ramFreqString}Hz.<br />` +
-      `- A ${cpuCoreString}-core ${cpuGenString} generation CPU @${cpuFreqString}Hz w/ ${cpuCacheString}B cache, overclocked to ${cpuOverclockString}Hz.<br />` +
-      `- A ${mbGenSupportString} gen chipset motherboard with support for up to ${mbMaxRamString}B of RAM @${mbMaxFreqString}Hz.<br />` +
-      `- A ${diskSizeString}B ${this.specs.disk.type} with a ${this.specs.disk.interface} interface.<br />` +
-      `- No graphics card.<br />` +
-      `- A ${this.specs.psu.watts} W power supply.<br />`;
+    this.specs.importSave(save.specs);
   }
 }

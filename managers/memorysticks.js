@@ -1,8 +1,9 @@
 import {Filesystem} from "../entities/filesystem.js";
 import {filesystemsData} from "../data/filesystems.js";
 import {MemoryStick} from "../entities/memory-stick.js";
+import {StateManagingObject} from "../entities/state-managing-object.js";
 
-export class MemorySticks {
+export class MemorySticks extends StateManagingObject {
   machine;
   sticks = [
     new MemoryStick({
@@ -37,6 +38,7 @@ export class MemorySticks {
   ];
 
   constructor(options = {machine: undefined}) {
+    super();
     // Memory stick pile should have a reference to the machine that owns it
     this.machine = options.machine;
   }
@@ -58,6 +60,33 @@ export class MemorySticks {
     }
   }
 
+  determineActions() {
+    return ['eject [x]', 'mount [x]', 'back'];
+  }
+
+  async executeInput(game) {
+    const index = game.getArgvInt(1) - 1;
+
+    try {
+      switch (game.getArgv(0)) {
+        case 'eject': {
+          await this.eject(index);
+          game.print(`You eject memory stick ${index + 1}.<br />`);
+          break;
+        }
+        case 'mount': {
+          await this.mount(index);
+          game.print(`You mount memory stick ${index + 1}.<br />`);
+          break;
+        }
+      }
+    } catch (e) {
+      game.print(`${e.message}<br />`);
+    }
+
+    game.waitInput();
+  }
+
   async eject(index) {
     this.assertIndex(index);
     this.assertMounted(index, true);
@@ -75,6 +104,10 @@ export class MemorySticks {
       if (!stick) continue;
       stick.importSave(stickSave);
     }
+  }
+
+  getAsciiArtId() {
+    return 'memorySticks';
   }
 
   async mount(index) {
