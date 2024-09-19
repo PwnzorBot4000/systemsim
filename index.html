@@ -4,16 +4,16 @@
     <meta charset="utf-8" />
     <title>Systemsim</title>
     <link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48 64x64 128x128" type="image/x-icon" />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles/main.css" />
     <script type="module">
-      import { Game } from './game.js';
+      import { Game } from './scripts/game.js';
 
       const game = new Game();
       window.game = game;
 
       document.addEventListener('DOMContentLoaded', async () => {
         // Show init UI
-        game.setAsciiArt('logo');
+        game.asciiart.set('logo');
         document.getElementById('init-ui').style.display = null;
       });
     </script>

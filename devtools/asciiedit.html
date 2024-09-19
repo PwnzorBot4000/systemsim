@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <title>ASCII art editor</title>
+  <link rel="icon" href="../favicon.ico" sizes="16x16 32x32 48x48 64x64 128x128" type="image/x-icon" />
+  <style>
+      @import url('../styles/base/colors.css');
+      @import url('../styles/base/fonts.css');
+      @import url('../styles/base/reset.css');
+      @import url('../styles/base/layout.css');
+      @import url('../styles/themes/default.css');
+      @import url('../styles/themes/ui.css');
+      @import url('../styles/animations.css');
+      @import url('../styles/layers/asciiart.css');
+
+      .ui button.selected {
+          background-color: var(--color-secondary);
+          color: var(--color-contrast);
+          text-shadow: 0 0 2px var(--color-contrast);
+      }
+
+      #editor-ui {
+          padding: 1rem;
+          color: var(--color-secondary);
+      }
+      #editor-ui .container {
+          display: grid;
+          grid-template-columns: auto 1fr;
+          grid-template-rows: auto 1fr 1fr;
+          grid-template-areas:
+            "title title"
+            "artlist preview"
+            "layers preview";
+          height: 100%;
+          width: 100%;
+      }
+      #editor-title {
+          align-items: baseline;
+          gap: 1rem;
+          grid-area: title;
+          padding: 1rem;
+      }
+      #editor-artlist {
+          align-items: flex-start;
+          border-bottom: 1px var(--color-secondary) solid;
+          grid-area: artlist;
+          gap: 2rem;
+          overflow-y: auto;
+          padding: 1rem;
+      }
+      #editor-layers {
+          align-items: flex-start;
+          grid-area: layers;
+          gap: 2rem;
+          overflow-y: auto;
+          padding: 1rem;
+      }
+
+      #editor-cursor {
+          border: 1px var(--color-primary) solid;
+          height: calc(1em + 4px);
+          pointer-events: none;
+          position: absolute;
+          width: calc(1ch + 4px);
+      }
+  </style>
+  <script type="module">
+    import {AsciiArtManager, AsciiArtLayer} from "../scripts/managers/asciiart.js";
+    const asciiartModule = await import('../data/asciiart.js');
+
+    class AsciiArtEditor {
+      cursor = {x: 0, y: 0, layer: 1, elem: undefined};
+      manager = new AsciiArtManager(undefined, {asciiArtSource: asciiartModule.asciiart});
+
+      constructor() {
+        this.cursor.elem = document.getElementById('editor-cursor');
+      }
+
+      init() {
+        this.setAsciiArt('logo');
+
+        const artPieces = this.manager.getList();
+        const artListElem = document.getElementById('editor-artlist-list');
+        artListElem.innerHTML = artPieces.map((piece) => `<button onclick="editor.setAsciiArt('${piece}')">${piece}</button>`).join('');
+
+        // Bind events
+        document.addEventListener('keydown', this.keyDownHandler);
+
+        this.refresh();
+      }
+
+      keyDownHandler = async (e) => {
+        switch (e.key) {
+          case 'ArrowUp':
+            this.moveCursor(this.cursor.x, this.cursor.y - 1);
+            break;
+          case 'ArrowDown':
+            this.moveCursor(this.cursor.x, this.cursor.y + 1);
+            break;
+          case 'ArrowLeft':
+            this.moveCursor(this.cursor.x - 1, this.cursor.y);
+            break;
+          case 'ArrowRight':
+            this.moveCursor(this.cursor.x + 1, this.cursor.y);
+            break;
+          case 'Backspace':
+          case 'Delete':
+            this.drawCharacter(' ');
+            break;
+          case 'Enter':
+            this.moveCursor(this.cursor.x, this.cursor.y + 1);
+            break;
+          default:
+            if (e.key === 'c' && e.ctrlKey) {
+              const currentChar = this.manager.getCharacter(this.cursor.x, this.cursor.y, this.cursor.layer);
+              await navigator.clipboard.writeText(currentChar);
+              break;
+            }
+            if (e.key === 'v' && e.ctrlKey) {
+              navigator.clipboard.readText().then(text => {
+                if (text.length < 1) return;
+                this.drawCharacter(text[0]);
+              });
+              break;
+            }
+            if (/^[\w `~!@#$%^&*()\-_+=\[\]{}\\|<>,.?/;:"']$/.test(e.key) ||
+                e.key.length === 1 && e.key.charCodeAt(0) >= 32) {
+              this.drawCharacter(e.key);
+            }
+            break;
+        }
+      }
+
+      copyLayer() {
+        const copyAsJs = document.getElementById('editor-copy-as-js').checked;
+        const layerText = this.manager.getLayerText(this.manager.asciiArtId, this.cursor.layer);
+        let textToCopy = layerText;
+
+        if (copyAsJs) {
+          textToCopy = `  ${AsciiArtLayer.getLayerIdByIndex(this.manager.asciiArtId, this.cursor.layer)}:\n` +
+            layerText
+              .split('\n')
+              .filter(line => !!line)
+              .map(line => `    '${line}\\n'`)
+              .join(' +\n') +
+            ',';
+        }
+
+        navigator.clipboard.writeText(textToCopy);
+      }
+
+      drawCharacter(char) {
+        if (!char) return;
+        this.manager.setCharacter(char, this.cursor.x, this.cursor.y, this.cursor.layer);
+      }
+
+      moveCursor(x, y) {
+        if (x > 0) x = 0;
+        if (y > 0) y = 0;
+
+        this.cursor.x = x;
+        this.cursor.y = y;
+        this.refresh();
+      }
+
+      refresh() {
+        this.cursor.elem.style.right = `calc(${-this.cursor.x}ch - 2px)`;
+        this.cursor.elem.style.bottom = `calc(1.12 * (${-this.cursor.y}em) - 2px)`;
+      }
+
+      setActiveLayer(layerIndex) {
+        this.cursor.layer = layerIndex;
+
+        for (let i = 1; i <= 4; i++) {
+          const layerBtn = document.getElementById(`editor-layer-btn-${i}`);
+          if (i === layerIndex) {
+            layerBtn.classList.add('selected');
+          } else {
+            layerBtn.classList.remove('selected');
+          }
+        }
+      }
+
+      setAsciiArt(asciiArtId) {
+        this.manager.set(asciiArtId);
+
+        const layersListElem = document.getElementById('editor-layers-list');
+        layersListElem.innerHTML = this.manager.getLayers(asciiArtId)
+          .map((layer) => `<button id="editor-layer-btn-${layer.index}" onclick="editor.setActiveLayer(${layer.index})">Layer ${layer.index}</button>`)
+          .join('');
+
+        this.moveCursor(0, 0);
+        this.setActiveLayer(1);
+      }
+    }
+
+    const editor = new AsciiArtEditor();
+    window.editor = editor;
+    editor.init();
+  </script>
+</head>
+<body>
+  <div id="asciiart" class="asciiart layer" style="z-index: 1">
+  </div>
+  <div id="asciiart-l2" class="asciiart layer" style="z-index: 2">
+  </div>
+  <div id="asciiart-l3" class="asciiart layer" style="z-index: 3">
+  </div>
+  <div id="asciiart-l4" class="asciiart layer" style="z-index: 4">
+  </div>
+  <div id="editor-grid" class="asciiart layer" style="z-index: 11">
+    <div id="editor-cursor"></div>
+  </div>
+  <div id="editor-ui" class="ui layer" style="z-index: 19">
+    <div class="container">
+      <div id="editor-title" class="row">
+        <h1>ASCII art editor</h1>
+      </div>
+      <div id="editor-artlist" class="column">
+        <h3>Select art piece:</h3>
+        <div id="editor-artlist-list" class="column">
+        </div>
+      </div>
+      <div id="editor-layers" class="column">
+        <h3>Layers</h3>
+        <div id="editor-layers-list" class="column">
+        </div>
+        <div class="column">
+          <button onclick="editor.copyLayer()">Copy active layer</button>
+          <div class="row">
+            <input type="checkbox" id="editor-copy-as-js">
+            <label for="editor-copy-as-js">Copy as JavaScript</label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

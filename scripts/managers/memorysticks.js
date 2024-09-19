@@ -1,5 +1,5 @@
 import {Filesystem} from "../entities/filesystem.js";
-import {filesystemsData} from "../data/filesystems.js";
+import {filesystemsData} from "../../data/filesystems.js";
 import {MemoryStick} from "../entities/memory-stick.js";
 import {StateManagingObject} from "../entities/state-managing-object.js";
 

@@ -1,4 +1,4 @@
-import {encodeExeName} from "../utils.js";
+import {encodeExeName} from "../scripts/utils.js";
 
 const binaries = new Map([
   ['curl', { type: 'exe', contents: 'ELF' + encodeExeName('curl', 306) }],

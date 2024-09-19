@@ -1,4 +1,4 @@
-import {achievementsData} from "../data/achievements.js";
+import {achievementsData} from "../../data/achievements.js";
 import {Achievements} from "./achievements.js";
 import {sleep} from "../utils.js";
 
@@ -129,7 +129,7 @@ export class Menu {
                   attributes: { danger: true },
                   callback: async () => {
                     this.game.cls();
-                    this.game.setAsciiArt(undefined);
+                    this.game.asciiart.set(undefined);
                     await sleep(800);
                     this.toggle();
                     await sleep(800);
@@ -147,7 +147,7 @@ export class Menu {
           attributes: { danger: true },
           callback: async () => {
             this.game.cls();
-            this.game.setAsciiArt(undefined);
+            this.game.asciiart.set(undefined);
             await sleep(1000);
             this.toggle();
             setTimeout(async () => {
@@ -230,7 +230,7 @@ export class Menu {
           attributes: { primary: true },
           callback: async () => {
             this.game.cls();
-            this.game.setAsciiArt(undefined);
+            this.game.asciiart.set(undefined);
             this.toggle();
             setTimeout(async () => {
               localStorage.setItem('systemsim-save-current', save);

@@ -2,6 +2,10 @@ import {ItemContainer} from "./item-container.js";
 import {sleep} from "../utils.js";
 
 export class Bookcase extends ItemContainer {
+  getAsciiArtId() {
+    return 'bookcase';
+  }
+
   report() {
     return async (game) => {
       const parts = [];

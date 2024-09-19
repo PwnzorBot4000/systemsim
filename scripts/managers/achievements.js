@@ -1,4 +1,4 @@
-import {achievementsData} from "../data/achievements.js";
+import {achievementsData} from "../../data/achievements.js";
 
 const ACHIEVEMENTS_STORAGE_KEY = 'systemsim-achievements';
 

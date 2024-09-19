@@ -1,4 +1,4 @@
-import {Book} from "../entities/book.js";
+import {Book} from "../scripts/entities/book.js";
 
 export const booksData = new Map([
   ['history-of-computer-industry', new Book({

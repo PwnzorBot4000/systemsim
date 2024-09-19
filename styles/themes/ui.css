@@ -36,6 +36,11 @@
 .ui a, .ui a:visited {
     color: var(--color-secondary);
 }
+.ui label {
+    color: var(--color-primary);
+    font-family: var(--font-ui);
+    font-size: 1rem;
+}
 .ui button {
     background-color: var(--color-contrast);
     border: 1px var(--color-secondary) solid;

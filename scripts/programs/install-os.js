@@ -1,5 +1,5 @@
 import {sleep} from "../utils.js";
-import {filesystemsData} from "../data/filesystems.js";
+import {filesystemsData} from "../../data/filesystems.js";
 
 export async function installOs(game, computer) {
   const target = game.getArgv(1) || '/mnt';

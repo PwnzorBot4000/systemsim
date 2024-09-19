@@ -1,4 +1,4 @@
-import {helpData} from "../data/help.js";
+import {helpData} from "../../data/help.js";
 import {decodeExeName, printBinaryObject, sanitizeHtml, sleep} from "../utils.js";
 import {Filesystem} from "../entities/filesystem.js";
 

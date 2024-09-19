@@ -2,16 +2,16 @@ import {DeskSideBags} from './managers/desk-side-bags.js';
 import {Filesystem} from './entities/filesystem.js';
 import {InputHistory} from './managers/input-history.js';
 import {Notepad} from './managers/notepad.js';
-import {asciiart} from './data/asciiart.js';
 import {formatNumberInOrdinalFull, longestCommonPrefixSorted, simpleHash, sleep} from './utils.js';
-import {booksData} from "./data/books.js";
-import {filesystemsData} from "./data/filesystems.js";
+import {booksData} from "../data/books.js";
+import {filesystemsData} from "../data/filesystems.js";
 import {MemorySticks} from "./managers/memorysticks.js";
 import {Server} from "./entities/server.js";
 import {Machine} from "./entities/machine.js";
 import {Menu} from "./managers/menu.js";
 import {Drawer} from "./entities/drawer.js";
 import {Bookcase} from "./entities/bookcase.js";
+import {AsciiArtManager} from "./managers/asciiart.js";
 
 export class Game {
   // Persistent state
@@ -142,6 +142,7 @@ export class Game {
   }
 
   // Transient state
+  asciiart = new AsciiArtManager(this);
   input = '';
   inputHistory = new InputHistory();
   menu = new Menu(this);
@@ -156,7 +157,7 @@ export class Game {
 
   async init() {
     // Game init sequence
-    this.setAsciiArt(undefined);
+    this.asciiart.set(undefined);
     document.getElementById('init-ui').style.display = 'none';
     const terminalElem = document.getElementById('terminal');
     terminalElem.innerHTML = '';
@@ -322,7 +323,7 @@ export class Game {
           case '': {
             this.print('You look at the desk.<br />');
             await sleep(600);
-            this.setAsciiArt('desk');
+            this.asciiart.set('desk');
             const bagsPrompt = this.deskSideBags.isEmpty() ? '' : ' Next to it a few paper bags are leaning on its side.';
             this.print('On top of it, from left to right, there is a family picture, a small pile of memory sticks, a pile of electronics, and a large notepad with a pen.<br />' +
               `It has three drawers in one side, and the computer tower on the other one.${bagsPrompt}<br />`);
@@ -339,7 +340,7 @@ export class Game {
           case 'picture':
             this.print('You look at the picture.<br />');
             await sleep(600);
-            this.setAsciiArt('picture');
+            this.asciiart.set('picture');
             this.print(
               'It is a picture of your parents, with you in the middle. They are holding you from the hands, one hand each.<br />' +
               'The date on the photo is 2006 May 16.<br />');
@@ -497,7 +498,7 @@ export class Game {
     switch (command) {
       case '': {
         if (object.getAsciiArtId?.())
-          this.setAsciiArt(object.getAsciiArtId());
+          this.asciiart.set(object.getAsciiArtId());
         const report = object.reportFirstTime();
         if (typeof report === 'string') {
           this.print(report);
@@ -679,46 +680,6 @@ export class Game {
     localStorage.setItem(saveKey, JSON.stringify(data));
   }
 
-  setAsciiArt(asciiArtId) {
-    const numLayers = 4;
-    const asciiArtLayers = [document.getElementById('asciiart')];
-    for (let i = 2; i <= numLayers; i++) {
-      asciiArtLayers.push(document.getElementById(`asciiart-l${i}`))
-    }
-
-    if (!asciiArtId) {
-      for (const layer of asciiArtLayers) {
-        layer.innerHTML = '';
-        layer.style = null;
-      }
-      return;
-    }
-
-    for (let i = 1; i <= numLayers; i++) {
-      const layer = asciiArtLayers[i - 1];
-      const layerId = i === 1 ? asciiArtId : `${asciiArtId}-layer${i}`;
-
-      layer.innerHTML = asciiart[layerId] ?? '';
-
-      const extraStyle = asciiart[`${layerId}-style`];
-      const extraStyles = asciiart[`${layerId}-styles`] ?? [];
-      if (extraStyle) {
-        extraStyles.push(extraStyle);
-      }
-      for (const style of extraStyles) {
-        if (style.condition) {
-          if (!style.condition(this)) {
-            continue;
-          }
-        }
-        for (const key in style) {
-          if (key === 'condition') continue;
-          layer.style[key] = style[key];
-        }
-      }
-    }
-  }
-
   setupCompletion(entries) {
     this.possibleActions = entries;
   }
@@ -726,7 +687,7 @@ export class Game {
   async switchState(state, options = {cls: false}) {
     this.state = state;
     this.input = '';
-    this.setAsciiArt(undefined);
+    this.asciiart.set(undefined);
 
     if (options.cls) {
       this.cls();
