@@ -13,6 +13,7 @@ import {Drawer} from "./entities/drawer.js";
 import {Bookcase} from "./entities/bookcase.js";
 import {AsciiArtManager} from "./managers/asciiart.js";
 import {ItemContainer} from "./entities/item-container.js";
+import {ConvenienceStoreConversation} from "./entities/conversation.js";
 
 export class Game {
   // Persistent state
@@ -41,14 +42,28 @@ export class Game {
       { description: 'An old low-performance CPU cooler.', sellPrice: 5, sellChance: 1 },
     ]),
       new Drawer([
-      { description: 'A pair of over-ear headphones. The plastic coating of the muffs is chipped.' },
+      {
+        description: 'A pair of over-ear headphones. The plastic coating of the muffs is chipped.',
+        sellPrice: 3,
+        sellChance: 0,
+        sellPriceAfterRepair: 25,
+        sellChanceAfterRepair: 1,
+        repairMaterials: [
+          { name: 'knife', type: 'kitchen', consume: false, processDescription: 'You scrape the coating off the muffs.' },
+          { quantity: 0.1, name: 'black enamel paint', type: 'crafting', processDescription: 'You quickly submerge the muffs into the paint and let them dry.' },
+        ],
+      },
       { description: 'A pair of trousers.', type: 'clothes' },
       { description: 'A fork with some steel wire wrapped around it.', type: 'kitchen' },
       { description: 'A bottle of cologne.', type: 'hygiene' },
       { description: 'A packet of tissues.', type: 'hygiene' },
     ]),
   ];
-  kitchen = new ItemContainer([], { defaultItemType: 'kitchen' });
+  kitchen = new ItemContainer([
+    { description: 'A knife.', type: 'kitchen', name: 'knife' },
+    { description: 'A water glass.', type: 'kitchen' },
+    { description: 'A set of wine glasses.', type: 'kitchen' },
+  ], { defaultItemType: 'kitchen' });
   memorySticks = new MemorySticks({ machine: this.computer });
   notepad = new Notepad();
   servers = {
@@ -149,6 +164,7 @@ export class Game {
       ],
     }),
   }
+  storeroom = new ItemContainer([], { defaultItemType: 'crafting' });
 
   // Transient state
   asciiart = new AsciiArtManager(this);
@@ -156,10 +172,29 @@ export class Game {
   inputHistory = new InputHistory();
   menu = new Menu(this);
   possibleActions = [];
+  previousState = undefined;
   prompt = '';
   state = 'init';
   terminalBuffer = [];
   terminalState = 'exec';
+
+  // Helpers
+  conversationsMap = {
+    'convenience-store-cashier': new ConvenienceStoreConversation(),
+  };
+  inspectableObjectsMap = {
+    bathroom: this.bathroom,
+    bookcase: this.bookcase,
+    deskSideBags: this.deskSideBags,
+    drawer1: this.drawers[0],
+    drawer2: this.drawers[1],
+    drawer3: this.drawers[2],
+    kitchen: this.kitchen,
+    memorySticks: this.memorySticks,
+    notepad: this.notepad,
+    storeroom: this.storeroom,
+    tower: this.computer.specs,
+  };
 
   constructor() {
   }
@@ -357,7 +392,7 @@ export class Game {
             this.waitInput();
             break;
           case 'memorysticks':
-            return this.switchState('inspect-memorysticks');
+            return this.switchState('inspect-object memorySticks');
           case 'electronics':
             this.print(
               'The pile of electronics contains:<br />' +
@@ -369,7 +404,7 @@ export class Game {
             this.waitInput();
             break;
           case 'notepad':
-            return this.switchState('inspect-notepad');
+            return this.switchState('inspect-object notepad');
           case 'drawer1':
           case 'drawer2':
           case 'drawer3': {
@@ -382,9 +417,9 @@ export class Game {
             return this.switchState(`inspect-drawer ${index}`);
           }
           case 'tower':
-            return this.switchState('inspect-tower');
+            return this.switchState('inspect-object tower');
           case 'bags':
-            return this.switchState('inspect-desk-bags');
+            return this.switchState('inspect-object deskSideBags');
           case 'boot':
             return this.switchState('boot', {cls: true});
           case 'stand':
@@ -397,22 +432,24 @@ export class Game {
             break;
         }
         return;
-      case 'inspect-bookcase':
-        return this.executeInspectObject(this.bookcase, 'inspect-room');
-      case 'inspect-desk-bags':
-        return this.executeInspectObject(this.deskSideBags, 'inspect-desk');
+      case 'talk': {
+        const personName = this.state.split(' ')[1];
+        const conversation = this.conversationsMap[personName];
+
+        return this.executeConversation(conversation, this.previousState);
+      }
+      case 'inspect-object': {
+        const objectName = this.state.split(' ')[1];
+        const object = this.inspectableObjectsMap[objectName];
+
+        return this.executeInspectObject(object, this.previousState);
+      }
       case 'inspect-drawer': {
         const index = parseInt(this.state.slice(-1));
         const drawer = this.drawers[index - 1];
 
         return this.executeInspectObject(drawer, 'inspect-desk');
       }
-      case 'inspect-memorysticks':
-        return this.executeInspectObject(this.memorySticks, 'inspect-desk');
-      case 'inspect-notepad':
-        return this.executeInspectObject(this.notepad, 'inspect-desk');
-      case 'inspect-tower':
-        return this.executeInspectObject(this.computer.specs, 'inspect-desk');
       case 'read-book': {
         const bookName = this.state.split(' ')[1];
         const book = booksData.get(bookName);
@@ -424,13 +461,19 @@ export class Game {
       case 'inspect-room':
         switch (this.getArgv(0)) {
           case '':
-            this.possibleActions = ['bookcase', 'desk', 'outside'];
+            this.possibleActions = ['bathroom', 'bookcase', 'desk', 'kitchen', 'storeroom', 'outside'];
             this.waitInput('Possible actions: [%actions%]<br /><br />Action: ');
             break;
-          case 'bookcase':
-            return this.switchState('inspect-bookcase');
           case 'desk':
             return this.switchState('init');
+          case 'bathroom':
+            return this.switchState('inspect-object bathroom');
+          case 'bookcase':
+            return this.switchState('inspect-object bookcase');
+          case 'kitchen':
+            return this.switchState('inspect-object kitchen');
+          case 'storeroom':
+            return this.switchState('inspect-object storeroom');
           case 'outside':
             this.print('You exit the room.<br />');
             await sleep(1000);
@@ -492,6 +535,8 @@ export class Game {
           case 'outside':
             this.print('You exit the convenience store.<br />');
             return this.switchState('outside');
+          case 'talk-to-cashier':
+            return this.switchState('talk convenience-store-cashier');
           default:
             this.print('Invalid action. ');
             this.waitInput();
@@ -500,6 +545,32 @@ export class Game {
         return;
     }
   }
+
+  async executeConversation(conversation, prevState) {
+    const command = this.getArgv(0);
+
+    switch (command) {
+      case '': {
+        if (conversation.getAsciiArtId?.())
+          this.asciiart.set(conversation.getAsciiArtId());
+        const report = conversation.reportFirstTime();
+        await report(this);
+        this.possibleActions = conversation.determineActions();
+        this.waitInput(conversation.getPrompt());
+        break;
+      }
+      case 'exit':
+        return this.switchState(prevState);
+      default:
+        if (this.possibleActions.some(action => action.split(' ')[0] === command)) {
+          return conversation.executeInput(this);
+        }
+        this.print('Invalid choice. ');
+        this.waitInput();
+        break;
+    }
+  }
+
 
   async executeInspectObject(object, prevState) {
     const command = this.getArgv(0);
@@ -708,6 +779,7 @@ export class Game {
   }
 
   async switchState(state, options = {cls: false}) {
+    this.previousState = this.state;
     this.state = state;
     this.input = '';
     this.asciiart.set(undefined);

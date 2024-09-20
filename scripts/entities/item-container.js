@@ -160,6 +160,7 @@ export class ItemContainer extends StateManagingObject{
   }
 
   reportFirstTime() {
+    if (this.items.length === 0) return 'It is empty.<br />';
     return `It contains:<br />` + this.report();
   }
 }
