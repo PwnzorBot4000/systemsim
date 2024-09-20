@@ -12,10 +12,12 @@ import {Menu} from "./managers/menu.js";
 import {Drawer} from "./entities/drawer.js";
 import {Bookcase} from "./entities/bookcase.js";
 import {AsciiArtManager} from "./managers/asciiart.js";
+import {ItemContainer} from "./entities/item-container.js";
 
 export class Game {
   // Persistent state
-  bookcase = new Bookcase([]);
+  bathroom = new ItemContainer([], { defaultItemType: 'hygiene' });
+  bookcase = new Bookcase([], { defaultItemTypes: ['book', 'clothes'] });
   computer = new Machine({
     filesystem: new Filesystem({
       pwd: '/root', fsMap: new Map(filesystemsData['localhost'])
@@ -30,7 +32,7 @@ export class Game {
       { description: 'A TV remote control for your monitor, unused.', sellPrice: 10, sellChance: 0.5 },
       { description: '3 AAA batteries.' },
       { description: 'A box of paper clips.', type: 'stationery' },
-    ]),
+    ], { defaultItemType: 'stationery' }),
     new Drawer([
       { description: '2 AA batteries, expired.', trash: true },
       { description: 'A spoon.', type: 'kitchen' },
@@ -46,6 +48,7 @@ export class Game {
       { description: 'A packet of tissues.', type: 'hygiene' },
     ]),
   ];
+  kitchen = new ItemContainer([], { defaultItemType: 'kitchen' });
   memorySticks = new MemorySticks({ machine: this.computer });
   notepad = new Notepad();
   servers = {
@@ -123,7 +126,7 @@ export class Game {
           }
         },
         {
-          regex: /^GET \/student-data\/(.*)$/,
+          regex: /^GET \/student-data\/([^\/]+)(\/.+)?$/,
           handler: (server, method, path) => {
             const innerPath = path.replace(/^\/student-data\//, '');
 
@@ -135,6 +138,12 @@ export class Game {
             }
 
             return server.serveStaticContent(innerPath, {staticRoot: `/students`});
+          }
+        },
+        {
+          regex: /^.*$/,
+          handler: (server) => {
+            return server.serveStaticContent('index.html');
           }
         }
       ],
@@ -512,7 +521,7 @@ export class Game {
       case 'back':
         return this.switchState(prevState);
       default:
-        if (this.possibleActions.some(action => action.startsWith(command))) {
+        if (this.possibleActions.some(action => action.split(' ')[0] === command)) {
           return object.executeInput(this);
         }
         this.print('Invalid action. ');
@@ -626,18 +635,29 @@ export class Game {
 
     await dramaFunction('init');
     const save = JSON.parse(saveJson);
+
     await dramaFunction('machine state');
     this.computer.importSave(save.computer);
+
     await dramaFunction('room state');
-    this.deskSideBags.importSave(save.deskSideBags);
+    if (save.bathroom) {
+      this.bathroom.importSave(save.bathroom);
+    }
+    if (save.bookcase) {
+      this.bookcase.importSave(save.bookcase);
+    }
+    if (save.deskSideBags) {
+      this.deskSideBags.importSave(save.deskSideBags);
+    }
     if (save.drawers) {
-      this.drawers = [];
-      for (const drawerSave of save.drawers) {
-        const drawer = new Drawer([]);
-        drawer.importSave(drawerSave);
-        this.drawers.push(drawer);
+      for (const [i, drawerSave] of Object.entries(save.drawers)) {
+        this.drawers[i].importSave(drawerSave);
       }
     }
+    if (save.kitchen) {
+      this.kitchen.importSave(save.kitchen);
+    }
+
     await dramaFunction('devices');
     this.memorySticks.importSave(save.memorySticks);
     await dramaFunction('servers');
@@ -652,9 +672,12 @@ export class Game {
 
   save(saveType = 'autosave', message = '') {
     const data = {
+      bathroom: this.bathroom.exportSave(),
+      bookcase: this.bookcase.exportSave(),
       computer: this.computer.exportSave(),
       deskSideBags: this.deskSideBags.exportSave(),
       drawers: this.drawers.map(drawer => drawer.exportSave()),
+      kitchen: this.kitchen.exportSave(),
       memorySticks: this.memorySticks.exportSave(),
       servers: Object.entries(this.servers)
         .reduce((acc, [name, server]) => ({...acc, [name]: {

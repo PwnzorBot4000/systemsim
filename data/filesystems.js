@@ -38,12 +38,22 @@ export const filesystemsData = {
   ],
   'exploit-db.com': [
     ['/srv', 'dir'],
-    ['/srv/index.html', {contents: '<h1>Exploit-DB</h1><a href="/vulnerabilities/index.html">Known vulnerabilities list</a><a href="/ghacks/index.html">Vulnerable site search hacks</a>'}],
+    ['/srv/index.html', {
+      contents: '<h1>Exploit-DB</h1>\n' +
+        '<a href="/vulnerabilities/index.html">Known vulnerabilities list</a>\n' +
+        '<a href="/ghacks/index.html">Vulnerable site search hacks</a>\n'
+    }],
     ['/srv/vulnerabilities', 'dir'],
     ['/srv/vulnerabilities/index.html', {
-      contents: '<h1>List of known vulnerabilities</h1>' +
-        '<table><thead><th>ID</th><th>Software</th><th>Version</th><th>Type</th><th>Year</th><th>Title</th></thead>' +
-        '<tbody><td>12804</td><td>Nginx</td><td>0.6.36</td><td>Remote</td><td>2010</td><td><a href="/vulnerabilites/12804.html">Directory Traversal</a></td></tbody></table>'
+      contents: '<h1>List of known vulnerabilities</h1>\n' +
+        '<table>\n' +
+        '  <thead>\n' +
+        '    <th>ID</th><th>Software</th><th>Version</th><th>Type</th><th>Year</th><th>Title</th>\n' +
+        '  </thead>\n' +
+        '  <tbody>\n' +
+        '    <tr><td>12804</td><td>Nginx</td><td>0.6.36</td><td>Remote</td><td>2010</td><td><a href="/vulnerabilites/12804.html">Directory Traversal</a></td></tr>\n' +
+        '  </tbody>\n' +
+        '</table>\n'
     }],
     ['/srv/vulnerabilities/12804.html', {
       contents: '##[Path Traversal:]\n' +
@@ -60,19 +70,49 @@ export const filesystemsData = {
         'example.com/../etc/passwd\n'
     }],
     ['/srv/ghacks', 'dir'],
-    ['/srv/ghacks/index.html', {contents: '<h1>Goggle search hacks for finding vulnerable sites</h1><table><thead><th>Type</th><th>Year</th><th>Title</th></thead><tbody></tbody></table>'}],
+    ['/srv/ghacks/index.html', {
+      contents: '<h1>Goggle search hacks for finding vulnerable sites</h1>\n' +
+        '<table>\n' +
+        '  <thead>\n' +
+        '    <th>Type</th><th>Year</th><th>Title</th>\n' +
+        '  </thead>\n' +
+        '  <tbody>\n' +
+        '  </tbody>\n' +
+        '</table>'
+    }],
   ],
   'foogal.co.uk': [
     ['/srv', 'dir'],
-    ['/srv/index.html', {contents: '<h1>Foogal</h1><h2>A place for all things foogal</h2><p>Cremes and colours, crafts and bath crystals, oh my!</p><a href="/login.html">Manage my Foogal page</a>' +
-        '<p>Meet our prominent members:</p><ul><li><a href="/foogal/charly.html">Charly</a></li><li><a href="/foogal/athena.html">Athena</a></li><li><a href="/foogal/admin.html">Vickie</a></li></ul>'}],
-    ['/srv/foogal/athena.html', {contents: '<h1>Foogal page</h1><p>This is a page about Athena\'s foogal fingers.</p>'}],
-    ['/srv/foogal/charly.html', {contents: '<h1>Foogal page</h1><p>This is a page about Charly\'s colorful crafts.</p>'}],
-    ['/srv/foogal/admin.html', {contents: '<h1>Foogal page</h1><p>This is a page about Vickie\'s administrative duties.</p>'}],
-    ['/srv/login.html', {contents: '<form method="post">' +
-        '<label for="fname">Foogal login:</label><br><input type="text" id="fname" name="fname"><br>' +
-        '<label for="pass">Password:</label><br><input type="text" id="pass" name="pass"><br><br>' +
-        '<input type="submit" value="Submit"></form>'}],
+    ['/srv/index.html', {
+      contents: '<h1>Foogal</h1>\n' +
+        '<h2>A place for all things foogal</h2>\n' +
+        '<p>Cremes and colours, crafts and bath crystals, oh my!</p>\n' +
+        '<a href="/login.html">Manage my Foogal page</a>\n' +
+        '<p>Meet our prominent members:</p>\n' +
+        '<ul>\n' +
+        '  <li><a href="/foogal/charly.html">Charly</a></li>\n' +
+        '  <li><a href="/foogal/athena.html">Athena</a></li>\n' +
+        '  <li><a href="/foogal/admin.html">Vickie</a></li>\n' +
+        '</ul>'
+    }],
+    ['/srv/foogal/athena.html', {
+      contents: '<h1>Foogal page</h1>\n' +
+        '<p>This is a page about Athena\'s foogal fingers.</p>\n'
+    }],
+    ['/srv/foogal/charly.html', {
+      contents: '<h1>Foogal page</h1>\n' +
+        '<p>This is a page about Charly\'s colorful crafts.</p>\n'
+    }],
+    ['/srv/foogal/admin.html', {
+      contents: '<h1>Foogal page</h1>\n' +
+        '<p>This is a page about Vickie\'s administrative duties.</p>\n'
+    }],
+    ['/srv/login.html', {
+      contents: '<form method="post">\n' +
+        '  <label for="fname">Foogal login:</label><br><input type="text" id="fname" name="fname"><br>\n' +
+        '  <label for="pass">Password:</label><br><input type="text" id="pass" name="pass"><br><br>\n' +
+        '  <input type="submit" value="Submit">\n' +
+        '</form>'}],
     ['srv/content', 'dir'],
     ['srv/content/athena', 'dir'],
     ['srv/content/charly', 'dir'],
@@ -81,28 +121,35 @@ export const filesystemsData = {
   'owasp.org': [
     ['/srv', 'dir'],
     ['/srv/index.html', {
-      contents: '<h1>OWASP Foundation</h1><h2>Explore the world of cyber security</h2>' +
-        '<a href="/top5.html">OWASP Top 5 list of common vulnerabilities</a>'
+      contents: '<h1>OWASP Foundation</h1>\n' +
+        '<h2>Explore the world of cyber security</h2>\n' +
+        '<a href="/top5.html">OWASP Top 5 list of common vulnerabilities</a>\n'
     }],
     ['/srv/top5.html', {
-      contents: '<h1>OWASP Top 5 list of common vulnerabilities (2021)</h1>' +
-        '<table><thead><th>#</th><th>Category</th><th>Description</th><th>Example</th></thead><tbody>' +
-        '<tr><td>1</td><td>Broken Access Control</td><td>The application does not properly restrict access to authenticated users.</td>' +
+      contents: '<h1>OWASP Top 5 list of common vulnerabilities (2021)</h1>\n' +
+        '<table>\n' +
+        '  <thead>\n' +
+        '    <th>#</th><th>Category</th><th>Description</th><th>Example</th>\n' +
+        '  </thead>\n' +
+        '  <tbody>' +
+        '    <tr><td>1</td><td>Broken Access Control</td><td>The application does not properly restrict access to authenticated users.</td>' +
         '<td>User A can access user B\'s resources by guessing the user ID or the resource ID and manipulating the request URL. ' +
         'e.g.: https://example.com/user/1/resources -- change the URL to https://example.com/user/2/resources. Or: ' +
         'https://example.com/resources/1 -- change the URL to https://example.com/resources/56. ' +
-        'A well-protected application would not allow user 1 to access to the latter URLs, as the resources do not belong to the user that is making the request.</td></tr>' +
-        '<tr><td>2</td><td>Cryptographic failures</td><td>The application does not (properly) encrypt sensitive information.</td>' +
+        'A well-protected application would not allow user 1 to access to the latter URLs, as the resources do not belong to the user that is making the request.</td></tr>\n' +
+        '    <tr><td>2</td><td>Cryptographic failures</td><td>The application does not (properly) encrypt sensitive information.</td>' +
         '<td>A file containing passwords is stored in plaintext at https://example.com/passwords-1.txt. ' +
-        'An attacker can use a common paths wordlist to perform a brute force attack and retrieve the passwords.</td></tr>' +
-        '<tr><td>3</td><td>Injection</td><td>The application does not properly sanitize user-supplied input.</td>' +
-        '<td>An attacker can input SQL statements or shell commands into a form field that will be executed by the application.</td></tr>' +
-        '<tr><td>4</td><td>Insecure design</td><td>The application has a feature that is not securely designed.</td>' +
+        'An attacker can use a common paths wordlist to perform a brute force attack and retrieve the passwords.</td></tr>\n' +
+        '    <tr><td>3</td><td>Injection</td><td>The application does not properly sanitize user-supplied input.</td>' +
+        '<td>An attacker can input SQL statements or shell commands into a form field that will be executed by the application.</td></tr>\n' +
+        '    <tr><td>4</td><td>Insecure design</td><td>The application has a feature that is not securely designed.</td>' +
         '<td>A blog has a feature for resetting passwords by answering a security question. The question is what is the user\'s favorite show.' +
-        'The user\'s blog contains multiple references to the show \'star wars\'.</td></tr>' +
-        '<tr><td>5</td><td>Security misconfiguration</td><td>Vulnerabilities that occur when security could have been appropriately configured but was not.</td>' +
+        'The user\'s blog contains multiple references to the show \'star wars\'.</td></tr>\n' +
+        '    <tr><td>5</td><td>Security misconfiguration</td><td>Vulnerabilities that occur when security could have been appropriately configured but was not.</td>' +
         '<td>Developer has not disabled debug mode in the application. When an attacker requests a page that does not exist, ' +
-        'the application will return a debug page that contains sensitive information like the server software and version, which can be used to find exploits.</td></tr>'
+        'the application will return a debug page that contains sensitive information like the server software and version, which can be used to find exploits.</td></tr>\n' +
+        '  </tbody>\n' +
+        '</table>'
     }]
   ],
   'projects.mikl-ptoska.cz': [
@@ -110,15 +157,19 @@ export const filesystemsData = {
     ['/srv/index.html', {
       contents: '<h1>Toobright labs - Projects</h1>\n' +
         '<h2>Free software - first grade</h2>\n' +
-        '<ul><li><a href="/projects/links">Links</a></li></ul>' +
+        '<ul>\n' +
+        '  <li><a href="/projects/links">Links</a></li>\n' +
+        '</ul>\n' +
         '<h2>Second grade - commandline skill required</h2>\n' +
-        '<ul><li><a href="/projects/jpeginsert">JpegInsert</a></li></ul>',
+        '<ul>\n' +
+        '  <li><a href="/projects/jpeginsert">JpegInsert</a></li>\n' +
+        '</ul>\n',
     }],
     ['/srv/projects/links', 'dir'],
     ['/srv/projects/links/index.html', {
       contents: '<h1>Links</h1>\n' +
         '<p>Web browser running in both graphics and text mode. No Flash, CSS, Javascript supported. High speed and graphics display quality</p>\n' +
-        '<a href="/projects/links/links.zip">Download</a>',
+        '<a href="/projects/links/links.zip">Download</a>\n',
     }],
     ['/srv/projects/links/links.zip', {
       type: 'zip',
@@ -135,7 +186,7 @@ export const filesystemsData = {
     ['/srv/projects/jpeginsert/index.html', {
       contents: '<h1>JpegInsert</h1>\n' +
         '<p>Insert large data into 1992 spec. JPEG files without using steganography or EXIF</p>\n' +
-        '<a href="/projects/jpeginsert/jpeginsert.zip">Coming soon</a>',
+        '<a href="/projects/jpeginsert/jpeginsert.zip">Coming soon</a>\n',
     }],
   ],
   'www.watrar.com': [
@@ -145,7 +196,7 @@ export const filesystemsData = {
         '<p>Compression and decompression tools</p>\n' +
         '<p>Watrar can be downloaded for evaluation. It is free for non-commercial use.\n' +
         'After the trial period expires, you will be asked to buy a license.</p>\n' +
-        '<ul><li><a href="/watrar.exe">Download Watrar</a></li></ul>',
+        '<a href="/watrar.exe">Download Watrar</a>\n',
     }],
     ['/srv/watrar.exe', binaries.get('watrar')],
   ],
@@ -161,10 +212,15 @@ export const filesystemsData = {
     }],
     ['/srv', 'dir'],
     ['/srv/index.html', {
-      contents: '<h2>Login</h2>\n<form method="post" action="/login.html">\n' +
-        '<label for="username">Student username:</label><br>\<input type="text" id="username" name="username"><br>\n' +
-        '<label for="password">Password:</label><br>\n<input type="text" id="password" name="password"><br><br>\n' +
-        '<input type="submit" value="Submit">\n</form>\n<!-- Use username "guest" and password "guest" for guest access -->\n'
+      contents: '<h2>Login</h2>\n' +
+        '<form method="post" action="/login.html">\n' +
+        '  <label for="username">Student username:</label><br>\n' +
+        '  <input type="text" id="username" name="username"><br>\n' +
+        '  <label for="password">Password:</label><br>\n' +
+        '  <input type="text" id="password" name="password"><br><br>\n' +
+        '  <input type="submit" value="Submit">\n' +
+        '</form>\n' +
+        '<!-- Use username "guest" and password "guest" for guest access -->\n'
     }],
     ['/srv/not-found.html', {contents: '<p>Page not found</p><p>Nginx 0.6.2</p>'}],
     ['/students', 'dir'],
