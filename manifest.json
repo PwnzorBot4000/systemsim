@@ -1,0 +1,21 @@
+{
+  "name": "Systemsim",
+  "categories": ["games", "education"],
+  "display_override": ["fullscreen", "minimal-ui"],
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#c0c0c0",
+  "description": "Hacking simulator.",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "16x16 32x32 48x48 64x64 128x128",
+      "type": "image/x-icon"
+    },
+  ],
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
+  "orientation": "natural",
+  "start_url": "index.html"
+}
