@@ -8,14 +8,19 @@
   "description": "Hacking simulator.",
   "icons": [
     {
+      "src": "favicon.ico",
+      "sizes": "16x16 32x32 48x48 64x64 128x128",
+      "type": "image/x-icon"
+    },
+    {
       "src": "shortcut-icon.ico",
       "sizes": "16x16 32x32 48x48 64x64 128x128 192x192 512x512",
       "type": "image/x-icon"
-    },
+    }
   ],
   "launch_handler": {
     "client_mode": "focus-existing"
   },
   "orientation": "natural",
-  "start_url": "https://pwnzorbot4000.github.io/systemsim/"
+  "start_url": "index.html"
 }
