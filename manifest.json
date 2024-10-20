@@ -9,8 +9,20 @@
   "description": "Hacking simulator.",
   "icons": [
     {
-      "src": "shortcut-icon.ico",
+      "src": "assets/splash-512.webp",
       "sizes": "512x512",
+      "type": "image/webp",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/shortcut-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "favicon.ico",
+      "sizes": "16x16 32x32 48x48 64x64 128x128",
       "type": "image/x-icon"
     }
   ],
@@ -18,5 +30,21 @@
     "client_mode": "focus-existing"
   },
   "orientation": "natural",
+  "screenshots": [
+    {
+      "src": "assets/screenshot-wide.webp",
+      "sizes": "1276x798",
+      "type": "image/webp",
+      "form_factor": "wide",
+      "label": "In-game desktop screenshot"
+    },
+    {
+      "src": "assets/screenshot-portrait.webp",
+      "sizes": "433x800",
+      "type": "image/webp",
+      "form_factor": "narrow",
+      "label": "In-game mobile screenshot"
+    }
+  ],
   "start_url": "index.html"
 }
