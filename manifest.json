@@ -1,12 +1,12 @@
 {
+  "id": "systemsim",
   "name": "Systemsim",
   "short_name": "Systemsim",
+  "background_color": "#000000",
   "categories": ["games", "education"],
+  "description": "Hacking simulator.",
   "display_override": ["fullscreen", "standalone"],
   "display": "minimal-ui",
-  "background_color": "#000000",
-  "theme_color": "#c0c0c0",
-  "description": "Hacking simulator.",
   "icons": [
     {
       "src": "assets/splash-512.webp",
@@ -22,7 +22,7 @@
     },
     {
       "src": "favicon.ico",
-      "sizes": "16x16 32x32 48x48 64x64 128x128",
+      "sizes": "128x128",
       "type": "image/x-icon"
     }
   ],
@@ -46,5 +46,6 @@
       "label": "In-game mobile screenshot"
     }
   ],
-  "start_url": "index.html"
+  "start_url": "index.html",
+  "theme_color": "#c0c0c0"
 }
