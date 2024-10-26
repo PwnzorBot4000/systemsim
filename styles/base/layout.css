@@ -24,3 +24,17 @@ html, body {
     display: flex;
     flex-direction: column;
 }
+
+#display {
+  flex: 1;
+}
+
+#vkeyboard {
+  flex: 0 1 0;
+}
+
+@media (max-aspect-ratio: 1/1) {
+  #vkeyboard {
+    flex: 0 1 auto;
+  }
+}
