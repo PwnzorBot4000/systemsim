@@ -25,16 +25,14 @@ html, body {
     flex-direction: column;
 }
 
-#display {
-  flex: 1;
+@media (min-aspect-ratio: 1/1) {  /* Landscape */
+    .portrait-only {
+        display: none;
+    }
 }
 
-#vkeyboard {
-  flex: 0 1 0;
-}
-
-@media (max-aspect-ratio: 1/1) {
-  #vkeyboard {
-    flex: 0 1 auto;
-  }
+@media (max-aspect-ratio: 1/1) {  /* Portrait */
+    .landscape-only {
+        display: none;
+    }
 }

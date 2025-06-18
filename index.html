@@ -19,8 +19,7 @@
       });
     </script>
   </head>
-  <body class="column">
-    <div id="display">
+  <body>
     <div id="asciiart" class="asciiart layer" style="z-index: 1;">
                                <br />LOADING
    ╔═══════════════════════╗   <br />LOADING
@@ -44,6 +43,15 @@
     </div>
     <div id="terminal" class="layer" style="z-index: 10;">
     </div>
+    <div id="vkeyboard" class="column vk layer portrait-only" style="z-index: 11">
+      <template id="vkey-template">
+      </template>
+      <div id="vk-row1"></div>
+      <div id="vk-row2"></div>
+      <div id="vk-row3"></div>
+      <div id="vk-row4"></div>
+      <div id="vk-row5"></div>
+    </div>
     <div id="init-ui" class="ui layer" style="z-index: 18; display: none;">
       <button primary onclick="game.init()">Launch Game</button>
     </div>
@@ -51,7 +59,7 @@
       <div class="container">
         <div id="menu-title" class="row">
           <h1>Pause Menu</h1>
-          <h3>Tap <span class="inline-keyboard-key">~<br />`</span> at any time to show / hide this menu.</h3>
+          <h3 class="landscape-only">Tap <span class="inline-keyboard-key">~<br />`</span> at any time to show / hide this menu.</h3>
         </div>
         <div id="menu-controls" class="column">
           <div class="row">
@@ -116,16 +124,6 @@
         <div id="dialog-ui-buttons" class="row">
         </div>
       </div>
-    </div>
-    </div>
-    <div id="vkeyboard" class="column">
-      <template id="vkey-template">
-      </template>
-      <div id="vk-row1"></div>
-      <div id="vk-row2">QWERTYUIOP</div>
-      <div id="vk-row3">ASDFGHJKL</div>
-      <div id="vk-row4">ZXCVBNM</div>
-      <div id="vk-row5"></div>
     </div>
   </body>
 </html>

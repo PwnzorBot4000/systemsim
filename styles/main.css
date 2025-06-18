@@ -11,9 +11,11 @@
 @import url('layers/init-ui.css');
 @import url('layers/menu.css');
 @import url('layers/terminal.css');
+@import url('layers/vkeyboard.css');
 /* Animations */
 @import url('animations.css');
 /* Themes */
 @import url('themes/default.css');
 @import url('themes/popup.css');
 @import url('themes/ui.css');
+@import url('themes/vk.css');

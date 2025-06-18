@@ -1,0 +1,16 @@
+#vkeyboard {
+    bottom: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    height: auto;
+}
+@media (min-aspect-ratio: 1/1) {  /* Landscape */
+    #vkeyboard.portrait-only {
+        display: none;
+    }
+}
+#vkeyboard > div {
+    display: flex;
+    justify-content: space-evenly;
+}

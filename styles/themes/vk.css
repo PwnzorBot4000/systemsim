@@ -1,0 +1,37 @@
+.vk {
+    --color-primary: var(--color-ui-primary);
+    --color-secondary: var(--color-ui-secondary);
+    --color-contrast: var(--color-ui-contrast);
+    --color-accent: var(--color-ui-accent);
+    --color-danger: var(--color-ui-danger);
+    --color-shadow: var(--color-ui-shadow);
+}
+.vk button {
+    background-color: var(--color-contrast);
+    border: 1px var(--color-secondary) solid;
+    color: var(--color-secondary);
+    font-family: var(--font-monospace);
+    font-size: 0.75rem;
+    text-shadow: 0 0 2px var(--color-shadow);
+    padding-inline: 0.5em;
+    text-align: center;
+    text-decoration: none;
+    transition: 0.2s;
+    min-width: 1rem;
+}
+.vk button:active {
+    background-color: var(--color-primary);
+    color: var(--color-contrast);
+    text-shadow: 0 0 2px var(--color-contrast);
+}
+.vk button[primary] {
+    background-color: var(--color-secondary);
+    border: 3px var(--color-primary);
+    color: var(--color-contrast);
+    min-width: 2rem;
+    text-shadow: 0 0 2px var(--color-contrast);
+}
+.vk button[danger] {
+    border-color: var(--color-danger);
+    background-color: var(--color-danger);
+}

@@ -247,6 +247,46 @@ export class Game {
 
     // Main game loop
     await this.refresh();
+
+    // Show keyboard
+    await sleep(1000);
+    this.initVKeyboard();
+  }
+
+  initVKeyboard() {
+    const virtualKeys = [
+      ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', 'Backspace'],
+      ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\\'],
+      ['capslock', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '\''],
+      ['Tab', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/'],
+      ['shift', 'ctrl', ' ', 'alt', '`'],
+    ]
+    const vkTranslations = {
+      'Backspace': '⌫',
+      'Tab': '⇥',
+      'capslock': '⇪',
+      'shift': '⇧',
+      'ctrl': '⌃',
+      'alt': '⌥',
+      ' ': '&nbsp;&nbsp;&nbsp;␣&nbsp;&nbsp;&nbsp;',
+      '`': '&#x2630;'
+    };
+    const primaryVks = new Set(['capslock', 'Tab', 'Backspace', 'shift', 'ctrl', 'alt', '`'])
+    const vkRowElements = [1, 2, 3, 4, 5]
+      .map(n => document.getElementById(`vk-row${n}`));
+    for (const [index, vkRowElement] of vkRowElements.entries()) {
+      for (const vk of virtualKeys[index]) {
+        const vkElem = document.createElement('button');
+        const translation = vkTranslations[vk];
+        vkElem.innerHTML = translation || vk;
+        if (primaryVks.has(vk))
+          vkElem.setAttribute('primary', 'true');
+        vkElem.addEventListener('click', async () => {
+          await this.keyDownHandler({key: vk});
+        });
+        vkRowElement.appendChild(vkElem);
+      }
+    }
   }
 
   async terminate() {
@@ -284,10 +324,10 @@ export class Game {
     // Allow pasting
     if (e.key === 'Paste' || e.key === 'KeyV' && e.ctrlKey) return;
     // Allow writing when we are in a UI input field
-    if (e.target.closest('.ui input')) return;
+    if (e.target?.closest('.ui input')) return;
 
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault?.();
+    e.stopPropagation?.();
     if (this.terminalState !== 'input') return;
 
     if (/^[\w !@#$%^&*()\-+{}|=<>,.?/\\;:"']$/.test(e.key)) {
