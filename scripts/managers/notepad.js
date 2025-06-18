@@ -6,6 +6,10 @@ export class Notepad extends StateManagingObject {
     '(must install links smh, browsing with curl is torture)']];
   page = 0;
 
+  getAsciiArtId() {
+    return 'notepad';
+  }
+
   async goto(index) {
     if (index < 0 || index >= this.notes.length) {
       throw new Error(`Invalid page: ${index + 1}`);
