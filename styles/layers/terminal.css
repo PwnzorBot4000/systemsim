@@ -5,11 +5,11 @@
     overflow: hidden;
 }
 #terminal.layer {
-    bottom: 8.25rem;
+    bottom: calc(8.25rem + 12rem);
 }
 @media (min-aspect-ratio: 1/1) {  /* Landscape */
     #terminal.layer {
-        bottom: 0;
+        bottom: 12rem;
     }
 }
 #terminal.monospace {

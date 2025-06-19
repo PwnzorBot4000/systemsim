@@ -9,3 +9,11 @@
     line-height: 1.12em;
     letter-spacing: 0;
 }
+.asciiart.layer {
+    bottom: 8.25rem;
+}
+@media (min-aspect-ratio: 1/1) {  /* Landscape */
+    .asciiart.layer {
+        bottom: 0;
+    }
+}
