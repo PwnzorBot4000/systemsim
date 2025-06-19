@@ -1,4 +1,5 @@
 #save-points-list {
+    align-self: stretch;
     display: flex;
     flex-direction: column;
     padding: 0.5rem 0;
@@ -8,6 +9,7 @@
 #save-points-list p {
     display: flex;
     flex-direction: row;
+    flex: 1;
 }
 #save-points-list p:first-child {
     background-color: var(--color-secondary);
@@ -30,5 +32,5 @@
 .save-point-name {
     border: 1px var(--color-secondary) solid;
     display: inline-block;
-    width: 30rem;
+    flex: 1;
 }

@@ -12,10 +12,11 @@
     color: var(--color-secondary);
     font-family: var(--font-monospace);
     font-size: 0.75rem;
-    text-shadow: 0 0 2px var(--color-shadow);
+    height: 1.25rem;
     padding-inline: 0.5em;
     text-align: center;
     text-decoration: none;
+    text-shadow: 0 0 2px var(--color-shadow);
     transition: 0.2s;
     min-width: 1rem;
 }

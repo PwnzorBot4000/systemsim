@@ -4,6 +4,14 @@
     white-space: pre-wrap;
     overflow: hidden;
 }
+#terminal.layer {
+    bottom: 8.25rem;
+}
+@media (min-aspect-ratio: 1/1) {  /* Landscape */
+    #terminal.layer {
+        bottom: 0;
+    }
+}
 #terminal.monospace {
     font-family: var(--font-monospace);
 }

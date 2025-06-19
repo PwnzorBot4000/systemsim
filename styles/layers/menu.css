@@ -3,17 +3,18 @@
 @import url('../components/achievements-list.css');
 
 #menu-ui {
-    padding: 1rem;
     color: var(--color-secondary);
+    padding: 1rem;
 }
+
 #menu-ui .container {
     display: grid;
-    grid-template-columns: 1fr 15rem 20rem;
-    grid-template-rows: auto 1fr 15rem;
+    grid-template-columns: 1fr min-content;
+    grid-template-rows: auto 1fr 1fr;
     grid-template-areas:
-        "title title stats"
-        "controls extras stats"
-        "tools tools stats";
+        "title title"
+        "controls controls"
+        "extras stats";
     backdrop-filter: blur(1px);
     -webkit-backdrop-filter: blur(1px);
     background-color: color-mix(in srgb, var(--color-contrast) 75%, transparent);
@@ -21,6 +22,18 @@
     height: 100%;
     width: 100%;
 }
+@media (min-aspect-ratio: 1/1) {
+    /* Landscape */
+    #menu-ui .container {
+        grid-template-columns: 1fr 15rem 20rem;
+        grid-template-rows: auto 1fr 15rem;
+        grid-template-areas:
+            "title title stats"
+            "controls extras stats"
+            "tools tools stats";
+    }
+}
+
 #menu-title {
     align-items: baseline;
     gap: 1rem;
@@ -50,9 +63,17 @@
 }
 #menu-stats {
     border-left: 1px var(--color-secondary) solid;
+    border-top: 1px var(--color-secondary) solid;
     grid-area: stats;
     justify-content: space-between;
-    padding: 7.5rem 1rem;
+    padding: 1rem 1rem;
+}
+@media (min-aspect-ratio: 1/1) {
+    /* Landscape */
+    #menu-stats {
+        border-top: none;
+        padding: 7.5rem 1rem;
+    }
 }
 #menu-stats .column {
     gap: 0.5rem;

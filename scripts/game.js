@@ -258,11 +258,12 @@ export class Game {
       ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', 'Backspace'],
       ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\\'],
       ['capslock', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '\''],
-      ['Tab', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/'],
+      ['Tab', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', 'Enter'],
       ['shift', 'ctrl', ' ', 'alt', '`'],
     ]
     const vkTranslations = {
       'Backspace': '⌫',
+      'Enter': '↵',
       'Tab': '⇥',
       'capslock': '⇪',
       'shift': '⇧',
@@ -271,7 +272,7 @@ export class Game {
       ' ': '&nbsp;&nbsp;&nbsp;␣&nbsp;&nbsp;&nbsp;',
       '`': '&#x2630;'
     };
-    const primaryVks = new Set(['capslock', 'Tab', 'Backspace', 'shift', 'ctrl', 'alt', '`'])
+    const primaryVks = new Set(['capslock', 'Tab', 'Backspace', 'shift', 'ctrl', 'alt', 'Enter', '`'])
     const vkRowElements = [1, 2, 3, 4, 5]
       .map(n => document.getElementById(`vk-row${n}`));
     for (const [index, vkRowElement] of vkRowElements.entries()) {
