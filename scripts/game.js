@@ -177,6 +177,7 @@ export class Game {
   state = 'init';
   terminalBuffer = [];
   terminalState = 'exec';
+  capsLockActive = false;
 
   // Helpers
   conversationsMap = {
@@ -283,7 +284,19 @@ export class Game {
         if (primaryVks.has(vk))
           vkElem.setAttribute('primary', 'true');
         vkElem.addEventListener('click', async () => {
-          await this.keyDownHandler({key: vk});
+
+          if (vk === 'capslock') {
+            this.capsLockActive = !this.capsLockActive;
+            document.querySelectorAll('#vk-row3 button[primary="true"]').forEach(btn => {
+              btn.classList.toggle('active', this.capsLockActive);
+            });
+          } else {
+            let key = vk;
+            if (this.capsLockActive && vk.length === 1) {
+              key = vk.toUpperCase();
+            }
+            await this.keyDownHandler({key});
+          }
         });
         vkRowElement.appendChild(vkElem);
       }
