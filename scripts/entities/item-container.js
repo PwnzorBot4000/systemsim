@@ -29,10 +29,16 @@ export class ItemContainer extends StateManagingObject{
     const books = this.items.filter(item => item.type === 'book');
     if (books.length === 1)
       actions.push('read-book');
-    else if (books.length > 1)
+    else if (books.length > 1) {
       for (const book of books) {
         actions.push(`read-book ${book.name}`);
       }
+    }
+
+    const destructibles = this.items.filter(item => !!item.dismantleTo);
+    destructibles.forEach((destructible) => {
+      actions.push(`dismantle ${destructible.name}`);
+    });
 
     if (this.items.some(item => item.trash))
       actions.push('cleanup-trash');
@@ -66,6 +72,15 @@ export class ItemContainer extends StateManagingObject{
         game.possibleActions = this.determineActions();
         game.waitInput();
         break;
+      case 'dismantle': {
+        const destructible = this.items.find(item => item.name === game.getArgv(1));
+        if (!destructible || !destructible.dismantleTo) {
+          game.print('Invalid item to dismantle.<br />');
+          break;
+        }
+        this.dismantleItem(destructible);
+        break;
+      }
       case 'move-books-to-bookcase':
         game.print('You move the books to the bookcase.<br />');
         await sleep(600);
@@ -144,6 +159,13 @@ export class ItemContainer extends StateManagingObject{
 
   isEmpty() {
     return this.items.length === 0;
+  }
+
+  dismantleItem(item) {
+    if (!item?.dismantleTo) return;
+    const dismantledItems = item.dismantleTo;
+    this.items = this.items.filter(i => i !== item);
+    this.items.push(...dismantledItems);
   }
 
   moveItemsTo(type, destination) {
