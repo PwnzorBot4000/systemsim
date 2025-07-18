@@ -60,7 +60,7 @@ export class Game {
           { description: 'A fork.', type: 'kitchen', name: 'fork' },
           { description: 'Some steel wire.', name: 'steel wire', quantity: 1 },
         ],
-        name: 'fork with steel wire',
+        name: 'fork-with-steel-wire',
         type: 'kitchen'
       },
       { description: 'A bottle of cologne.', type: 'hygiene' },
