@@ -54,7 +54,15 @@ export class Game {
         ],
       },
       { description: 'A pair of trousers.', type: 'clothes' },
-      { description: 'A fork with some steel wire wrapped around it.', type: 'kitchen' },
+      {
+        description: 'A fork with some steel wire wrapped around it.',
+        dismantleTo: [
+          { description: 'A fork.', type: 'kitchen', name: 'fork' },
+          { description: 'Some steel wire.', name: 'steel wire', quantity: 1 },
+        ],
+        name: 'fork with steel wire',
+        type: 'kitchen'
+      },
       { description: 'A bottle of cologne.', type: 'hygiene' },
       { description: 'A packet of tissues.', type: 'hygiene' },
     ]),
@@ -183,7 +191,7 @@ export class Game {
   conversationsMap = {
     'convenience-store-cashier': new ConvenienceStoreConversation(),
   };
-  inspectableObjectsMap = {
+  containers = {
     bathroom: this.bathroom,
     bookcase: this.bookcase,
     deskSideBags: this.deskSideBags,
@@ -191,10 +199,13 @@ export class Game {
     drawer2: this.drawers[1],
     drawer3: this.drawers[2],
     kitchen: this.kitchen,
+    storeroom: this.storeroom,
+  };
+  inspectableObjectsMap = {
     memorySticks: this.memorySticks,
     notepad: this.notepad,
-    storeroom: this.storeroom,
     tower: this.computer.specs,
+    ...this.containers,
   };
 
   constructor() {
@@ -765,22 +776,10 @@ export class Game {
     this.computer.importSave(save.computer);
 
     await dramaFunction('room state');
-    if (save.bathroom) {
-      this.bathroom.importSave(save.bathroom);
-    }
-    if (save.bookcase) {
-      this.bookcase.importSave(save.bookcase);
-    }
-    if (save.deskSideBags) {
-      this.deskSideBags.importSave(save.deskSideBags);
-    }
-    if (save.drawers) {
-      for (const [i, drawerSave] of Object.entries(save.drawers)) {
-        this.drawers[i].importSave(drawerSave);
+    for (const [name, container] of Object.entries(this.containers)) {
+      if (!!save[name]) {
+        container.importSave(save[name]);
       }
-    }
-    if (save.kitchen) {
-      this.kitchen.importSave(save.kitchen);
     }
 
     await dramaFunction('devices');
@@ -797,12 +796,11 @@ export class Game {
 
   save(saveType = 'autosave', message = '') {
     const data = {
-      bathroom: this.bathroom.exportSave(),
-      bookcase: this.bookcase.exportSave(),
+      ...Object.entries(this.containers).reduce(
+        (acc, entry) => ({...acc, [entry[0]]: entry[1].exportSave()}),
+        {}
+      ),
       computer: this.computer.exportSave(),
-      deskSideBags: this.deskSideBags.exportSave(),
-      drawers: this.drawers.map(drawer => drawer.exportSave()),
-      kitchen: this.kitchen.exportSave(),
       memorySticks: this.memorySticks.exportSave(),
       servers: Object.entries(this.servers)
         .reduce((acc, [name, server]) => ({...acc, [name]: {
