@@ -76,9 +76,15 @@ export class ItemContainer extends StateManagingObject{
         const destructible = this.items.find(item => item.name === game.getArgv(1));
         if (!destructible || !destructible.dismantleTo) {
           game.print('Invalid item to dismantle.<br />');
+          game.waitInput();
           break;
         }
+        game.print(`You dismantle the ${destructible.referredAsThe}.<br />`);
+        await sleep(1200);
         this.dismantleItem(destructible);
+        game.print(this.reportAfterChange());
+        game.possibleActions = this.determineActions();
+        game.waitInput();
         break;
       }
       case 'move-books-to-bookcase':
@@ -131,6 +137,7 @@ export class ItemContainer extends StateManagingObject{
             book = books[0];
           } else {
             game.print('You need to specify which book to open.<br />');
+            game.waitInput();
             break;
           }
         } else {
@@ -139,6 +146,7 @@ export class ItemContainer extends StateManagingObject{
 
         if (!book) {
           game.print('Invalid book id.<br />');
+          game.waitInput();
           break;
         }
 
@@ -184,5 +192,9 @@ export class ItemContainer extends StateManagingObject{
   reportFirstTime() {
     if (this.items.length === 0) return 'It is empty.<br />';
     return `It contains:<br />` + this.report();
+  }
+
+  reportAfterChange() {
+    return 'Now it contains:<br />' + this.report();
   }
 }

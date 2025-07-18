@@ -61,6 +61,7 @@ export class Game {
           { description: 'Some steel wire.', name: 'steel wire', quantity: 1 },
         ],
         name: 'fork-with-steel-wire',
+        referredAsThe: 'fork with the steel wire',
         type: 'kitchen'
       },
       { description: 'A bottle of cologne.', type: 'hygiene' },
