@@ -10,12 +10,22 @@ export class Notepad extends StateManagingObject {
     return 'notepad';
   }
 
+  addNote(note) {
+    this.notes[this.notes.length - 1].push(note);
+  }
+
   async goto(index) {
     if (index < 0 || index >= this.notes.length) {
       throw new Error(`Invalid page: ${index + 1}`);
     }
 
     this.page = index;
+  }
+
+  hasNote(name) {
+    return this.notes.some(
+      (page) => page.some(
+        (line) => typeof line !== 'string' && line.name === name));
   }
 
   async next() {
@@ -64,7 +74,9 @@ export class Notepad extends StateManagingObject {
   report() {
     return `The notepad is open on page ${this.page + 1}. Its contents are: <br />` +
       '<br />' +
-      this.notes[this.page].join('<br />') + '<br />' +
+      this.notes[this.page]
+        .map((line) => typeof line === 'string' ? line : line.text)
+        .join('<br />') + '<br />' +
       '<br />';
   }
 

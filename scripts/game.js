@@ -420,6 +420,15 @@ export class Game {
         switch (this.input) {
           case '':
             this.print('You are sitting at your desk, in front of your home computer. It is currently shut down.<br />');
+            if (this.conversationsMap['convenience-store-cashier'].completedCaptions.has('introAboutBreach') && !this.notepad.hasNote('convenienceStoreBreach')) {
+              this.notepad.addNote({
+                name: 'convenienceStoreBreach',
+                text: 'Need to have a linux live usb with me to check James\' pc for backdoors, and an empty usb to store his files while I format.'
+              });
+              await sleep(1200);
+              this.print('You jolted down something on your notepad.<br />');
+              await sleep(1200);
+            }
             this.possibleActions = ['boot', 'inspect', 'stand'];
             this.waitInput('Possible actions: [%actions%]<br /><br />Action: ');
             break;
