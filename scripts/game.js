@@ -177,6 +177,7 @@ export class Game {
 
   // Transient state
   asciiart = new AsciiArtManager(this);
+  currentConversation = undefined;
   input = '';
   inputHistory = new InputHistory();
   menu = new Menu(this);
@@ -354,6 +355,12 @@ export class Game {
 
     e.preventDefault?.();
     e.stopPropagation?.();
+
+    if (this.terminalState === 'conversation') {
+      await this.currentConversation.processConversationModeInput(this, e.key);
+      return;
+    }
+
     if (this.terminalState !== 'input') return;
 
     if (/^[\w !@#$%^&*()\-+{}|=<>,.?/\\;:"']$/.test(e.key)) {
@@ -586,7 +593,7 @@ export class Game {
       case 'convenience-store':
         switch (this.getArgv(0)) {
           case '':
-            this.possibleActions = ['newspapers', 'outside'];
+            this.possibleActions = ['talk-cashier', 'newspapers', 'outside'];
             this.waitInput('Possible actions: [%actions%]<br /><br />Action: ');
             break;
           case 'newspapers':
@@ -601,7 +608,7 @@ export class Game {
           case 'outside':
             this.print('You exit the convenience store.<br />');
             return this.switchState('outside');
-          case 'talk-to-cashier':
+          case 'talk-cashier':
             return this.switchState('talk convenience-store-cashier');
           default:
             this.print('Invalid action. ');
@@ -614,6 +621,7 @@ export class Game {
 
   async executeConversation(conversation, prevState) {
     const command = this.getArgv(0);
+    this.currentConversation = conversation;
 
     switch (command) {
       case '': {
@@ -621,17 +629,31 @@ export class Game {
           this.asciiart.set(conversation.getAsciiArtId());
         const report = conversation.reportFirstTime();
         await report(this);
+        if (this.terminalState === 'conversation') {
+          // Let conversation handle input and commands
+          return;
+        }
         this.possibleActions = conversation.determineActions();
         this.waitInput(conversation.getPrompt());
         break;
       }
       case 'exit':
+        this.currentConversation = null;
         return this.switchState(prevState);
       default:
         if (this.possibleActions.some(action => action.split(' ')[0] === command)) {
-          return conversation.executeInput(this);
+          conversation.executeInput(this);
+          if (conversation.getAsciiArtId?.())
+            this.asciiart.set(conversation.getAsciiArtId());
+          if (this.terminalState === 'conversation') {
+            // Let conversation handle input and commands
+            return;
+          }
+          this.possibleActions = conversation.determineActions();
+          this.waitInput(conversation.getPrompt());
+          return;
         }
-        this.print('Invalid choice. ');
+        this.print('Invalid choice.<br />');
         this.waitInput();
         break;
     }
@@ -728,10 +750,16 @@ export class Game {
   render() {
     const terminalElem = document.getElementById('terminal');
 
-    if (this.terminalState === 'input') {
-      terminalElem.innerHTML = this.terminalBuffer.join('') + this.renderPrompt() + this.input;
-    } else {
-      terminalElem.innerHTML = this.terminalBuffer.join('');
+    switch (this.terminalState) {
+      case 'input':
+        terminalElem.innerHTML = this.terminalBuffer.join('') + this.renderPrompt() + this.input;
+        break;
+      case 'conversation':
+        terminalElem.innerHTML = this.terminalBuffer.join('') + this.renderPrompt();
+        break;
+      default:
+        terminalElem.innerHTML = this.terminalBuffer.join('');
+        break;
     }
 
     // Scroll to bottom
@@ -739,6 +767,10 @@ export class Game {
   }
 
   renderPrompt() {
+    if (this.terminalState === 'conversation') {
+      return this.currentConversation?.getConversingPrompt() ?? '';
+    }
+
     let promptActions = '';
     for (let i = 0; i < this.possibleActions.length; i++) {
       const action = typeof this.possibleActions[i] === 'string' ? this.possibleActions[i] : this.possibleActions[i].render;
@@ -762,7 +794,62 @@ export class Game {
     this.render();
   }
 
-  async load(saveIndex = 'current', dramaFunction = async (stage) => {}) {
+  // Dramatic text printer, useful for conversations
+  // Accepts command strings that control drama enclosed by percent marks %
+  // Use double percent %% to insert actual percent mark
+  // %s30% set print speed interval to 30 ms
+  // %p300% pause for 300 ms
+  async printSlowly(text, interval = 30) {
+    for (let i = 0; i < text.length; i++) {
+      switch (text[i]) {
+        case '%':
+          let commandSequence = '';
+          i++;
+          while (i < text.length && text[i] !== '%') {
+            commandSequence += text[i];
+            i++;
+          }
+          // Parse command, it should be in the format ([alpha]+)([nonalpha].*)
+          const commandParts = commandSequence.match(/^([a-zA-Z]+)(.*)$/);
+          const command = commandParts[1];
+          const commandArgs = commandParts[2];
+          switch (command) {
+            case 'p':
+              // Pause
+              const pauseDuration = parseInt(commandArgs);
+              if (!isNaN(pauseDuration)) {
+                await sleep(pauseDuration);
+              }
+              break;
+            case 's':
+              // Control print speed
+              const parsedInterval = parseInt(commandArgs);
+              if (!isNaN(parsedInterval)) {
+                interval = parsedInterval;
+              }
+              break;
+            case '':
+              // Insert actual percent mark
+              this.terminalBuffer.push('%');
+              break;
+            default:
+              console.warn(`Unknown command %${command}${commandArgs}%`);
+              break;
+          }
+          break;
+        case '\n':
+          this.terminalBuffer.push('<br />');
+          break;
+        default:
+          this.terminalBuffer.push(text[i]);
+          break;
+      }
+      this.render();
+      await sleep(interval);
+    }
+  }
+
+  async load(saveIndex = 'current', dramaFunction = async (_stage) => {}) {
     const saveKey = `systemsim-save-${saveIndex}`;
     const saveJson = localStorage.getItem(saveKey);
     if (!saveJson) {
