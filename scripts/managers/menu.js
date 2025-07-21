@@ -93,9 +93,15 @@ export class Menu {
     await this.game.showDialog({
       title: 'Credits',
       text: `
-        <h3>Thanks to:</h3><br />
-        <p>(No-one yet, all the stuff here was made by my massive, muscular fingers.)</p><br />
-        <h3>Special thanks to:</h3><br />
+        <h3>Thanks to:</h3>
+        <br />
+        <h4>Developers</h4>
+        <p>My massive, muscular fingers.</p>
+        <h4>Freesound.org creators</h4>
+        <p><a href="https://freesound.org/people/JZProductions/sounds/147381/">Pencil Writing on Paper</a> by <a href="https://freesound.org/people/JZProductions/">JZProductions</a> | License: <a href="https://creativecommons.org/licenses/by/4.0/">Attribution 4.0</a></p>
+        <br />
+        <h3>Special thanks to:</h3>
+        <br />
         <p>Ruurtjan Pul for the <a target="_blank" href="https://www.nslookup.io/dns-course/">DNS for developers course</a>, which was a catalyst for beginning my search.</p>
         <p>Team Fractal Alligator for <a target="_blank" href="https://store.steampowered.com/app/365450/Hacknet/">Hacknet</a>, which was an inspiration for this game.</p>
         <p>Jacob Jackson for <a target="_blank" href="https://supermaven.com/">Supermaven</a>, an excellent (and fast) AI assistant.  // &lt;-- THE ASSISTANT WROTE THIS ASDFASDFASDF HELP</p>

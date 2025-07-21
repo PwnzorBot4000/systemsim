@@ -14,6 +14,7 @@ import {Bookcase} from "./entities/bookcase.js";
 import {AsciiArtManager} from "./managers/asciiart.js";
 import {ItemContainer} from "./entities/item-container.js";
 import {ConvenienceStoreConversation} from "./entities/conversation.js";
+import {AudioManager} from "./managers/audio.js";
 
 export class Game {
   // Persistent state
@@ -177,6 +178,7 @@ export class Game {
 
   // Transient state
   asciiart = new AsciiArtManager(this);
+  audio = new AudioManager(this);
   currentConversation = undefined;
   input = '';
   inputHistory = new InputHistory();
@@ -215,6 +217,7 @@ export class Game {
 
   async init() {
     // Game init sequence
+    this.audio.init();
     this.asciiart.set(undefined);
     document.getElementById('init-ui').style.display = 'none';
     const terminalElem = document.getElementById('terminal');
@@ -425,6 +428,7 @@ export class Game {
                 name: 'convenienceStoreBreach',
                 text: 'Need to have a linux live usb with me to check James\' pc for backdoors, and an empty usb to store his files while I format.'
               });
+              this.playSfx('pencil-writing-on-paper.ogg').catch(console.warn);
               await sleep(1200);
               this.print('You jolted down something on your notepad.<br />');
               await sleep(1200);
@@ -796,6 +800,11 @@ export class Game {
     return this.prompt
       .replace('%actions%', promptActions)
       .replace('%pwd%', this.computer.fs()?.pwd ?? '');
+  }
+
+  async playSfx(name) {
+    await this.audio.load(name);
+    await this.audio.play(name);
   }
 
   print(text) {
