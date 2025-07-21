@@ -428,7 +428,7 @@ export class Game {
                 name: 'convenienceStoreBreach',
                 text: 'Need to have a linux live usb with me to check James\' pc for backdoors, and an empty usb to store his files while I format.'
               });
-              this.playSfx('pencil-writing-on-paper.ogg').catch(console.warn);
+              this.playSfx('pencil-writing-on-paper.ogg');
               await sleep(1200);
               this.print('You jolted down something on your notepad.<br />');
               await sleep(1200);
@@ -802,9 +802,10 @@ export class Game {
       .replace('%pwd%', this.computer.fs()?.pwd ?? '');
   }
 
-  async playSfx(name) {
-    await this.audio.load(name);
-    await this.audio.play(name);
+  playSfx(name) {
+    this.audio.load(name)
+      .then(() => this.audio.play(name))
+      .catch(console.warn);
   }
 
   print(text) {
@@ -817,7 +818,10 @@ export class Game {
   // Use double percent %% to insert actual percent mark
   // %s30% set print speed interval to 30 ms
   // %p300% pause for 300 ms
+  // %voice1% Play voice1.ogg on every vowel (0 to reset)
   async printSlowly(text, interval = 30) {
+    let soundEffect;
+
     for (let i = 0; i < text.length; i++) {
       switch (text[i]) {
         case '%':
@@ -846,6 +850,14 @@ export class Game {
                 interval = parsedInterval;
               }
               break;
+            case 'voice':
+              // Set sound effect to make on vowels
+              if (commandArgs === '0') {
+                soundEffect = undefined;
+              } else {
+                soundEffect = `voice${commandArgs}.ogg`;
+              }
+              break;
             case '':
               // Insert actual percent mark
               this.terminalBuffer.push('%');
@@ -859,6 +871,9 @@ export class Game {
           this.terminalBuffer.push('<br />');
           break;
         default:
+          if (soundEffect && text[i].match(/[aeiou]/i)) {
+            this.playSfx(soundEffect);
+          }
           this.terminalBuffer.push(text[i]);
           break;
       }

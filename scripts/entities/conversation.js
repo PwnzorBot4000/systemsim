@@ -48,27 +48,27 @@ const convenienceStoreCaptions = {
     'A tall,%p200% thin,%p200% pale young man%p100% with a spotted beard%p200% and a thick blond mustache%p100% ' +
     'is standing in front of the counter.\n%p600%' +
     'You greet him.\n%p1000%' +
-    '- Hi James. What\'s the news today?\n%p500%',
-    '- Hey, how are you?%p300% ...Same as usual.\n' +
+    '- %voice1%Hi James. What\'s the news today?\n%p500%',
+    '- %voice2%Hey, how are you?%p300% ...Same as usual.\n' +
     '  It\'s havoc out there. Security breaches everywhere.\n%p1000%' +
     '  People of your sector must be having a hard time, no?\n%p500%',
-    '- Well,%p300% not if you are careful.%p500% Did you hear anyone getting breached?%p300%\n',
-    '- Well - you are probably looking at him!%p1000% I might be needing someone to look at my case soon.\n',
-    '- Whoa, what happened? Did they steal money from you?%p500%\n' +
+    '- %voice1%Well,%p300% not if you are careful.%p500% Did you hear anyone getting breached?%p300%\n',
+    '- %voice2%Well - you are probably looking at him!%p1000% I might be needing someone to look at my case soon.\n',
+    '- %voice1%Whoa, what happened? Did they steal money from you?%p500%\n' +
     '  Also - I can be that someone, if you want.%p300%\n',
-    '- Oh, really?%p300% No, they didn\'t steal anything, I think.%p500%\n' +
+    '- %voice2%Oh, really?%p300% No, they didn\'t steal anything, I think.%p500%\n' +
     '  But the store\'s main machine is bricked. It is constantly running, overheating, and it displays nothing.%p500%\n' +
     '  Also, the store\'s network is horribly slow lately.%p500%\n',
-    '- %s60%...%p300%%s30%I see.%p400% You have been probably hijacked for mining or attacks.%p500%\n',
-    '- %s500%...%s30%What?%p300%\n',
-    '- Nothing.%p300% I can look at it if you want.%p300% When can I see it?%p300%\n',
-    '- Whenever you like, even now, if you want.%p200% I\'m here every day till the afternoon.%p300%\n',
-    '- Great.%p200% I\'ll prepare some tools and come back.%p300%\n',
-    '- Nice!%p400% With proper pay, of course -%p300% what\'s your price?\n%p500%',
-    '- Let\'s say 50 bucks, if I manage to fix it.\n%p500%',
-    '- And if you don\'t?\n%p300%',
+    '- %voice1%%s60%...%p300%%s30%I see.%p400% You have been probably hijacked for mining or attacks.%p500%\n',
+    '- %voice2%%s400%...%s30%What?%p300%\n',
+    '- %voice1%Nothing.%p300% I can look at it if you want.%p300% When can I see it?%p300%\n',
+    '- %voice2%Whenever you like, even now, if you want.%p200% I\'m here every day till the afternoon.%p300%\n',
+    '- %voice1%Great.%p200% I\'ll prepare some tools and come back.%p300%\n',
+    '- %voice2%Nice!%p400% With proper pay, of course -%p300% what\'s your price?\n%p500%',
+    '- %voice1%Let\'s say 50 bucks, if I manage to fix it.\n%p500%',
+    '- %voice2%And if you don\'t?\n%p300%',
     '%p500%(You smile.)\n%p500%' +
-    '- Then get me a beer to drown my misery.%p500%\n'
+    '- %voice1%Then get me a beer to drown my misery.%p500%\n'
   ],
   introGeneric1: [
     'James is observing the customers circling around the product stalls.\n%p700%'
