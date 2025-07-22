@@ -426,7 +426,7 @@ export class Game {
             if (this.conversationsMap['convenience-store-cashier'].completedCaptions.has('introAboutBreach') && !this.notepad.hasNote('convenienceStoreBreach')) {
               this.notepad.addNote({
                 name: 'convenienceStoreBreach',
-                text: 'Need to have a linux live usb with me to check James\' pc for backdoors, and an empty usb to store his files while I format.'
+                text: 'check James\' pc for backdoors - need linux live usb + empty usb to store his files'
               });
               this.playSfx('pencil-writing-on-paper.ogg');
               await sleep(1200);
