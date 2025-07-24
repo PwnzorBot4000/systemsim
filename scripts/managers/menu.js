@@ -100,6 +100,7 @@ export class Menu {
         <h4>Freesound.org creators</h4>
         <p><a href="https://freesound.org/people/JZProductions/sounds/147381/">Pencil Writing on Paper</a> by <a href="https://freesound.org/people/JZProductions/">JZProductions</a> | License: <a href="https://creativecommons.org/licenses/by/4.0/">Attribution 4.0</a></p>
         <p><a href="https://freesound.org/people/phatcorns/sounds/250104/">Computer Beep</a> by <a href="https://freesound.org/people/phatcorns/">phatcorns</a> | License: <a href="http://creativecommons.org/publicdomain/zero/1.0/">Creative Commons 0</a></p>
+        <p><a href="https://freesound.org/people/Beussa/sounds/749880/">Page turned</a> by <a href="https://freesound.org/people/Beussa/">Beussa</a> | License: <a href="http://creativecommons.org/publicdomain/zero/1.0/">Creative Commons 0</a></p>
         <br />
         <h3>Special thanks to:</h3>
         <br />

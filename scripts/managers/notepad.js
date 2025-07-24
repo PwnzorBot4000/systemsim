@@ -65,8 +65,12 @@ export class Notepad extends StateManagingObject {
       }
     } catch (e) {
       game.print(`${e.message}<br /><br />`);
+      game.print(this.report());
+      game.waitInput();
+      return;
     }
 
+    game.playSfx('page-turn.ogg');
     game.print(this.report());
     game.waitInput();
   }
@@ -81,6 +85,9 @@ export class Notepad extends StateManagingObject {
   }
 
   reportFirstTime() {
-    return 'A large notepad with a pen is on the desk.<br />' + this.report();
+    return async (game) => {
+      game.playSfx('page-turn.ogg');
+      game.print('A large notepad with a pen is on the desk.<br />' + this.report());
+    }
   }
 }
