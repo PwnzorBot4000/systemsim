@@ -13,7 +13,7 @@
     }
 }
 #terminal.monospace {
-    font-family: var(--font-monospace);
+    font-family: var(--font-monospace), monospace;
 }
 :is(:fullscreen, :-webkit-full-screen, :-moz-full-screen, :-ms-fullscreen) #terminal.nocursor {
     cursor: none;

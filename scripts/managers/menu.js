@@ -97,6 +97,8 @@ export class Menu {
         <br />
         <h4>Developers</h4>
         <p>My massive, muscular fingers.</p>
+        <h4>Font creators</h4>
+        <p><a href="https://sourcefoundry.org/hack/">Hack</a> by <a href="https://github.com/source-foundry">Source Foundry</a> | License: <a href="https://github.com/source-foundry/Hack/blob/master/LICENSE.md">MIT / Bitstream Vera</a></p>
         <h4>Freesound.org creators</h4>
         <p><a href="https://freesound.org/people/JZProductions/sounds/147381/">Pencil Writing on Paper</a> by <a href="https://freesound.org/people/JZProductions/">JZProductions</a> | License: <a href="https://creativecommons.org/licenses/by/4.0/">Attribution 4.0</a></p>
         <p><a href="https://freesound.org/people/phatcorns/sounds/250104/">Computer Beep</a> by <a href="https://freesound.org/people/phatcorns/">phatcorns</a> | License: <a href="http://creativecommons.org/publicdomain/zero/1.0/">Creative Commons 0</a></p>

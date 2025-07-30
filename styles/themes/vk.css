@@ -10,7 +10,7 @@
     background-color: var(--color-contrast);
     border: 1px var(--color-secondary) solid;
     color: var(--color-secondary);
-    font-family: var(--font-monospace);
+    font-family: var(--font-monospace), monospace;
     font-size: 0.75rem;
     height: 1.25rem;
     padding-inline: 0.5em;

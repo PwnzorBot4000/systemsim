@@ -36,7 +36,7 @@
 #dialog-ui-text {
     /* Default style as p */
     color: var(--color-primary);
-    font-family: var(--font-ui);
+    font-family: var(--font-ui), sans-serif;
     font-size: 0.8rem;
     overflow-y: auto;
     max-height: 50dvh;
