@@ -71,13 +71,16 @@
 
     class AsciiArtEditor {
       cursor = {x: 0, y: 0, layer: 1, elem: undefined};
-      manager = new AsciiArtManager(undefined, {asciiArtSource: asciiartModule.asciiart});
+      manager;
 
       constructor() {
         this.cursor.elem = document.getElementById('editor-cursor');
       }
 
-      init() {
+      async init() {
+        this.manager = new AsciiArtManager();
+        await this.manager.init({asciiArtSource: await asciiartModule.loadAsciiArt()});
+
         this.setAsciiArt('logo');
 
         const artPieces = this.manager.getList();
@@ -197,7 +200,7 @@
 
     const editor = new AsciiArtEditor();
     window.editor = editor;
-    editor.init();
+    await editor.init();
   </script>
 </head>
 <body>

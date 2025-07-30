@@ -14,6 +14,7 @@
 
       document.addEventListener('DOMContentLoaded', async () => {
         // Show init UI
+        await game.asciiart.init();
         game.asciiart.set('logo');
         document.getElementById('init-ui').style.display = null;
       });

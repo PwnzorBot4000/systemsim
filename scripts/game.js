@@ -218,7 +218,7 @@ export class Game {
   async init() {
     // Game init sequence
     this.audio.init();
-    this.asciiart.set(undefined);
+    this.asciiart.clear();
     document.getElementById('init-ui').style.display = 'none';
     const terminalElem = document.getElementById('terminal');
     terminalElem.innerHTML = '';

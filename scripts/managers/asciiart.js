@@ -1,4 +1,4 @@
-import {asciiart} from "../../data/asciiart.js";
+import {loadAsciiArt} from "../../data/asciiart.js";
 
 const numLayers = 4;
 
@@ -28,14 +28,18 @@ export class AsciiArtLayer {
 
 export class AsciiArtManager {
   asciiArtId;
-  asciiArtSource = asciiart;
+  asciiArtSource;
   game;
 
-  constructor(game, options = {asciiArtSource: undefined}) {
+  constructor(game) {
     this.game = game;
+  }
 
+  async init(options = {asciiArtSource: undefined}) {
     if (options?.asciiArtSource) {
       this.asciiArtSource = options.asciiArtSource;
+    } else {
+      this.asciiArtSource = await loadAsciiArt();
     }
   }
 
