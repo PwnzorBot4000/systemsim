@@ -1,12 +1,6 @@
 import {Achievements} from "../scripts/managers/achievements.js";
 
 const asciiart = {
-  'desk-layer2-style': {
-    color: '#404040',
-  },
-  'desk-layer3-style': {
-    'padding': '0.5em',
-  },
   'logo-layer2-styles': [
     {
       padding: '1em',
@@ -43,6 +37,12 @@ const asciiart = {
   ],
 };
 
+const PARSER_MODE = {
+  EXEC: 'exec',
+  DRAWING: 'drawing',
+  DEFINING_STYLE: 'defining_style'
+};
+
 const parseAsciiArtFile = (name, source) => {
   if (typeof source !== 'string') throw new Error('AsciiArt source must be a string.');
   if (!source.includes('draw:')) {
@@ -52,22 +52,39 @@ const parseAsciiArtFile = (name, source) => {
   const inputLines = source.split('\n');
   const outputLayers = {};
   let outputLines = [];
-  let isDrawing = false;
+
+  let mode = PARSER_MODE.EXEC;
   let layerId = 1;
   let paddingRight = 0;
   let paddingBottom = 0;
   let remainingLines = -1;
+  let styleContent = '';
 
   for (const [index, line] of inputLines.entries()) {
+    // Style definition accumulation
+    if (mode === PARSER_MODE.DEFINING_STYLE) {
+      styleContent += line;
+      if (line.includes('}')) {
+        mode = PARSER_MODE.EXEC;
+        const styleName = layerId > 1 ? `${name}-layer${layerId}-style` : `${name}-style`;
+        try {
+          outputLayers[styleName] = JSON.parse(styleContent);
+        } catch (e) {
+          throw new Error(`Invalid JSON in style definition for ${styleName}: ${e.message} - content: ${styleContent}`);
+        }
+        continue;
+      }
+      continue;
+    }
     // Drawing data
-    if (isDrawing) {
+    if (mode === PARSER_MODE.DRAWING) {
       outputLines.push(line + ' '.repeat(paddingRight));
 
       if (remainingLines > 0) remainingLines--;
       if (remainingLines === 0 || index === inputLines.length - 1) {
         // Finish drawing
         remainingLines = -1;
-        isDrawing = false;
+        mode = PARSER_MODE.EXEC;
         for (let i = 0; i < paddingBottom; i++) {
           outputLines.push(' ');
         }
@@ -87,7 +104,7 @@ const parseAsciiArtFile = (name, source) => {
     const lineParts = line.split(':').map(s => s.trim()).filter(Boolean);
     switch (lineParts[0]) {
       case 'draw':
-        isDrawing = true;
+        mode = PARSER_MODE.DRAWING;
         break;
       case 'height':
         remainingLines = parseInt(lineParts[1]);
@@ -101,6 +118,10 @@ const parseAsciiArtFile = (name, source) => {
       case 'padding-bottom':
         paddingBottom = parseInt(lineParts[1]);
         break;
+      case 'style':
+        mode = PARSER_MODE.DEFINING_STYLE;
+        styleContent = (lineParts[1] ?? '') + '\n';
+        break;
     }
   }
 
@@ -113,7 +134,14 @@ const loadAsciiArtFile = async (artName) => {
   const response = await fetch(filename);
   if (!response.ok) throw new Error(`Failed to load ascii art file ${artName}.`);
 
-  return parseAsciiArtFile(artName, await response.text());
+  try {
+    const content = await response.text();
+    return parseAsciiArtFile(artName, content);
+  } catch (e) {
+    console.error(`Failed to parse ascii art file ${artName}.`);
+    console.error(e);
+    return {};
+  }
 };
 
 export const loadAsciiArt = async () => {

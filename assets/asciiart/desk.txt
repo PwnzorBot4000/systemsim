@@ -46,6 +46,9 @@ draw:
 │░░░░░░                 ░░░░░░        ▕
 │                       ░░░░░░
 ╵
+style: {
+  "color": "#404040"
+}
 layer: 3
 height: 12
 padding-bottom: 2
@@ -64,3 +67,6 @@ draw:
 
          ╱
         ╱
+style: {
+  "padding": "0.5em"
+}
