@@ -24,9 +24,7 @@ draw:
 └──────┘               ╙──────┘└┘
 layer: 2
 height: 19
-padding-bottom: 2
 draw:
-
           ╔═════════════╗
           ║             ║
           ║             ║
