@@ -1,114 +1,12 @@
 import {Achievements} from "../scripts/managers/achievements.js";
 
 const asciiart = {
-  'bookcase-layer2':
-    '                                                   \n' +
-    '                                                   \n' +
-    '                                                   \n' +
-    '                                                   \n' +
-    '                                                   \n' +
-    '                                                   \n' +
-    '                                                   \n' +
-    '                                                   \n' +
-    '                                                   \n' +
-    '                                                   \n' +
-    '                                                   \n' +
-    '                                                   \n' +
-    '                                                   \n' +
-    '                                                   \n' +
-    '                                                   \n' +
-    '                                                   \n' +
-    '                                                   \n' +
-    '                                                   \n' +
-    '                                                   \n' +
-    '                                                   \n' +
-    '                                                   \n' +
-    '                                                   \n' +
-    '                                                   \n' +
-    '                                                   \n' +
-    '                                                   \n',
-  'bookcase-layer2-style': {
-    'padding-bottom': '0.6em',
-    'padding-right': '0.5ch'
-  },
-  'desk-layer2':
-    '                                                   \n' +
-    '             ╔═════════════╗                       \n' +
-    '             ║             ║                       \n' +
-    '             ║             ║                       \n' +
-    '             ║             ║                       \n' +
-    '       ╔═══╗ ║             ║                       \n' +
-    '      ─║   ║─               ──────────┐            \n' +
-    '    ╱                     _    ┉┄┈    │            \n' +
-    '   ╷                                  │            \n' +
-    '   │                                  │            \n' +
-    '   │░░░░░░                 ▖          │            \n' +
-    '   │░░░░░░                ▝           │            \n' +
-    '   │         ┌──────────── ░░░░░░     │            \n' +
-    '   │░░░░░░   │             ░░░░░░      =           \n' +
-    '   │░░░░░░   │             ░░░░░░      │           \n' +
-    '   │         ╵             ░░░░░░       ╲          \n' +
-    '   │░░░░░░                 ░░░░░░        ▕         \n' +
-    '   │░░░░░░                 ░░░░░░        ▕         \n' +
-    '   │                       ░░░░░░                  \n' +
-    '   ╵                                               \n' +
-    '                                                   \n',
   'desk-layer2-style': {
     color: '#404040',
   },
-  'desk-layer3':
-    '                                                   \n' +
-    '                                                   \n' +
-    '                                                   \n' +
-    '                                                   \n' +
-    '                                                   \n' +
-    '                                                   \n' +
-    '                                                   \n' +
-    '             ╻                                     \n' +
-    '                                                   \n' +
-    '                                                   \n' +
-    '                                                   \n' +
-    '                                                   \n' +
-    '                                                   \n' +
-    '                                                   \n' +
-    '                                                   \n' +
-    '                                                   \n' +
-    '                                                   \n' +
-    '                                                   \n' +
-    '             ╱                                     \n' +
-    '            ╱                                      \n' +
-    '                                                   \n',
   'desk-layer3-style': {
     'padding': '0.5em',
   },
-  logo:
-    '                               \n' +
-    '   ╔═══════════════════════╗   \n' +
-    '   ║                       ║   \n' +
-    '   ║ ██████ ██   ██ ██████ ║   \n' +
-    '   ║ ██  ██ ██   ██ ██  ██ ║   \n' +
-    '   ║ ██     ███ ███ ██     ║   \n' +
-    '   ║ ██████  ██ ██  ██████ ║   \n' +
-    '   ║     ██   ███       ██ ║   \n' +
-    '   ║ ██  ██   ███   ██  ██ ║   \n' +
-    '   ║ ██████   ███   ██████ ║   \n' +
-    '   ║                       ║   \n' +
-    '   ╚═══════════════════════╝   \n' +
-    '                               \n',
-  'logo-layer2':
-    '                               \n' +
-    '   ╔═══════════════════════╗   \n' +
-    '    ║                       ║   \n' +
-    '   ║ ██████ ██   ██ ██████ ║   \n' +
-    '  ║ ██  ██ ██   ██ ██  ██ ║   \n' +
-    '   ║ ██     ███ ███ ██     ║   \n' +
-    '   ║ ██████  ██ ██  ██████ ║   \n' +
-    '  ║     ██   ███       ██ ║   \n' +
-    '   ║ ██  ██   ███   ██  ██ ║   \n' +
-    '    ║ ██████   ███   ██████ ║   \n' +
-    '   ║                       ║   \n' +
-    '  ╚═══════════════════════╝   \n' +
-    '                               \n',
   'logo-layer2-styles': [
     {
       padding: '1em',
@@ -121,20 +19,6 @@ const asciiart = {
       padding: '0 1em',
     }
   ],
-  'logo-layer3':
-    '                               \n' +
-    '   ╔═══════════════════════╗   \n' +
-    '    ║                       ║   \n' +
-    '   ║ ██████ ██   ██ ██████ ║   \n' +
-    '  ║ ██  ██ ██   ██ ██  ██ ║   \n' +
-    '   ║ ██     ███ ███ ██     ║   \n' +
-    '   ║ ██████  ██ ██  ██████ ║   \n' +
-    '  ║     ██   ███       ██ ║   \n' +
-    '   ║ ██  ██   ███   ██  ██ ║   \n' +
-    '    ║ ██████   ███   ██████ ║   \n' +
-    '   ║                       ║   \n' +
-    '  ╚═══════════════════════╝   \n' +
-    '                               \n',
   'logo-layer3-styles': [
     {
       color: '#00000000',
@@ -146,20 +30,6 @@ const asciiart = {
       'animation-timing-function': 'ease-in-out',
     }
   ],
-  'logo-layer4':
-    '                               \n' +
-    '   ╔═══════════════════════╗   \n' +
-    '   ║                       ║   \n' +
-    '   ║ ██████ ██   ██ ██████ ║   \n' +
-    '   ║ ██  ██ ██   ██ ██  ██ ║   \n' +
-    '   ║ ██     ███ ███ ██     ║   \n' +
-    '   ║ ██████  ██ ██  ██████ ║   \n' +
-    '   ║     ██   ███       ██ ║   \n' +
-    '   ║ ██  ██   ███   ██  ██ ║   \n' +
-    '   ║ ██████   ███   ██████ ║   \n' +
-    '   ║                       ║   \n' +
-    '   ╚═══════════════════════╝   \n' +
-    '                               \n',
   'logo-layer4-styles': [
     {
       color: '#00000000',
@@ -173,59 +43,87 @@ const asciiart = {
   ],
 };
 
-const parseAsciiArtFile = (source) => {
+const parseAsciiArtFile = (name, source) => {
   if (typeof source !== 'string') throw new Error('AsciiArt source must be a string.');
   if (!source.includes('draw:')) {
     // Plain art file without logic or modifiers
     return source;
   }
   const inputLines = source.split('\n');
-  const outputLines = [];
+  const outputLayers = {};
+  let outputLines = [];
   let isDrawing = false;
+  let layerId = 1;
   let paddingRight = 0;
   let paddingBottom = 0;
+  let remainingLines = -1;
 
-  for (const line of inputLines) {
+  for (const [index, line] of inputLines.entries()) {
     // Drawing data
     if (isDrawing) {
       outputLines.push(line + ' '.repeat(paddingRight));
+
+      if (remainingLines > 0) remainingLines--;
+      if (remainingLines === 0 || index === inputLines.length - 1) {
+        // Finish drawing
+        remainingLines = -1;
+        isDrawing = false;
+        for (let i = 0; i < paddingBottom; i++) {
+          outputLines.push(' ');
+        }
+        const result = outputLines.join('\n');
+        if (layerId > 1) {
+          outputLayers[`${name}-layer${layerId}`] = result;
+        } else {
+          outputLayers[name] = result;
+        }
+        outputLines = [];
+      }
       continue;
     }
     // Comments
-    if (line.startsWith('##')) continue;
+    if (line.startsWith('#')) continue;
     // Variables
-    const lineParts = line.split(' ').filter(Boolean);
+    const lineParts = line.split(':').map(s => s.trim()).filter(Boolean);
     switch (lineParts[0]) {
-      case 'draw:':
+      case 'draw':
         isDrawing = true;
         break;
-      case 'padding-right:':
+      case 'height':
+        remainingLines = parseInt(lineParts[1]);
+        break;
+      case 'layer':
+        layerId = parseInt(lineParts[1]);
+        break;
+      case 'padding-right':
         paddingRight = parseInt(lineParts[1]);
         break;
-      case 'padding-bottom:':
+      case 'padding-bottom':
         paddingBottom = parseInt(lineParts[1]);
         break;
     }
   }
 
-  for (let i = 0; i < paddingBottom; i++) {
-    outputLines.push(' ');
-  }
-
-  return outputLines.join('\n');
+  return outputLayers;
 }
 
-const loadAsciiArtFile = async (filename) => {
+const loadAsciiArtFile = async (artName) => {
+  const filename = `assets/asciiart/${artName}.txt`;
+
   const response = await fetch(filename);
-  if (!response.ok) throw new Error(`Failed to load ascii art file ${filename}.`);
-  return parseAsciiArtFile(await response.text());
+  if (!response.ok) throw new Error(`Failed to load ascii art file ${artName}.`);
+
+  return parseAsciiArtFile(artName, await response.text());
 };
 
 export const loadAsciiArt = async () => {
-  const bookcase = await loadAsciiArtFile('assets/asciiart/bookcase.txt');
-  const desk = await loadAsciiArtFile('assets/asciiart/desk.txt');
-  const memorySticks = await loadAsciiArtFile('assets/asciiart/memory-sticks.txt');
-  const notepad = await loadAsciiArtFile('assets/asciiart/notepad.txt');
-  const picture = await loadAsciiArtFile('assets/asciiart/picture.txt');
-  return {...asciiart, desk, bookcase, memorySticks, notepad, picture};
+  const files = ['bookcase', 'desk', 'logo', 'memorySticks', 'notepad', 'picture'];
+  const asciiArtCollection = {...asciiart};
+
+  for (const file of files) {
+    const asciiArtLayers = await loadAsciiArtFile(file);
+    Object.assign(asciiArtCollection, asciiArtLayers);
+  }
+
+  return asciiArtCollection;
 };
