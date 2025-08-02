@@ -47,7 +47,7 @@ const parseAsciiArtFile = (name, source) => {
   if (typeof source !== 'string') throw new Error('AsciiArt source must be a string.');
   if (!source.includes('draw:')) {
     // Plain art file without logic or modifiers
-    return source;
+    return { [name]: source};
   }
   const inputLines = source.split('\n');
   const outputLayers = {};
@@ -129,10 +129,13 @@ const parseAsciiArtFile = (name, source) => {
 }
 
 const loadAsciiArtFile = async (artName) => {
-  const filename = `assets/asciiart/${artName}.txt`;
+  const filename = `/assets/asciiart/${artName}.txt`;
 
   const response = await fetch(filename);
-  if (!response.ok) throw new Error(`Failed to load ascii art file ${artName}.`);
+  if (!response.ok) {
+    console.error(`Failed to load ascii art file ${artName}.`);
+    return {};
+  }
 
   try {
     const content = await response.text();
@@ -145,7 +148,7 @@ const loadAsciiArtFile = async (artName) => {
 };
 
 export const loadAsciiArt = async () => {
-  const files = ['bookcase', 'desk', 'logo', 'memorySticks', 'notepad', 'picture'];
+  const files = ['bookcase', 'desk', 'drawer', 'logo', 'memorySticks', 'notepad', 'picture'];
   const asciiArtCollection = {...asciiart};
 
   for (const file of files) {

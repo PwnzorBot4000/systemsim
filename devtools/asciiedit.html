@@ -81,11 +81,11 @@
         this.manager = new AsciiArtManager();
         await this.manager.init({asciiArtSource: await asciiartModule.loadAsciiArt()});
 
-        this.setAsciiArt('logo');
+        this.load();
 
         const artPieces = this.manager.getList();
         const artListElem = document.getElementById('editor-artlist-list');
-        artListElem.innerHTML = artPieces.map((piece) => `<button onclick="editor.setAsciiArt('${piece}')">${piece}</button>`).join('');
+        artListElem.innerHTML = artPieces.map((piece) => `<button onclick="editor.handleClickAsciiArt('${piece}')">${piece}</button>`).join('');
 
         // Bind events
         document.addEventListener('keydown', this.keyDownHandler);
@@ -158,6 +158,31 @@
         this.manager.setCharacter(char, this.cursor.x, this.cursor.y, this.cursor.layer);
       }
 
+      handleClickAsciiArt(piece) {
+        this.setAsciiArt(piece);
+        this.save();
+      }
+
+      handleClickLayer(layerId) {
+        this.setActiveLayer(layerId);
+        this.save();
+      }
+
+      load() {
+        const saveKey = `asciiedit-session`;
+        const saveJson = sessionStorage.getItem(saveKey);
+        const save = saveJson && JSON.parse(saveJson);
+
+        if (!save?.['asciiArtId']) {
+          this.setAsciiArt('logo');
+          return;
+        }
+
+        this.setAsciiArt(save['asciiArtId']);
+        this.setActiveLayer(save['layerId'] ?? 1);
+        this.moveCursor(save['cursorX'], save['cursorY']);
+      }
+
       moveCursor(x, y) {
         if (x > 0) x = 0;
         if (y > 0) y = 0;
@@ -170,6 +195,17 @@
       refresh() {
         this.cursor.elem.style.right = `calc(${-this.cursor.x}ch - 2px)`;
         this.cursor.elem.style.bottom = `calc(1.12 * (${-this.cursor.y}em) - 2px)`;
+      }
+
+      save() {
+        const save = {
+          'asciiArtId': this.manager.asciiArtId,
+          'layerId': this.cursor.layer,
+          'cursorX': this.cursor.x,
+          'cursorY': this.cursor.y,
+        };
+        const saveKey = `asciiedit-session`;
+        sessionStorage.setItem(saveKey, JSON.stringify(save));
       }
 
       setActiveLayer(layerIndex) {
@@ -190,7 +226,7 @@
 
         const layersListElem = document.getElementById('editor-layers-list');
         layersListElem.innerHTML = this.manager.getLayers(asciiArtId)
-          .map((layer) => `<button id="editor-layer-btn-${layer.index}" onclick="editor.setActiveLayer(${layer.index})">Layer ${layer.index}</button>`)
+          .map((layer) => `<button id="editor-layer-btn-${layer.index}" onclick="editor.handleClickLayer(${layer.index})">Layer ${layer.index}</button>`)
           .join('');
 
         this.moveCursor(0, 0);
