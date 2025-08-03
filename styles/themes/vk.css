@@ -32,6 +32,10 @@
     min-width: 2rem;
     text-shadow: 0 0 2px var(--color-contrast);
 }
+.vk button[primary].active {
+    /* Toggled on */
+    background-color: var(--color-primary);
+}
 .vk button[danger] {
     border-color: var(--color-danger);
     background-color: var(--color-danger);

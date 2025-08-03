@@ -76,6 +76,9 @@ export class Game {
   ], { defaultItemType: 'kitchen' });
   memorySticks = new MemorySticks({ machine: this.computer });
   notepad = new Notepad();
+  pockets = new ItemContainer([
+    { description: 'Your keys.' },
+  ])
   servers = {
     'exploit-db.com': new Server({
       filesystem: new Filesystem({
@@ -203,6 +206,7 @@ export class Game {
     drawer2: this.drawers[1],
     drawer3: this.drawers[2],
     kitchen: this.kitchen,
+    pockets: this.pockets,
     storeroom: this.storeroom,
   };
   inspectableObjectsMap = {
@@ -290,6 +294,7 @@ export class Game {
       '`': '&#x2630;'
     };
     const primaryVks = new Set(['capslock', 'Tab', 'Backspace', 'shift', 'ctrl', 'alt', 'Enter', '`'])
+    const vkeyboardElem = document.getElementById('vkeyboard');
     const vkRowElements = [1, 2, 3, 4, 5]
       .map(n => document.getElementById(`vk-row${n}`));
     for (const [index, vkRowElement] of vkRowElements.entries()) {
@@ -306,6 +311,7 @@ export class Game {
             document.querySelectorAll('#vk-row3 button[primary="true"]').forEach(btn => {
               btn.classList.toggle('active', this.capsLockActive);
             });
+            vkeyboardElem.classList.toggle('capslock-on', this.capsLockActive);
           } else {
             let key = vk;
             if (this.capsLockActive && vk.length === 1) {
