@@ -2,12 +2,14 @@ import {StateManagingObject} from "./state-managing-object.js";
 import {sleep} from "../utils.js";
 
 export class ItemContainer extends StateManagingObject{
-  items = [];
   defaultItemTypes = new Set();
+  game;
+  items = [];
 
   constructor(items, options = undefined) {
     super();
     this.items = items;
+    this.game = options?.game;
 
     const in_defaultItemTypes = options?.defaultItemTypes ?? options?.defaultItemType;
     if (in_defaultItemTypes) {
@@ -58,6 +60,22 @@ export class ItemContainer extends StateManagingObject{
     if (this.items.some(item => item.type === 'stationery') && !this.defaultItemTypes.has('stationery'))
       actions.push('move-stationery-to-drawer1');
 
+    if (this.items.some(item => item.type === 'stationery') && !this.defaultItemTypes.has('stationery'))
+      actions.push('move-stationery-to-drawer1');
+
+    if (this.items.some(item => !!item.name)) {
+      const names = this.items.filter(item => !!item.name).map(item => item.name).join('/');
+      actions.push(`take ${names}`);
+    }
+
+    const itemsOnPlayer = [...(this.game.hands.items ?? []), ...(this.game.pockets.items ?? [])]
+      .filter(item => !!item.name);
+    if (itemsOnPlayer.length > 0) {
+      for (const item of itemsOnPlayer) {
+        actions.push(`leave ${item.name}`);
+      }
+    }
+
     actions.push('back');
     return actions;
   }
@@ -73,7 +91,7 @@ export class ItemContainer extends StateManagingObject{
         game.waitInput();
         break;
       case 'dismantle': {
-        const destructible = this.items.find(item => item.name === game.getArgv(1));
+        const destructible = this.findItem(game.getArgv(1));
         if (!destructible || !destructible.dismantleTo) {
           game.print('Invalid item to dismantle.<br />');
           game.waitInput();
@@ -82,6 +100,28 @@ export class ItemContainer extends StateManagingObject{
         game.print(`You dismantle the ${destructible.referredAsThe}.<br />`);
         await sleep(1200);
         this.dismantleItem(destructible);
+        game.print(this.reportAfterChange());
+        game.possibleActions = this.determineActions();
+        game.waitInput();
+        break;
+      }
+      case 'leave': {
+        const itemName = game.getArgv(1);
+        const item = game.hands.findItem(itemName)
+          ?? game.pockets.findItem(itemName);
+        if (!item) {
+          game.print('Invalid item to leave.<br />');
+          game.waitInput();
+          break;
+        }
+        if (game.hands.isEmpty()) {
+          game.print('You have nothing in your hands.<br />');
+          game.waitInput();
+          break;
+        }
+        game.print(`You leave the ${item.referredAsThe ?? item.name}.<br />`);
+        await sleep(300);
+        game.hands.moveItemTo(item, this);
         game.print(this.reportAfterChange());
         game.possibleActions = this.determineActions();
         game.waitInput();
@@ -154,7 +194,36 @@ export class ItemContainer extends StateManagingObject{
         await sleep(600);
         return game.switchState(`read-book ${book.name}`);
       }
+      case 'take': {
+        const itemName = game.getArgv(1);
+        const item = this.findItem(itemName);
+        if (!item) {
+          game.print('Invalid item to take.<br />');
+          game.waitInput();
+          break;
+        }
+        if (!game.hands.isEmpty()) {
+          game.print('Your hands are full.<br />');
+          game.waitInput();
+          break;
+        }
+        game.print(`You take the ${item.referredAsThe ?? item.name}.<br />`);
+        await sleep(300);
+        this.moveItemTo(item, game.hands);
+        game.print(this.reportAfterChange());
+        game.possibleActions = this.determineActions();
+        game.waitInput();
+        break;
+      }
     }
+  }
+
+  /**
+   * @param {string} name
+   * @returns {*}
+   */
+  findItem(name) {
+    return this.items.find(item => item.name === name);
   }
 
   importSave(save) {
@@ -183,6 +252,11 @@ export class ItemContainer extends StateManagingObject{
     this.items = this.items.filter(item => item.type !== type);
 
     destination.items.push(...items);
+  }
+
+  moveItemTo(item, destination) {
+    this.items = this.items.filter(i => i !== item);
+    destination.items.push(item);
   }
 
   report() {

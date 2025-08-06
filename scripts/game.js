@@ -18,15 +18,15 @@ import {AudioManager} from "./managers/audio.js";
 
 export class Game {
   // Persistent state
-  bathroom = new ItemContainer([], { defaultItemType: 'hygiene' });
-  bookcase = new Bookcase([], { defaultItemTypes: ['book', 'clothes'] });
+  bathroom = new ItemContainer([], { defaultItemType: 'hygiene', game: this });
+  bookcase = new Bookcase([], { defaultItemTypes: ['book', 'clothes'], game: this });
   computer = new Machine({
     filesystem: new Filesystem({
       pwd: '/root', fsMap: new Map(filesystemsData['localhost'])
     }),
     game: this,
   });
-  deskSideBags = new DeskSideBags();
+  deskSideBags = new DeskSideBags({ game: this });
   drawers = [
     new Drawer([
       booksData.get('history-of-computer-industry'),
@@ -34,14 +34,14 @@ export class Game {
       { description: 'A TV remote control for your monitor, unused.', sellPrice: 10, sellChance: 0.5 },
       { description: '3 AAA batteries.' },
       { description: 'A box of paper clips.', type: 'stationery' },
-    ], { defaultItemType: 'stationery' }),
+    ], { defaultItemType: 'stationery', game: this }),
     new Drawer([
       { description: '2 AA batteries, expired.', trash: true },
       { description: 'A spoon.', type: 'kitchen' },
       { description: 'A stack of sticky notes.', type: 'stationery' },
       { description: 'A syringe of thermal paste.' },
       { description: 'An old low-performance CPU cooler.', sellPrice: 5, sellChance: 1 },
-    ]),
+    ], { game: this }),
       new Drawer([
       {
         description: 'A pair of over-ear headphones. The plastic coating of the muffs is chipped.',
@@ -67,18 +67,19 @@ export class Game {
       },
       { description: 'A bottle of cologne.', type: 'hygiene' },
       { description: 'A packet of tissues.', type: 'hygiene' },
-    ]),
+    ], { game: this }),
   ];
+  hands = new ItemContainer([], { game: this });
   kitchen = new ItemContainer([
     { description: 'A knife.', type: 'kitchen', name: 'knife' },
     { description: 'A water glass.', type: 'kitchen' },
     { description: 'A set of wine glasses.', type: 'kitchen' },
-  ], { defaultItemType: 'kitchen' });
+  ], { defaultItemType: 'kitchen', game: this });
   memorySticks = new MemorySticks({ machine: this.computer });
   notepad = new Notepad();
   pockets = new ItemContainer([
     { description: 'Your keys.' },
-  ])
+  ], { game: this })
   servers = {
     'exploit-db.com': new Server({
       filesystem: new Filesystem({
@@ -177,7 +178,7 @@ export class Game {
       ],
     }),
   }
-  storeroom = new ItemContainer([], { defaultItemType: 'crafting' });
+  storeroom = new ItemContainer([], { defaultItemType: 'crafting', game: this });
 
   // Transient state
   asciiart = new AsciiArtManager(this);
@@ -205,6 +206,7 @@ export class Game {
     drawer1: this.drawers[0],
     drawer2: this.drawers[1],
     drawer3: this.drawers[2],
+    hands: this.hands,
     kitchen: this.kitchen,
     pockets: this.pockets,
     storeroom: this.storeroom,

@@ -1,7 +1,7 @@
 import {ItemContainer} from "../entities/item-container.js";
 
 export class DeskSideBags extends ItemContainer {
-  constructor() {
+  constructor(options) {
     super([
       {
         name: 'cologne-packaging',
@@ -9,7 +9,7 @@ export class DeskSideBags extends ItemContainer {
         trash: true
       },
       {name: 'cooler-packaging', description: 'A large bag containing the empty packaging of a CPU cooler.', trash: true},
-    ]);
+    ], options);
   }
 
   report() {
