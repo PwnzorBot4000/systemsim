@@ -1,3 +1,6 @@
+/**
+ * @typedef {object} StateManagingObject
+ */
 export class StateManagingObject {
   determineActions() {
     return ['back'];

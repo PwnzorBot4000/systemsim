@@ -15,7 +15,11 @@ import {AsciiArtManager} from "./managers/asciiart.js";
 import {ItemContainer} from "./entities/item-container.js";
 import {ConvenienceStoreConversation} from "./entities/conversation.js";
 import {AudioManager} from "./managers/audio.js";
+import {PossibleAction} from "./model.js";
 
+/**
+ * @typedef {object} Game
+ */
 export class Game {
   // Persistent state
   bathroom = new ItemContainer([], { defaultItemType: 'hygiene', game: this });
@@ -187,6 +191,7 @@ export class Game {
   input = '';
   inputHistory = new InputHistory();
   menu = new Menu(this);
+  /** @type {(PossibleAction|string)[]} */
   possibleActions = [];
   previousState = undefined;
   prompt = '';
@@ -396,15 +401,16 @@ export class Game {
           await this.render();
           break;
         case 'Tab': {
+          const indexOfCompletedWord = this.input.matchAll(/ /g).toArray().length + 1;
           const matches = this.possibleActions
             .flatMap(action => typeof action === 'string' ? [action] : action.actions)
             .filter(action => action.startsWith(this.input))
-            .map(action => action.split(' ')[0])
+            .map(action => action.split(' ').slice(0, indexOfCompletedWord).join(' '))
             .sort((a, b) => b.length - a.length);
           const commonPrefix = longestCommonPrefixSorted(matches);
 
           if (commonPrefix.length > 0) {
-            this.input = commonPrefix.split(' ')[0];
+            this.input = commonPrefix.split(' ').slice(0, indexOfCompletedWord).join(' ');
             this.inputHistory.type(this.input);
             await this.render();
           }
@@ -701,7 +707,13 @@ export class Game {
       case 'back':
         return this.switchState(prevState);
       default:
-        if (this.possibleActions.some(action => action.split(' ')[0] === command)) {
+        if (
+          this.possibleActions.some(action =>
+            typeof action === 'string' ?
+              action.split(' ')[0] === command :
+              action.actions.some(action => action.split(' ')[0] === command)
+          )
+        ) {
           return object.executeInput(this);
         }
         this.print('Invalid action. ');

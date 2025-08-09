@@ -1,7 +1,12 @@
 import {StateManagingObject} from "./state-managing-object.js";
 import {sleep} from "../utils.js";
+import {PossibleAction} from "../model.js";
 
+/**
+ * @typedef {StateManagingObject} ItemContainer
+ */
 export class ItemContainer extends StateManagingObject{
+  /** @type {Set<string>} */
   defaultItemTypes = new Set();
   game;
   items = [];
@@ -26,6 +31,7 @@ export class ItemContainer extends StateManagingObject{
   }
 
   determineActions() {
+    /** @type {(string|PossibleAction)[]} */
     const actions = [];
 
     const books = this.items.filter(item => item.type === 'book');
@@ -64,8 +70,11 @@ export class ItemContainer extends StateManagingObject{
       actions.push('move-stationery-to-drawer1');
 
     if (this.items.some(item => !!item.name)) {
-      const names = this.items.filter(item => !!item.name).map(item => item.name).join('/');
-      actions.push(`take ${names}`);
+      const names = this.items.filter(item => !!item.name).map(item => item.name);
+      actions.push({
+        render: `take [item]`,
+        actions: names.map(name => `take ${name}`),
+      });
     }
 
     const itemsOnPlayer = [...(this.game.hands.items ?? []), ...(this.game.pockets.items ?? [])]
