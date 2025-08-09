@@ -128,8 +128,8 @@ const parseAsciiArtFile = (name, source) => {
   return outputLayers;
 }
 
-const loadAsciiArtFile = async (artName) => {
-  const filename = `assets/asciiart/${artName}.txt`;
+const loadAsciiArtFile = async (artName, options) => {
+  const filename = `${options.prefix}assets/asciiart/${artName}.txt`;
 
   const response = await fetch(filename);
   if (!response.ok) {
@@ -147,12 +147,14 @@ const loadAsciiArtFile = async (artName) => {
   }
 };
 
-export const loadAsciiArt = async () => {
-  const files = ['bookcase', 'desk', 'drawer', 'logo', 'memorySticks', 'notepad', 'picture'];
+export const loadAsciiArt = async (options = { prefix: '' }) => {
+  const files = [
+    'bookcase', 'desk', 'drawer', 'logo', 'memorySticks', 'notepad', 'picture', 'items/spoon', 'items/battery'
+  ];
   const asciiArtCollection = {...asciiart};
 
   for (const file of files) {
-    const asciiArtLayers = await loadAsciiArtFile(file);
+    const asciiArtLayers = await loadAsciiArtFile(file, options);
     Object.assign(asciiArtCollection, asciiArtLayers);
   }
 

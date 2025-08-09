@@ -79,7 +79,7 @@
 
       async init() {
         this.manager = new AsciiArtManager();
-        await this.manager.init({asciiArtSource: await asciiartModule.loadAsciiArt()});
+        await this.manager.init({asciiArtSource: await asciiartModule.loadAsciiArt({prefix: '../'})});
 
         this.load();
 
