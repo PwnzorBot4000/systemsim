@@ -129,7 +129,7 @@ const parseAsciiArtFile = (name, source) => {
 }
 
 const loadAsciiArtFile = async (artName) => {
-  const filename = `/assets/asciiart/${artName}.txt`;
+  const filename = `assets/asciiart/${artName}.txt`;
 
   const response = await fetch(filename);
   if (!response.ok) {
