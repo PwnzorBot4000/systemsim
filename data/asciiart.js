@@ -37,36 +37,54 @@ const asciiart = {
   ],
 };
 
-const PARSER_MODE = {
+const PARSER_MODE = Object.freeze({
   EXEC: 'exec',
   DRAWING: 'drawing',
   DEFINING_STYLE: 'defining_style'
-};
+});
 
-const parseAsciiArtFile = (name, source) => {
-  if (typeof source !== 'string') throw new Error('AsciiArt source must be a string.');
-  if (!source.includes('draw:')) {
-    // Plain art file without logic or modifiers
-    return { [name]: source};
+class AsciiArtLoadingContext {
+  artName = '';
+  artSource = '';
+  layerId = 0;
+  parserMode = PARSER_MODE.EXEC;
+  paddingBottom = 0;
+  paddingRight = 0;
+  rootPrefix = '';
+
+  constructor(context) {
+    Object.assign(this, context);
   }
-  const inputLines = source.split('\n');
+}
+
+/**
+ * @param {AsciiArtLoadingContext} context
+ * @param {AsciiArtLoadingContext} parentContext
+ * @returns {Promise<{[layerId: string]: any}>}
+ */
+const parseAsciiArtFile = async (
+  context,
+  parentContext,
+) => {
+  if (typeof context.artSource !== 'string') throw new Error('AsciiArt source must be a string.');
+  if (!context.artSource.includes('draw:')) {
+    // Plain art file without logic or modifiers
+    return { [context.artName]: context.artSource };
+  }
+  const inputLines = context.artSource.split('\n');
   const outputLayers = {};
   let outputLines = [];
 
-  let mode = PARSER_MODE.EXEC;
-  let layerId = 1;
-  let paddingRight = 0;
-  let paddingBottom = 0;
   let remainingLines = -1;
   let styleContent = '';
 
   for (const [index, line] of inputLines.entries()) {
     // Style definition accumulation
-    if (mode === PARSER_MODE.DEFINING_STYLE) {
+    if (context.parserMode === PARSER_MODE.DEFINING_STYLE) {
       styleContent += line;
       if (line.includes('}')) {
-        mode = PARSER_MODE.EXEC;
-        const styleName = layerId > 1 ? `${name}-layer${layerId}-style` : `${name}-style`;
+        context.parserMode = PARSER_MODE.EXEC;
+        const styleName = context.layerId > 1 ? `${context.artName}-layer${context.layerId}-style` : `${context.artName}-style`;
         try {
           outputLayers[styleName] = JSON.parse(styleContent);
         } catch (e) {
@@ -77,22 +95,22 @@ const parseAsciiArtFile = (name, source) => {
       continue;
     }
     // Drawing data
-    if (mode === PARSER_MODE.DRAWING) {
-      outputLines.push(line + ' '.repeat(paddingRight));
+    if (context.parserMode === PARSER_MODE.DRAWING) {
+      outputLines.push(line + ' '.repeat(parentContext.paddingRight + context.paddingRight));
 
       if (remainingLines > 0) remainingLines--;
       if (remainingLines === 0 || index === inputLines.length - 1) {
         // Finish drawing
         remainingLines = -1;
-        mode = PARSER_MODE.EXEC;
-        for (let i = 0; i < paddingBottom; i++) {
+        context.parserMode = PARSER_MODE.EXEC;
+        for (let i = 0; i < (parentContext.paddingBottom + context.paddingBottom); i++) {
           outputLines.push(' ');
         }
         const result = outputLines.join('\n');
-        if (layerId > 1) {
-          outputLayers[`${name}-layer${layerId}`] = result;
+        if (context.layerId > 1) {
+          outputLayers[`${context.artName}-layer${context.layerId}`] = result;
         } else {
-          outputLayers[name] = result;
+          outputLayers[context.artName] = result;
         }
         outputLines = [];
       }
@@ -104,22 +122,37 @@ const parseAsciiArtFile = (name, source) => {
     const lineParts = line.split(':').map(s => s.trim()).filter(Boolean);
     switch (lineParts[0]) {
       case 'draw':
-        mode = PARSER_MODE.DRAWING;
+        context.parserMode = PARSER_MODE.DRAWING;
         break;
       case 'height':
         remainingLines = parseInt(lineParts[1]);
         break;
-      case 'layer':
-        layerId = parseInt(lineParts[1]);
+      case 'include': {
+        const childLayers = await loadAsciiArtFile(new AsciiArtLoadingContext({
+          artName: lineParts[1],
+          rootPrefix: context.rootPrefix,
+        }), {...context, layerId: context.layerId - 1});
+        for (const [childKey, childLayer] of Object.entries(childLayers)) {
+          const key = context.artName + childKey.slice(lineParts[1].length);
+          outputLayers[key] = childLayer;
+        }
         break;
+      }
+      case 'layer': {
+        const layerValue = lineParts[1] === 'next' ?
+          context.layerId + 1 :
+          parseInt(lineParts[1]);
+        context.layerId = parentContext.layerId + layerValue;
+        break;
+      }
       case 'padding-right':
-        paddingRight = parseInt(lineParts[1]);
+        context.paddingRight = parseInt(lineParts[1]);
         break;
       case 'padding-bottom':
-        paddingBottom = parseInt(lineParts[1]);
+        context.paddingBottom = parseInt(lineParts[1]);
         break;
       case 'style':
-        mode = PARSER_MODE.DEFINING_STYLE;
+        context.parserMode = PARSER_MODE.DEFINING_STYLE;
         styleContent = (lineParts[1] ?? '') + '\n';
         break;
     }
@@ -128,20 +161,34 @@ const parseAsciiArtFile = (name, source) => {
   return outputLayers;
 }
 
-const loadAsciiArtFile = async (artName, options) => {
-  const filename = `${options.prefix}assets/asciiart/${artName}.txt`;
+/**
+ * @param {AsciiArtLoadingContext} context
+ * @param {AsciiArtLoadingContext} parentContext
+ * @returns {Promise<{[p: string]: *}|{}>}
+ */
+const loadAsciiArtFile = async (
+  context,
+  parentContext = new AsciiArtLoadingContext(),
+) => {
+  const filename = `${context.rootPrefix}assets/asciiart/${context.artName}.txt`;
+  console.info(`Loading ${filename}`);
 
   const response = await fetch(filename);
   if (!response.ok) {
-    console.error(`Failed to load ascii art file ${artName}.`);
+    console.error(`Failed to load ascii art file ${context.artName}.`);
     return {};
   }
 
   try {
     const content = await response.text();
-    return parseAsciiArtFile(artName, content);
+    return await parseAsciiArtFile(new AsciiArtLoadingContext({
+      artName: context.artName,
+      artSource: content,
+      layerId: 1,
+      rootPrefix: context.rootPrefix,
+    }), parentContext);
   } catch (e) {
-    console.error(`Failed to parse ascii art file ${artName}.`);
+    console.error(`Failed to parse ascii art file ${context.artName}.`);
     console.error(e);
     return {};
   }
@@ -154,7 +201,11 @@ export const loadAsciiArt = async (options = { prefix: '' }) => {
   const asciiArtCollection = {...asciiart};
 
   for (const file of files) {
-    const asciiArtLayers = await loadAsciiArtFile(file, options);
+    const asciiArtLayers = await loadAsciiArtFile(new AsciiArtLoadingContext({
+      artName: file,
+      rootPrefix: options.prefix,
+    }));
+    console.log(asciiArtLayers);
     Object.assign(asciiArtCollection, asciiArtLayers);
   }
 

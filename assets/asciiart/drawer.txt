@@ -41,3 +41,7 @@ draw:
 style: {
   "padding-bottom": "0.5em"
 }
+layer: 3
+padding-right: 20
+padding-bottom: 5
+include: items/battery
