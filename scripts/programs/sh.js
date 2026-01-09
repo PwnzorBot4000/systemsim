@@ -1,4 +1,3 @@
-import {helpData} from "../../data/help.js";
 import {decodeExeName, printBinaryObject, sanitizeHtml, sleep} from "../utils.js";
 import {Filesystem} from "../entities/filesystem.js";
 
@@ -175,15 +174,16 @@ export class Shell {
   }
 
   async help() {
-    const helpTerm = this.game.getArgv(1) ?? '';
-    const helpPage = helpData.get(helpTerm);
+    const helpTerm = this.game.getArgv(1) || '_';
+    const helpFile = await fetch(`assets/texts/help/${helpTerm}.txt`);
 
-    if (!helpPage) {
+    if (!helpFile.ok) {
       this.computer.print(`Unknown command: ${helpTerm}<br />`);
       return;
     }
 
-    this.computer.print(helpPage);
+    const helpPage = await helpFile.text();
+    this.computer.print(sanitizeHtml(helpPage));
   }
 
   async ls() {

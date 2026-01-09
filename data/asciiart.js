@@ -205,7 +205,6 @@ export const loadAsciiArt = async (options = { prefix: '' }) => {
       artName: file,
       rootPrefix: options.prefix,
     }));
-    console.log(asciiArtLayers);
     Object.assign(asciiArtCollection, asciiArtLayers);
   }
 

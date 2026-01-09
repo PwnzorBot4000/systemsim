@@ -1,0 +1,6 @@
+Usage: cat PATH
+Display contents of a file
+
+Example: cat hello.txt
+Output: Hello world!
+

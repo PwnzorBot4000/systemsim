@@ -1,0 +1,11 @@
+Usage: cd PATH
+Change directory.
+
+Examples:
+/ # cd bin               # Directory will now be /bin
+/share/stuff # cd ..     # Directory will now be /share
+/share/stuff # cd ../..  # Directory will now be /
+/root # cd ../bin        # Directory will now be /bin
+/root # cd /bin          # Directory will now be /bin
+/root # cd /             # Directory will now be /
+

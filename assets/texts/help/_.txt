@@ -1,0 +1,10 @@
+cat PATH          - Display contents of a file
+cd PATH           - Change directory. Use '..' to go up a directory
+cp SRC DST        - Copy a file
+help [COMMAND]    - Display help for a command
+ls [PATH]         - List files in current directory
+poweroff          - Shut down the computer
+rm PATH           - Remove a file
+
+All binaries located in /bin can also be executed as commands.
+

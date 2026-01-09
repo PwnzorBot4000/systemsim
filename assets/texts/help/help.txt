@@ -1,0 +1,6 @@
+Usage: help [COMMAND]
+Display help for a command
+
+Example: help     # Display generic help
+Example: help cd  # Display help for cd
+

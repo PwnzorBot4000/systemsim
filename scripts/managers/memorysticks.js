@@ -7,10 +7,10 @@ export class MemorySticks extends StateManagingObject {
   machine;
   sticks = [
     new MemoryStick({
-      id: 'green-fern-unix-live-usb',
+      name: 'green-fern-unix-live-usb',
       bootable: true,
       size: '16GB',
-      type: 'USB-A 3.0',
+      interfaceType: 'USB-A 3.0',
       description: 'a live USB with a Linux distribution on it. It was used to originally set up the computer.',
       filesystem: new Filesystem({
         fsMap: new Map(filesystemsData['memorystick-1']),
@@ -18,18 +18,18 @@ export class MemorySticks extends StateManagingObject {
       })
     }),
     new MemoryStick({
-      id: 'general-purpose-usb-1',
+      name: 'general-purpose-usb-1',
       size: '8GB',
-      type: 'USB-A 3.0',
+      interfaceType: 'USB-A 3.0',
       description: 'empty.',
       filesystem: new Filesystem({
         fsMap: new Map(filesystemsData['memorystick-2'])
       })
     }),
     new MemoryStick({
-      id: 'general-purpose-usb-2',
+      name: 'general-purpose-usb-2',
       size: '32GB',
-      type: 'USB-C 3.1',
+      interfaceType: 'USB-C 3.1',
       description: 'labeled \'Files\', and is mostly empty.',
       filesystem: new Filesystem({
         fsMap: new Map(filesystemsData['memorystick-3'])
@@ -95,12 +95,12 @@ export class MemorySticks extends StateManagingObject {
   }
 
   exportSave() {
-    return this.sticks.reduce((acc, stick) => ({...acc, [stick.id]: stick.exportSave()}), {});
+    return this.sticks.reduce((acc, stick) => ({...acc, [stick.name]: stick.exportSave()}), {});
   }
 
   importSave(save) {
-    for (const [id, stickSave] of Object.entries(save)) {
-      const stick = this.sticks.find((stick) => stick.id === id);
+    for (const [name, stickSave] of Object.entries(save)) {
+      const stick = this.sticks.find((stick) => stick.name === name);
       if (!stick) continue;
       stick.importSave(stickSave);
     }
@@ -120,6 +120,6 @@ export class MemorySticks extends StateManagingObject {
   report() {
     return `There are ${this.sticks.length} memory sticks in the pile:<br />` +
       this.sticks.map((stick, i) =>
-        `- Stick ${i + 1} (${stick.size}, ${stick.type}) is ${stick.description}${!!this.machine.isAttached(stick) ? ' Currently mounted.' : ''}<br />`).join('');
+        `- Stick ${i + 1} (${stick.size}, ${stick.interfaceType}) is ${stick.description}${!!this.machine.isAttached(stick) ? ' Currently mounted.' : ''}<br />`).join('');
   }
 }

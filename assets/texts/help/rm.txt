@@ -1,0 +1,5 @@
+Usage: rm PATH
+Removes a file
+
+Example: rm hello.txt  # hello.txt is deleted
+

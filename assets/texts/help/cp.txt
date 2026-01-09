@@ -1,0 +1,6 @@
+Usage: cp SRC DST
+Copy a file to a new location
+
+Example: cp hello.txt directory
+Result: hello.txt will be copied to directory/hello.txt
+

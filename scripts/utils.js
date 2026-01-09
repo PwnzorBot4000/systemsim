@@ -113,7 +113,8 @@ export function printBinaryObject(obj) {
 }
 
 export function sanitizeHtml(html) {
-  if (!html) return '';
+  if (!html || typeof html !== 'string') return '';
+
   return html
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')

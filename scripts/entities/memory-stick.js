@@ -1,18 +1,17 @@
-export class MemoryStick {
-  id;
+import {Item} from "../model.js";
+
+export class MemoryStick extends Item {
   bootable = false;
   filesystem;
   size;
-  type;
-  description;
+  interfaceType;
 
-  constructor(options) {
-    this.id = options.id;
-    this.bootable = options.bootable ?? false;
-    this.size = options.size;
-    this.type = options.type;
-    this.description = options.description;
-    this.filesystem = options.filesystem;
+  constructor(params) {
+    super();
+    Object.assign(this, params);
+    this.bootable = params.bootable ?? false;
+    this.referredAsThe = 'USB stick';
+    this.type = 'memory-stick';
   }
 
   exportSave() {
@@ -26,7 +25,7 @@ export class MemoryStick {
     this.bootable = save.bootable;
     this.filesystem.importSave(save.filesystem);
     this.size = save.size;
-    this.type = save.type;
+    this.interfaceType = save.interfaceType;
     this.description = save.description;
   }
 }

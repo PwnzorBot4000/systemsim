@@ -1,0 +1,7 @@
+Usage: ls [PATH]
+List files in a directory
+
+Examples:
+ls         # List files in current directory
+ls /bin    # List files in /bin directory
+

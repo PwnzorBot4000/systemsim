@@ -1,0 +1,4 @@
+Usage: poweroff
+Shuts down the computer
+All running programs are terminated.
+

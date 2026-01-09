@@ -1,6 +1,6 @@
 import {StateManagingObject} from "./state-managing-object.js";
 import {sleep} from "../utils.js";
-import {PossibleAction} from "../model.js";
+import {PossibleAction, Item} from "../model.js";
 
 /**
  * @typedef {StateManagingObject} ItemContainer
@@ -9,6 +9,7 @@ export class ItemContainer extends StateManagingObject{
   /** @type {Set<string>} */
   defaultItemTypes = new Set();
   game;
+  /** @type {Array<Item>} */
   items = [];
 
   constructor(items, options = undefined) {
