@@ -35,12 +35,8 @@ export class AsciiArtManager {
     this.game = game;
   }
 
-  async init(options = {asciiArtSource: undefined}) {
-    if (options?.asciiArtSource) {
-      this.asciiArtSource = options.asciiArtSource;
-    } else {
-      this.asciiArtSource = await loadAsciiArt();
-    }
+  async init() {
+    this.asciiArtSource = await loadAsciiArt();
   }
 
   clear() {

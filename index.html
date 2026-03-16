@@ -11,12 +11,16 @@
     <link rel="manifest" href="manifest.json" />
     <link rel="stylesheet" href="styles/main.css" />
     <script type="module">
-      import { Game } from './scripts/game.js';
-
-      const game = new Game();
-      window.game = game;
+      import { Loader } from './scripts/loader.js';
+      const loader = new Loader();
+      window.loader = loader;
 
       document.addEventListener('DOMContentLoaded', async () => {
+        const gameModule = await loader.loadModule('scripts/game.js');
+
+        const game = new gameModule.Game();
+        window.game = game;
+
         // Show init UI
         await game.asciiart.init();
         game.asciiart.set('logo');

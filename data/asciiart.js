@@ -1,4 +1,5 @@
 import {Achievements} from "../scripts/managers/achievements.js";
+import {asciiArtFiles} from "../assets/asciiart";
 
 const asciiart = {
   'logo-layer2-styles': [
@@ -50,7 +51,6 @@ class AsciiArtLoadingContext {
   parserMode = PARSER_MODE.EXEC;
   paddingBottom = 0;
   paddingRight = 0;
-  rootPrefix = '';
 
   constructor(context) {
     Object.assign(this, context);
@@ -128,9 +128,10 @@ const parseAsciiArtFile = async (
         remainingLines = parseInt(lineParts[1]);
         break;
       case 'include': {
-        const childLayers = await loadAsciiArtFile(new AsciiArtLoadingContext({
+        const childLayers = await parseAsciiArtFile(new AsciiArtLoadingContext({
           artName: lineParts[1],
-          rootPrefix: context.rootPrefix,
+          artSource: await asciiArtFiles[lineParts[1]].read(),
+          layerId: 1,
         }), {...context, layerId: context.layerId - 1});
         for (const [childKey, childLayer] of Object.entries(childLayers)) {
           const key = context.artName + childKey.slice(lineParts[1].length);
@@ -161,50 +162,15 @@ const parseAsciiArtFile = async (
   return outputLayers;
 }
 
-/**
- * @param {AsciiArtLoadingContext} context
- * @param {AsciiArtLoadingContext} parentContext
- * @returns {Promise<{[p: string]: *}|{}>}
- */
-const loadAsciiArtFile = async (
-  context,
-  parentContext = new AsciiArtLoadingContext(),
-) => {
-  const filename = `${context.rootPrefix}assets/asciiart/${context.artName}.txt`;
-  console.info(`Loading ${filename}`);
-
-  const response = await fetch(filename);
-  if (!response.ok) {
-    console.error(`Failed to load ascii art file ${context.artName}.`);
-    return {};
-  }
-
-  try {
-    const content = await response.text();
-    return await parseAsciiArtFile(new AsciiArtLoadingContext({
-      artName: context.artName,
-      artSource: content,
-      layerId: 1,
-      rootPrefix: context.rootPrefix,
-    }), parentContext);
-  } catch (e) {
-    console.error(`Failed to parse ascii art file ${context.artName}.`);
-    console.error(e);
-    return {};
-  }
-};
-
-export const loadAsciiArt = async (options = { prefix: '' }) => {
-  const files = [
-    'bookcase', 'desk', 'drawer', 'logo', 'memorySticks', 'notepad', 'picture', 'items/spoon', 'items/battery'
-  ];
+export const loadAsciiArt = async () => {
   const asciiArtCollection = {...asciiart};
 
-  for (const file of files) {
-    const asciiArtLayers = await loadAsciiArtFile(new AsciiArtLoadingContext({
-      artName: file,
-      rootPrefix: options.prefix,
-    }));
+  for (const [id, file] of Object.entries(asciiArtFiles)) {
+    const asciiArtLayers = await parseAsciiArtFile(new AsciiArtLoadingContext({
+      artName: id,
+      artSource: await file.read(),
+      layerId: 1,
+    }), new AsciiArtLoadingContext());
     Object.assign(asciiArtCollection, asciiArtLayers);
   }
 
