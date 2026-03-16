@@ -1,5 +1,5 @@
 import {Achievements} from "../scripts/managers/achievements.js";
-import {asciiArtFiles} from "../assets/asciiart";
+import {asciiArtFiles} from "../assets/asciiart/index.js";
 
 const asciiart = {
   'logo-layer2-styles': [
