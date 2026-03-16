@@ -494,6 +494,7 @@ export class Game {
           case 'memorysticks':
             return this.switchState('inspect-object memorySticks');
           case 'electronics':
+            this.asciiart.set('electronics');
             this.print(
               'The pile of electronics contains:<br />' +
               '- 2 RFID tags, opened with their contacts exposed.<br />' +
