@@ -893,6 +893,7 @@ export class Game {
           break;
         default:
           if (soundEffect && text[i].match(/[aeiou]/i)) {
+            await this.audio.load(soundEffect);  // Ensure the sound effect is loaded before continuing
             this.playSfx(soundEffect);
           }
           this.terminalBuffer.push(text[i]);
