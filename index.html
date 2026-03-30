@@ -10,10 +10,16 @@
     <link rel="icon" href="favicon.ico" sizes="16x16 32x32 48x48 64x64 128x128" type="image/x-icon" />
     <link rel="manifest" href="manifest.json" />
     <link rel="stylesheet" href="styles/main.css" />
+    <script src="scripts/external/pubsub.min.js" type="application/javascript"></script>
     <script type="module">
       import { Loader } from './scripts/loader.js';
+
       const loader = new Loader();
       window.loader = loader;
+
+      // Loading progress
+      const loadingProgressElem = document.getElementById('loading-progress');
+      PubSub.subscribe('loader.load', (_topic, data) => { loadingProgressElem.innerText = `Loaded ${data}` });
 
       document.addEventListener('DOMContentLoaded', async () => {
         const gameModule = await loader.loadModule('scripts/game.js');
@@ -24,25 +30,25 @@
         // Show init UI
         await game.asciiart.init();
         game.asciiart.set('logo');
+        document.getElementById('loading-ui').style.display = 'none';
         document.getElementById('init-ui').style.display = null;
       });
     </script>
   </head>
   <body>
     <div id="asciiart" class="asciiart layer" style="z-index: 1;">
-                               <br />LOADING
-   ╔═══════════════════════╗   <br />LOADING
-   ║                       ║   <br />LOADING
-   ║ ██████ ██   ██ ██████ ║   <br />LOADING
-   ║ ██  ██ ██   ██ ██  ██ ║   <br />LOADING
-   ║ ██     ███ ███ ██     ║   <br />LOADING
-   ║ ██████  ██ ██  ██████ ║   <br />LOADING
-   ║     ██   ███       ██ ║   <br />LOADING
-   ║ ██  ██   ███   ██  ██ ║   <br />LOADING
-   ║ ██████   ███   ██████ ║   <br />LOADING
-   ║                       ║   <br />LOADING
-   ╚═══════════════════════╝   <br />LOADING
-                               <br />LOADING
+                              &nbsp;
+   ╔═══════════════════════╗  &nbsp;
+   ║                       ║  &nbsp;
+   ║ ██████ ██   ██ ██████ ║  &nbsp;
+   ║ ██  ██ ██   ██ ██  ██ ║  &nbsp;
+   ║ ██     ███ ███ ██     ║  &nbsp;
+   ║ ██████  ██ ██  ██████ ║  &nbsp;
+   ║     ██   ███       ██ ║  &nbsp;
+   ║ ██  ██   ███   ██  ██ ║  &nbsp;
+   ║ ██████   ███   ██████ ║  &nbsp;
+   ║                       ║  &nbsp;
+   ╚═══════════════════════╝  &nbsp;
     </div>
     <div id="asciiart-l2" class="asciiart layer" style="z-index: 2;">
     </div>
@@ -58,6 +64,10 @@
       <div id="vk-row3"></div>
       <div id="vk-row4"></div>
       <div id="vk-row5"></div>
+    </div>
+    <div id="loading-ui" class="ui layer" style="z-index: 18">
+      <p>Loading...</p>
+      <p id="loading-progress">&nbsp;</p>
     </div>
     <div id="init-ui" class="ui layer" style="z-index: 18; display: none;">
       <button primary onclick="game.init()">Launch Game</button>

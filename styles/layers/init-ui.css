@@ -1,5 +1,6 @@
-#init-ui {
+#init-ui, #loading-ui {
     align-items: center;
     display: flex;
+    flex-direction: column;
     justify-content: center;
 }

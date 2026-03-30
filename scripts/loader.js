@@ -25,6 +25,7 @@ export class LazyFile {
     if (this.content) return this.content;
     console.info(`Loading ${this.path}`);
     this.content = await this.fetchFn(this.path);
+    PubSub.publish('loader.load.file', this.path);
     return this.content;
   }
 }
