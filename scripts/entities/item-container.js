@@ -2,18 +2,14 @@ import {StateManagingObject} from "./state-managing-object.js";
 import {sleep} from "../utils.js";
 import {PossibleAction, Item} from "../model.js";
 
-/**
- * @typedef {StateManagingObject} ItemContainer
- */
+/**  @template {Item} T=Item */
 export class ItemContainer extends StateManagingObject{
-  /** @type {Set<string>} */
-  defaultItemTypes = new Set();
-  game;
-  /** @type {Array<Item>} */
-  items = [];
-
   constructor(items, options = undefined) {
     super();
+
+    /** @type {Set<string>} */
+    this.defaultItemTypes = new Set();
+    /** @type {Array<T>} */
     this.items = items;
     this.game = options?.game;
 
@@ -264,6 +260,12 @@ export class ItemContainer extends StateManagingObject{
     destination.items.push(...items);
   }
 
+  /**
+   * Move item to another container.
+   * @template {Item} Td
+   * @param {Item} item
+   * @param {ItemContainer<Td>} destination
+   */
   moveItemTo(item, destination) {
     this.items = this.items.filter(i => i !== item);
     destination.items.push(item);

@@ -1,17 +1,27 @@
 import {Item} from "../model.js";
 
-export class MemoryStick extends Item {
-  bootable = false;
-  filesystem;
-  size;
-  interfaceType;
+/** @typedef {'USB-A 3.0' | 'USB-C 3.1'} MemoryStickInterfaceType */
 
+/** @typedef {Omit<ItemParams, 'referredAsThe' | 'type'>} MemoryStickParams
+ * @property {boolean | undefined} bootable
+ * @property {Filesystem} filesystem
+ * @property {MemoryStickInterfaceType} interfaceType
+ * @property {string} size
+ */
+
+export class MemoryStick extends Item {
+  /** @param {MemoryStickParams} params */
   constructor(params) {
-    super();
-    Object.assign(this, params);
+    super({
+      ...params,
+      referredAsThe: 'USB stick',
+      type: 'memory-stick'
+    });
+
     this.bootable = params.bootable ?? false;
-    this.referredAsThe = 'USB stick';
-    this.type = 'memory-stick';
+    this.filesystem = params.filesystem;
+    this.interfaceType = params.interfaceType;
+    this.size = params.size;
   }
 
   exportSave() {

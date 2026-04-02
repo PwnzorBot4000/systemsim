@@ -1,22 +1,42 @@
+/**
+ * @typedef {Object} ItemParams
+ * @property {string | undefined} description
+ * @property {Array<Item> | undefined} dismantleTo
+ * @property {string} name
+ * @property {string | undefined} referredAsThe
+ * @property {boolean | undefined} trash
+ * @property {string} type
+ */
+
 export class Item {
-  /** @type {string | undefined} */
-  description;
+  /** @param {ItemParams} params */
+  constructor(params) {
+    this.description = params.description;
+    this.dismantleTo = params.dismantleTo;
+    this.name = params.name;
+    this.referredAsThe = params.referredAsThe;
+    this.trash = params.trash;
+    this.type = params.type;
+  }
+}
 
-  /** @type {Array<Item> | undefined} */
-  dismantleTo;
-
-  /** @type {string} */
-  name;
-
-  /** @type {string | undefined} */
-  referredAsThe;
-
-  /** @type {boolean | undefined} */
-  trash;
-
+export class PlainFile {
   /** @type {string} */
   type;
+  /** @type {string} */
+  contents;
 }
+
+export class CompressedFile {
+  /** @type {'zip'} */
+  type;
+  /** @type {Array<[string, FsFile]>} */
+  contents;
+}
+
+/** @typedef {string | PlainFile | CompressedFile} FsFile */
+
+/** @typedef {Array<[string, FsFile]>} FilesystemData */
 
 export class PossibleAction {
   /** @type {string} */

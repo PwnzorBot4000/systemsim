@@ -17,9 +17,6 @@ import {ConvenienceStoreConversation} from "./entities/conversation.js";
 import {AudioManager} from "./managers/audio.js";
 import {PossibleAction} from "./model.js";
 
-/**
- * @typedef {object} Game
- */
 export class Game {
   // Persistent state
   bathroom = new ItemContainer([], { defaultItemType: 'hygiene', game: this });
@@ -79,7 +76,7 @@ export class Game {
     { description: 'A water glass.', type: 'kitchen' },
     { description: 'A set of wine glasses.', type: 'kitchen' },
   ], { defaultItemType: 'kitchen', game: this });
-  memorySticks = new MemorySticks({ machine: this.computer });
+  memorySticks = new MemorySticks({ game: this });
   notepad = new Notepad();
   pockets = new ItemContainer([
     { description: 'Your keys.' },
@@ -382,7 +379,7 @@ export class Game {
     if (/^[\w !@#$%^&*()\-+{}|=<>,.?/\\;:"']$/.test(e.key)) {
       this.input = this.input + e.key;
       this.inputHistory.type(this.input);
-      await this.render();
+      this.render();
     } else {
       switch (e.key) {
         case '`':
@@ -398,7 +395,7 @@ export class Game {
         case 'Backspace':
           this.input = this.input.slice(0, -1);
           this.inputHistory.type(this.input);
-          await this.render();
+          this.render();
           break;
         case 'Tab': {
           const indexOfCompletedWord = this.input.matchAll(/ /g).toArray().length + 1;
@@ -412,17 +409,17 @@ export class Game {
           if (commonPrefix.length > 0) {
             this.input = commonPrefix.split(' ').slice(0, indexOfCompletedWord).join(' ');
             this.inputHistory.type(this.input);
-            await this.render();
+            this.render();
           }
           break;
         }
         case 'ArrowUp':
           this.input = this.inputHistory.retrieve(-1) ?? this.input;
-          await this.render();
+          this.render();
           break;
         case 'ArrowDown':
           this.input = this.inputHistory.retrieve(1) ?? this.input;
-          await this.render();
+          this.render();
           break;
         default:
           console.warn(`Unhandled key: ${e.key}`);
@@ -437,16 +434,7 @@ export class Game {
         switch (this.input) {
           case '':
             this.print('You are sitting at your desk, in front of your home computer. It is currently shut down.<br />');
-            if (this.conversationsMap['convenience-store-cashier'].completedCaptions.has('introAboutBreach') && !this.notepad.hasNote('convenienceStoreBreach')) {
-              this.notepad.addNote({
-                name: 'convenienceStoreBreach',
-                text: 'check James\' pc for backdoors - need linux live usb + empty usb to store his files'
-              });
-              this.playSfx('pencil-writing-on-paper.ogg');
-              await sleep(1200);
-              this.print('You jolted down something on your notepad.<br />');
-              await sleep(1200);
-            }
+            await this.updateNotepad();
             this.possibleActions = ['boot', 'inspect', 'stand'];
             this.waitInput('Possible actions: [%actions%]<br /><br />Action: ');
             break;
@@ -1036,6 +1024,25 @@ export class Game {
 
       dialogElm.style.display = null;
     });
+  }
+
+  async updateNotepad() {
+    let notesTaken = false;
+
+    if (this.conversationsMap['convenience-store-cashier'].completedCaptions.has('introAboutBreach') && !this.notepad.hasNote('convenienceStoreBreach')) {
+      this.notepad.addNote({
+        name: 'convenienceStoreBreach',
+        text: 'check James\' pc for backdoors - need linux live usb + empty usb to store his files'
+      });
+      notesTaken = true;
+    }
+
+    if (notesTaken) {
+      this.playSfx('pencil-writing-on-paper.ogg');
+      await sleep(1200);
+      this.print('You jolted down something on your notepad.<br />');
+      await sleep(1200);
+    }
   }
 
   waitInput(prompt) {

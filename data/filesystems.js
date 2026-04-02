@@ -1,5 +1,7 @@
 import {encodeExeName} from "../scripts/utils.js";
+import {PlainFile} from "../scripts/model.js";
 
+/** @type {Map<string, PlainFile>} */
 const binaries = new Map([
   ['curl', { type: 'exe', contents: 'ELF' + encodeExeName('curl', 306) }],
   ['initrd', { type: 'bin', contents: 'ELF' + encodeExeName('initrd', 3211) }],
@@ -12,6 +14,7 @@ const binaries = new Map([
   ['watrar', { type: 'exe', contents: 'MZ' + encodeExeName('watrar', 48) }],
 ]);
 
+/** @type {Record<string, FilesystemData>} */
 export const filesystemsData = {
   'localhost': [
     ['/', 'dir'],

@@ -1,57 +1,55 @@
 import {Filesystem} from "../entities/filesystem.js";
 import {filesystemsData} from "../../data/filesystems.js";
 import {MemoryStick} from "../entities/memory-stick.js";
-import {StateManagingObject} from "../entities/state-managing-object.js";
+import {ItemContainer} from "../entities/item-container.js";
 
-export class MemorySticks extends StateManagingObject {
-  machine;
-  sticks = [
-    new MemoryStick({
-      name: 'green-fern-unix-live-usb',
-      bootable: true,
-      size: '16GB',
-      interfaceType: 'USB-A 3.0',
-      description: 'a live USB with a Linux distribution on it. It was used to originally set up the computer.',
-      filesystem: new Filesystem({
-        fsMap: new Map(filesystemsData['memorystick-1']),
-        readOnly: true
-      })
-    }),
-    new MemoryStick({
-      name: 'general-purpose-usb-1',
-      size: '8GB',
-      interfaceType: 'USB-A 3.0',
-      description: 'empty.',
-      filesystem: new Filesystem({
-        fsMap: new Map(filesystemsData['memorystick-2'])
-      })
-    }),
-    new MemoryStick({
-      name: 'general-purpose-usb-2',
-      size: '32GB',
-      interfaceType: 'USB-C 3.1',
-      description: 'labeled \'Files\', and is mostly empty.',
-      filesystem: new Filesystem({
-        fsMap: new Map(filesystemsData['memorystick-3'])
-      })
-    }),
-  ];
+const sticks = [
+  new MemoryStick({
+    name: 'green-fern-unix-live-usb',
+    bootable: true,
+    size: '16GB',
+    interfaceType: 'USB-A 3.0',
+    description: 'a live USB with a Linux distribution on it. It was used to originally set up the computer.',
+    filesystem: new Filesystem({
+      fsMap: new Map(filesystemsData['memorystick-1']),
+      readOnly: true
+    })
+  }),
+  new MemoryStick({
+    name: 'general-purpose-usb-1',
+    size: '8GB',
+    interfaceType: 'USB-A 3.0',
+    description: 'empty.',
+    filesystem: new Filesystem({
+      fsMap: new Map(filesystemsData['memorystick-2'])
+    })
+  }),
+  new MemoryStick({
+    name: 'general-purpose-usb-2',
+    size: '32GB',
+    interfaceType: 'USB-C 3.1',
+    description: 'labeled \'Files\', and is mostly empty.',
+    filesystem: new Filesystem({
+      fsMap: new Map(filesystemsData['memorystick-3'])
+    })
+  }),
+];
 
-  constructor(options = {machine: undefined}) {
-    super();
-    // Memory stick pile should have a reference to the machine that owns it
-    this.machine = options.machine;
+/** @extends {ItemContainer<MemoryStick>} */
+export class MemorySticks extends ItemContainer {
+  constructor(options = {game: undefined}) {
+    super(sticks, { allowedItemTypes: ['memory-stick'], defaultItemType: 'memory-stick', game: options.game });
   }
 
   assertIndex(index) {
-    if (index < 0 || index >= this.sticks.length) {
+    if (index < 0 || index >= this.items.length) {
       throw new Error(`Invalid memory stick index: ${index + 1}`);
     }
   }
 
   assertMounted(index, shouldBeMounted) {
-    const memoryStick = this.sticks[index];
-    const isMounted = this.machine.isAttached(memoryStick);
+    const memoryStick = this.items[index];
+    const isMounted = this.game.computer.isAttached(memoryStick);
     if (shouldBeMounted && !isMounted) {
       throw new Error(`Memory stick ${index + 1} is not mounted.`);
     }
@@ -61,7 +59,7 @@ export class MemorySticks extends StateManagingObject {
   }
 
   determineActions() {
-    return ['eject [x]', 'mount [x]', 'back'];
+    return ['eject [x]', 'mount [x]'].concat(super.determineActions());
   }
 
   async executeInput(game) {
@@ -79,6 +77,10 @@ export class MemorySticks extends StateManagingObject {
           game.print(`You mount memory stick ${index + 1}.<br />`);
           break;
         }
+        default: {
+          await super.executeInput(game);
+          return;
+        }
       }
     } catch (e) {
       game.print(`${e.message}<br />`);
@@ -91,16 +93,16 @@ export class MemorySticks extends StateManagingObject {
     this.assertIndex(index);
     this.assertMounted(index, true);
 
-    this.machine.detach(this.sticks[index]);
+    this.game.computer.detach(this.items[index]);
   }
 
   exportSave() {
-    return this.sticks.reduce((acc, stick) => ({...acc, [stick.name]: stick.exportSave()}), {});
+    return this.items.reduce((acc, stick) => ({...acc, [stick.name]: stick.exportSave()}), {});
   }
 
   importSave(save) {
     for (const [name, stickSave] of Object.entries(save)) {
-      const stick = this.sticks.find((stick) => stick.name === name);
+      const stick = this.items.find((stick) => stick.name === name);
       if (!stick) continue;
       stick.importSave(stickSave);
     }
@@ -114,12 +116,12 @@ export class MemorySticks extends StateManagingObject {
     this.assertIndex(index);
     this.assertMounted(index, false);
 
-    this.machine.attach(this.sticks[index]);
+    this.game.computer.attach(this.items[index]);
   }
 
   report() {
-    return `There are ${this.sticks.length} memory sticks in the pile:<br />` +
-      this.sticks.map((stick, i) =>
-        `- Stick ${i + 1} (${stick.size}, ${stick.interfaceType}) is ${stick.description}${!!this.machine.isAttached(stick) ? ' Currently mounted.' : ''}<br />`).join('');
+    return `There are ${this.items.length} memory sticks in the pile:<br />` +
+      this.items.map((stick, i) =>
+        `- Stick ${i + 1} (${stick.size}, ${stick.interfaceType}) is ${stick.description}${!!this.game.computer.isAttached(stick) ? ' Currently mounted.' : ''}<br />`).join('');
   }
 }
