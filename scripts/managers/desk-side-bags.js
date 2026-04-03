@@ -15,11 +15,11 @@ export class DeskSideBags extends ItemContainer {
   report() {
     if (this.isEmpty()) {
       const prob = Math.random();
-      if (prob > 0.95)
-        return '(Nothing. Like your soul.)<br />';
       if (prob > 0.90)
+        return '(Nothing. Like your soul.)<br />';
+      if (prob > 0.80)
         return '(Nothing. The mathematically perfect void emanating from the empty corner is permeating the room, giving you the creeps.)<br />';
-      if (prob > 0.75)
+      if (prob > 0.70)
         return '(Nothing. The empty side of your desk is staring at you, menacingly.)<br />';
       return '(Nothing, the side of your desk is clean.)<br />';
     }

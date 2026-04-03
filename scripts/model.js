@@ -1,3 +1,13 @@
+/** @enum {string} */
+export const ItemType = {
+  book: 'book',
+  clothes: 'clothes',
+  hygiene: 'hygiene',
+  kitchen: 'kitchen',
+  memoryStick: 'memory-stick',
+  stationery: 'stationery',
+};
+
 /**
  * @typedef {Object} ItemParams
  * @property {string | undefined} description
@@ -5,7 +15,7 @@
  * @property {string} name
  * @property {string | undefined} referredAsThe
  * @property {boolean | undefined} trash
- * @property {string} type
+ * @property {ItemType} type
  */
 
 export class Item {

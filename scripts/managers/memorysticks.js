@@ -59,7 +59,14 @@ export class MemorySticks extends ItemContainer {
   }
 
   determineActions() {
-    return ['eject [x]', 'mount [x]'].concat(super.determineActions());
+    const containerActions = super.determineActions();
+    const takeAction = containerActions.find((action) => typeof action !== 'string' && action.render === 'take [item]');
+    if (takeAction) {
+      const indexedStickActions = this.items.map((_, index) => `take stick-${index + 1}`);
+      takeAction.actions = takeAction.actions.concat(indexedStickActions);
+    }
+
+    return ['eject [x]', 'mount [x]'].concat(containerActions);
   }
 
   async executeInput(game) {
@@ -76,6 +83,22 @@ export class MemorySticks extends ItemContainer {
           await this.mount(index);
           game.print(`You mount memory stick ${index + 1}.<br />`);
           break;
+        }
+        case 'take': {
+          const stickId = game.getArgv(1);
+          const stickMatch = stickId.match(/stick-(\d+)/);
+          const stickIndex = stickMatch ? parseInt(stickMatch[1]) - 1 : undefined;
+          if (!stickIndex) {
+            game.print('Invalid memory stick to take.<br />');
+            break;
+          }
+          const stick = this.items[stickIndex];
+          if (!stick) {
+            game.print('Invalid memory stick to take.<br />');
+            break;
+          }
+          await super.takeItem(stick, game);
+          return;
         }
         default: {
           await super.executeInput(game);

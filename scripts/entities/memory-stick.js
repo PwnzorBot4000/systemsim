@@ -1,4 +1,4 @@
-import {Item} from "../model.js";
+import {Item, ItemType} from "../model.js";
 
 /** @typedef {'USB-A 3.0' | 'USB-C 3.1'} MemoryStickInterfaceType */
 
@@ -15,7 +15,7 @@ export class MemoryStick extends Item {
     super({
       ...params,
       referredAsThe: 'USB stick',
-      type: 'memory-stick'
+      type: ItemType.memoryStick,
     });
 
     this.bootable = params.bootable ?? false;

@@ -1,13 +1,22 @@
 import {StateManagingObject} from "./state-managing-object.js";
 import {sleep} from "../utils.js";
-import {PossibleAction, Item} from "../model.js";
+import {PossibleAction, Item, ItemType} from "../model.js";
+
+/** @type {Record<ItemType, string>} */
+const defaultItemActions = {
+  book: 'move-books-to-bookcase',
+  clothes: 'move-clothes-to-cabinets',
+  hygiene: 'move-hygienics-to-bathroom',
+  kitchen: 'move-utensils-to-kitchen',
+  stationery: 'move-stationery-to-drawer1',
+};
 
 /**  @template {Item} T=Item */
 export class ItemContainer extends StateManagingObject{
   constructor(items, options = undefined) {
     super();
 
-    /** @type {Set<string>} */
+    /** @type {Set<ItemType>} */
     this.defaultItemTypes = new Set();
     /** @type {Array<T>} */
     this.items = items;
@@ -27,6 +36,7 @@ export class ItemContainer extends StateManagingObject{
     this.items = this.items.filter((item) => !item.trash);
   }
 
+  /** @returns {(string|PossibleAction)[]} */
   determineActions() {
     /** @type {(string|PossibleAction)[]} */
     const actions = [];
@@ -48,23 +58,14 @@ export class ItemContainer extends StateManagingObject{
     if (this.items.some(item => item.trash))
       actions.push('cleanup-trash');
 
-    if (this.items.some(item => item.type === 'book') && !this.defaultItemTypes.has('book'))
-      actions.push('move-books-to-bookcase');
-
-    if (this.items.some(item => item.type === 'clothes') && !this.defaultItemTypes.has('clothes'))
-      actions.push('move-clothes-to-cabinets');
-
-    if (this.items.some(item => item.type === 'hygiene') && !this.defaultItemTypes.has('hygiene'))
-      actions.push('move-hygienics-to-bathroom');
-
-    if (this.items.some(item => item.type === 'kitchen') && !this.defaultItemTypes.has('kitchen'))
-      actions.push('move-utensils-to-kitchen');
-
-    if (this.items.some(item => item.type === 'stationery') && !this.defaultItemTypes.has('stationery'))
-      actions.push('move-stationery-to-drawer1');
-
-    if (this.items.some(item => item.type === 'stationery') && !this.defaultItemTypes.has('stationery'))
-      actions.push('move-stationery-to-drawer1');
+    // Add default move actions for items that belong to another container.
+    const containedItemTypes = new Set(this.items.map(item => item.type));
+    for (const itemType of Object.values(ItemType)) {
+      if (!containedItemTypes.has(itemType)) continue;
+      if (this.defaultItemTypes.has(itemType)) continue;
+      const defaultAction = defaultItemActions[itemType];
+      if (defaultAction) actions.push(defaultAction);
+    }
 
     if (this.items.some(item => !!item.name)) {
       const names = this.items.filter(item => !!item.name).map(item => item.name);
@@ -203,22 +204,7 @@ export class ItemContainer extends StateManagingObject{
       case 'take': {
         const itemName = game.getArgv(1);
         const item = this.findItem(itemName);
-        if (!item) {
-          game.print('Invalid item to take.<br />');
-          game.waitInput();
-          break;
-        }
-        if (!game.hands.isEmpty()) {
-          game.print('Your hands are full.<br />');
-          game.waitInput();
-          break;
-        }
-        game.print(`You take the ${item.referredAsThe ?? item.name}.<br />`);
-        await sleep(300);
-        this.moveItemTo(item, game.hands);
-        game.print(this.reportAfterChange());
-        game.possibleActions = this.determineActions();
-        game.waitInput();
+        await this.takeItem(item, game);
         break;
       }
     }
@@ -282,5 +268,28 @@ export class ItemContainer extends StateManagingObject{
 
   reportAfterChange() {
     return 'Now it contains:<br />' + this.report();
+  }
+
+  /**
+   * @param {Item} item
+   * @param {import('../game.js').Game} game
+   */
+  async takeItem(item, game) {
+    if (!item) {
+      game.print('Invalid item to take.<br />');
+      game.waitInput();
+      return;
+    }
+    if (!game.hands.isEmpty()) {
+      game.print('Your hands are full.<br />');
+      game.waitInput();
+      return;
+    }
+    game.print(`You take the ${item.referredAsThe ?? item.name}.<br />`);
+    await sleep(300);
+    this.moveItemTo(item, game.hands);
+    game.print(this.reportAfterChange());
+    game.possibleActions = this.determineActions();
+    game.waitInput();
   }
 }
