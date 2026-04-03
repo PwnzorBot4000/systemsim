@@ -1,6 +1,30 @@
 import {StateManagingObject} from "../entities/state-managing-object.js";
+import {sleep} from "../utils.js";
+
+/** @enum {string} */
+const NoteName = {
+  convenienceStoreBreach: 'convenienceStoreBreach',
+}
+
+/** @typedef Note
+ * @property {NoteName} name
+ * @property {string} text
+ */
+
+/** @typedef {Array<string | Note>} NotesPage */
+
+/** @type {Record<NoteName, string>} */
+const notesData = {
+  'convenienceStoreBreach': 'check James\' pc for backdoors - need linux live usb + empty usb to store his files'
+};
+
+/** @type {Record<NoteName, function(Game): boolean>} */
+const noteConditions = {
+  convenienceStoreBreach: (game) => game.conversationsMap['convenience-store-cashier'].completedCaptions.has('introAboutBreach'),
+}
 
 export class Notepad extends StateManagingObject {
+  /** @type {Array<NotesPage>} */
   notes = [['[Page contains a few doodles at the top.]',
     'exploit-db.com - known vulnerabilities and vulnerable site search',
     '(must install links smh, browsing with curl is torture)']];
@@ -11,7 +35,12 @@ export class Notepad extends StateManagingObject {
   }
 
   addNote(note) {
-    this.notes[this.notes.length - 1].push(note);
+    this.getLastPage().push(note);
+  }
+
+  /** @returns {NotesPage} */
+  getLastPage() {
+    return this.notes[this.notes.length - 1];
   }
 
   async goto(index) {
@@ -75,11 +104,22 @@ export class Notepad extends StateManagingObject {
     game.waitInput();
   }
 
+  importSave(save) {
+    if (!save?.notes) return;
+    this.notes = save.notes;
+  }
+
+  exportSave() {
+    return {
+      notes: this.notes,
+    };
+  }
+
   report() {
     return `The notepad is open on page ${this.page + 1}. Its contents are: <br />` +
       '<br />' +
       this.notes[this.page]
-        .map((line) => typeof line === 'string' ? line : line.text)
+        .map((note) => typeof note === 'string' ? note : note.text)
         .join('<br />') + '<br />' +
       '<br />';
   }
@@ -88,6 +128,25 @@ export class Notepad extends StateManagingObject {
     return async (game) => {
       game.playSfx('page-turn.ogg');
       game.print('A large notepad with a pen is on the desk.<br />' + this.report());
+    }
+  }
+
+  async updateNotes(game) {
+    const activeNotes = Object.entries(noteConditions).filter(([_, condition]) => condition(game)).map(([noteName]) => noteName);
+    const newNotes = activeNotes.filter(noteName => !this.hasNote(noteName));
+
+    for (const noteName of newNotes) {
+      this.addNote({
+        name: noteName,
+        text: notesData[noteName]
+      });
+    }
+
+    if (newNotes.length) {
+      game.playSfx('pencil-writing-on-paper.ogg');
+      await sleep(1200);
+      game.print('You jolted down something on your notepad.<br />');
+      await sleep(1200);
     }
   }
 }
