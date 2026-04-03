@@ -210,11 +210,11 @@ export class Game {
     drawer3: this.drawers[2],
     hands: this.hands,
     kitchen: this.kitchen,
+    memorySticks: this.memorySticks,
     pockets: this.pockets,
     storeroom: this.storeroom,
   };
   inspectableObjectsMap = {
-    memorySticks: this.memorySticks,
     notepad: this.notepad,
     tower: this.computer.specs,
     ...this.containers,
@@ -914,7 +914,8 @@ export class Game {
     }
 
     await dramaFunction('devices');
-    this.memorySticks.importSave(save.memorySticks);
+    // Non-container savable objects
+
     await dramaFunction('servers');
     for (const [name, serverSave] of Object.entries(save.servers)) {
       const server = this.servers[name];
@@ -932,7 +933,6 @@ export class Game {
         {}
       ),
       computer: this.computer.exportSave(),
-      memorySticks: this.memorySticks.exportSave(),
       servers: Object.entries(this.servers)
         .reduce((acc, [name, server]) => ({...acc, [name]: {
           filesystem: server.filesystem.exportSave()

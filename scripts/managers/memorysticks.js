@@ -88,7 +88,7 @@ export class MemorySticks extends ItemContainer {
           const stickId = game.getArgv(1);
           const stickMatch = stickId.match(/stick-(\d+)/);
           const stickIndex = stickMatch ? parseInt(stickMatch[1]) - 1 : undefined;
-          if (!stickIndex) {
+          if (isNaN(stickIndex)) {
             game.print('Invalid memory stick to take.<br />');
             break;
           }
@@ -120,15 +120,11 @@ export class MemorySticks extends ItemContainer {
   }
 
   exportSave() {
-    return this.items.reduce((acc, stick) => ({...acc, [stick.name]: stick.exportSave()}), {});
+    return this.items.map(stick => stick.exportSave());
   }
 
   importSave(save) {
-    for (const [name, stickSave] of Object.entries(save)) {
-      const stick = this.items.find((stick) => stick.name === name);
-      if (!stick) continue;
-      stick.importSave(stickSave);
-    }
+    this.items = save.map(stickSave => MemoryStick.fromSave(stickSave));
   }
 
   getAsciiArtId() {

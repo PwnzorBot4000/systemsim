@@ -45,6 +45,13 @@ export class Filesystem {
     this.pwd = save.pwd;
   }
 
+  static fromSave(save) {
+    return new Filesystem({
+      fsMap: new Map(save.fsMap),
+      pwd: save.pwd,
+    });
+  }
+
   get(path) {
     const absPath = this.abspath(path);
 

@@ -1,4 +1,5 @@
 import {Item, ItemType} from "../model.js";
+import {Filesystem} from "./filesystem.js";
 
 /** @typedef {'USB-A 3.0' | 'USB-C 3.1'} MemoryStickInterfaceType */
 
@@ -37,5 +38,12 @@ export class MemoryStick extends Item {
     this.size = save.size;
     this.interfaceType = save.interfaceType;
     this.description = save.description;
+  }
+
+  static fromSave(save) {
+    return new MemoryStick({
+      ...save,
+      filesystem: Filesystem.fromSave(save.filesystem),
+    });
   }
 }
