@@ -103,6 +103,9 @@ export const filesystemsData = {
       contents: await foogalFiles['srv/login.html'].read()
     }],
     ['srv/content', 'dir'],
+    ['srv/content/V1C71M5.txt', {
+      contents: await foogalFiles['srv/content/V1C71M5.txt'].read()
+    }],
     ['srv/content/athena', 'dir'],
     ['srv/content/charly', 'dir'],
     ['srv/content/vickie', 'dir'],
