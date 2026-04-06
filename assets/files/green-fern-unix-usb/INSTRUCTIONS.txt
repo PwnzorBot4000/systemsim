@@ -1,0 +1,52 @@
+Green Fern Unix installation instructions
+
+Simple installation
+==========================================
+Attach the official USB stick to the computer, and boot from it.
+The computer will boot into a live system, and will mount the existing disk on /mnt.
+You can now install the operating system by running the install script:
+/ # install
+WARNING: This will erase all data on the system!
+If you are simply looking to repair an existing installation after a boot failure,
+see the instructions below.
+
+Multiple disks / Live USB creation
+==========================================
+If you have multiple disks, or want to install the live system to a USB drive,
+ensure that your installation target is attached. On startup, it will be
+mounted to /mnt/diskX, where X is the disk number. Then run the install script:
+/ # install /mnt/diskX
+Please double-check that the disk number is correct before proceeding.
+
+Repairing an existing installation
+==========================================
+If you are trying to repair your computer after a boot failure, e.g. due to an
+incompatible kernel installation, a missing system file, or a virus infection,
+you should not use the install script directly. Instead, you can use the following steps:
+- Boot the computer from the USB stick.
+- In case of an incompatible kernel: navigate to the existing filesystem located in /mnt,
+and delete the incompatible kernel found in /boot. Example:
+/ # rm /mnt/boot/kernel
+- In case of a known virus infection: navigate to the existing filesystem located in /mnt,
+and delete the infected files. Example:
+/ # rm /mnt/bin/known-virus
+- Copy the working kernel / system files from the USB stick to the existing filesystem.
+Example:
+/ # cp /boot/kernel /mnt/boot
+In the case of an unknown virus infection, where it is not known which files are infected,
+you can try the following steps:
+- Boot the computer from the USB stick.
+- Attach a second, empty USB stick to the computer.
+- Copy any important files from the existing filesystem to the empty USB stick.
+Example:
+/ # cp /mnt/disk1/bin/important-file /mnt/disk2
+Make sure that the files that you copy are not infected.
+If unsure, use an antivirus software or online scanning service to scan the files.
+- Run the install script. A fresh system will be installed to the computer.
+- Copy your files back to the computer\'s filesystem.
+In the rare case of a firmware-tampering virus, that may have modified the bootloader
+and/or the firmware of any of your internal devices (drives, memory sticks, expansion cards),
+before doing the above, to avoid further infections, you should first make sure to flash the
+original firmware to all affected devices. Some motherboards have a firmware reset button
+for this purpose, and there exist firmware management tools that can run during bootloader
+time (UEFI shell) that will allow you to reset the firmware of your other devices.

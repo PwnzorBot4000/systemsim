@@ -1,0 +1,36 @@
+<h1>OWASP Top 5 list of common vulnerabilities (2021)</h1>
+<table>
+  <thead>
+    <th>#</th><th>Category</th><th>Description</th><th>Example</th>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td><td>Broken Access Control</td><td>The application does not properly restrict access to authenticated users.</td>
+      <td>
+        User A can access user B\'s resources by guessing the user ID or the resource ID and manipulating the request URL.
+        e.g.: https://example.com/user/1/resources -- change the URL to https://example.com/user/2/resources. Or:
+        https://example.com/resources/1 -- change the URL to https://example.com/resources/56.
+        A well-protected application would not allow user 1 to access to the latter URLs, as the resources do not belong to the user that is making the request.
+      </td>
+    </tr>
+    <tr>
+      <td>2</td><td>Cryptographic failures</td><td>The application does not (properly) encrypt sensitive information.</td>
+      <td>A file containing passwords is stored in plaintext at https://example.com/passwords-1.txt.
+        An attacker can use a common paths wordlist to perform a brute force attack and retrieve the passwords.</td>
+    </tr>
+    <tr>
+      <td>3</td><td>Injection</td><td>The application does not properly sanitize user-supplied input.</td>
+      <td>An attacker can input SQL statements or shell commands into a form field that will be executed by the application.</td>
+    </tr>
+    <tr>
+      <td>4</td><td>Insecure design</td><td>The application has a feature that is not securely designed.</td>
+      <td>A blog has a feature for resetting passwords by answering a security question. The question is what is the user\'s favorite show.
+        The user\'s blog contains multiple references to the show \'star wars\'.</td>
+    </tr>
+    <tr>
+      <td>5</td><td>Security misconfiguration</td><td>Vulnerabilities that occur when security could have been appropriately configured but was not.</td>
+      <td>Developer has not disabled debug mode in the application. When an attacker requests a page that does not exist,
+        the application will return a debug page that contains sensitive information like the server software and version, which can be used to find exploits.</td>
+    </tr>
+  </tbody>
+</table>

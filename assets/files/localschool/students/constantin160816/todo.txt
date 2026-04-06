@@ -1,0 +1,4 @@
+Prepare ppt for ebikes
+Prof tyranossaurus Tex asked us to install an ancient browser from projects.mikl-ptoska.cz/links
+curl -O <rest of stuff> to download a file as A ***** FILE
+Man pages has more stuff for program options, see uni site

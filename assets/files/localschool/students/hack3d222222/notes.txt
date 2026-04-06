@@ -1,0 +1,4 @@
+Lol school servers are total swiss cheese, I got in in like 3 minutes and an exploitdb search.
+Im gonna try crack the root pass, the specs are ok for a ddos zombie. Any other bros are welcome to install their own worms for attacks, it's not
+like this teapot can mine crypto.
+If you are the admin reading this, upgrade your rotting nginx man, like, you're being paid a wage to *at least* do this once in a while.
