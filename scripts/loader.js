@@ -59,6 +59,12 @@ export class Loader {
     return new LazyFile(`${this.getRootPrefix()}/${path}`);
   }
 
+  /** @param {string[]} paths */
+  lazyList(paths) {
+    return Object.fromEntries(paths.map(path => [path, this.lazy(path)]));
+  }
+
+  /** @param {Record<string, string>} pathsMap */
   lazyMap(pathsMap) {
     return Object.fromEntries(Object.entries(pathsMap).map(([key, path]) => [key, this.lazy(path)]));
   }

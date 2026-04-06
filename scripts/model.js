@@ -31,9 +31,9 @@ export class Item {
 }
 
 export class PlainFile {
-  /** @type {string} */
+  /** @type {string | undefined} */
   type;
-  /** @type {string} */
+  /** @type {string | LazyFile} */
   contents;
 }
 

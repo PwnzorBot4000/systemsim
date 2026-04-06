@@ -1,5 +1,6 @@
 import {encodeExeName} from "../scripts/utils.js";
 import {PlainFile} from "../scripts/model.js";
+import {foogalFiles} from "../assets/files/foogal/index.js";
 
 /** @type {Map<string, PlainFile>} */
 const binaries = new Map([
@@ -87,35 +88,20 @@ export const filesystemsData = {
   'foogal.co.uk': [
     ['/srv', 'dir'],
     ['/srv/index.html', {
-      contents: '<h1>Foogal</h1>\n' +
-        '<h2>A place for all things foogal</h2>\n' +
-        '<p>Cremes and colours, crafts and bath crystals, oh my!</p>\n' +
-        '<a href="/login.html">Manage my Foogal page</a>\n' +
-        '<p>Meet our prominent members:</p>\n' +
-        '<ul>\n' +
-        '  <li><a href="/foogal/charly.html">Charly</a></li>\n' +
-        '  <li><a href="/foogal/athena.html">Athena</a></li>\n' +
-        '  <li><a href="/foogal/admin.html">Vickie</a></li>\n' +
-        '</ul>'
+      contents: await foogalFiles['srv/index.html'].read()
     }],
     ['/srv/foogal/athena.html', {
-      contents: '<h1>Foogal page</h1>\n' +
-        '<p>This is a page about Athena\'s foogal fingers.</p>\n'
+      contents: await foogalFiles['srv/foogal/athena.html'].read()
     }],
     ['/srv/foogal/charly.html', {
-      contents: '<h1>Foogal page</h1>\n' +
-        '<p>This is a page about Charly\'s colorful crafts.</p>\n'
+      contents: await foogalFiles['srv/foogal/charly.html'].read()
     }],
     ['/srv/foogal/admin.html', {
-      contents: '<h1>Foogal page</h1>\n' +
-        '<p>This is a page about Vickie\'s administrative duties.</p>\n'
+      contents: await foogalFiles['srv/foogal/admin.html'].read()
     }],
     ['/srv/login.html', {
-      contents: '<form method="post">\n' +
-        '  <label for="fname">Foogal login:</label><br><input type="text" id="fname" name="fname"><br>\n' +
-        '  <label for="pass">Password:</label><br><input type="text" id="pass" name="pass"><br><br>\n' +
-        '  <input type="submit" value="Submit">\n' +
-        '</form>'}],
+      contents: await foogalFiles['srv/login.html'].read()
+    }],
     ['srv/content', 'dir'],
     ['srv/content/athena', 'dir'],
     ['srv/content/charly', 'dir'],

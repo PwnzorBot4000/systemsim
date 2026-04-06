@@ -1,13 +1,19 @@
-export class Filesystem {
-  fsMap = new Map();
-  mounts = [];
-  pwd = '/';
-  readOnly = false;
+/** @typedef FilesystemOptions
+ * @property {FilesystemData | undefined} [contents]
+ * @property {Map<string, FsFile> | undefined} [fsMap]
+ * @property {string | undefined} [pwd]
+ * @property {boolean | undefined} [readOnly]
+ */
 
+export class Filesystem {
+  mounts = [];
+
+  /** @param {FilesystemOptions} options */
   constructor(options = {pwd: undefined, fsMap: undefined, contents: undefined, readOnly: undefined }) {
     this.pwd = options.pwd ?? '/';
     this.readOnly = options.readOnly ?? false;
-    if (options?.fsMap) this.fsMap = options.fsMap;
+    /** @type {Map<string, FsFile>} */
+    this.fsMap = options?.fsMap || new Map();
     // TODO contents sugar
   }
 

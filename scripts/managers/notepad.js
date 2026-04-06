@@ -35,11 +35,11 @@ export class Notepad extends StateManagingObject {
   }
 
   addNote(note) {
-    this.getLastPage().push(note);
+    this.lastPage.push(note);
   }
 
   /** @returns {NotesPage} */
-  getLastPage() {
+  get lastPage() {
     return this.notes[this.notes.length - 1];
   }
 
