@@ -10,6 +10,7 @@ const binaries = new Map([
   ['kernel', { type: 'bin', contents: 'ELF' + encodeExeName('kernel', 2210) }],
   ['links', { type: 'exe', contents: 'ELF' + encodeExeName('links', 500) }],
   ['m4r10k4rt', { type: 'exe', contents: 'MZ' + encodeExeName('m4r10k4rt', 48) }],
+  ['mimikatz-payload-1', { type: 'bin', contents: 'ELF' + encodeExeName('soimportantmuchwow', 320) }],
   ['nologin', { type: 'exe', contents: 'ELF' + encodeExeName('noop', 10) }],
   ['sh', { type: 'exe', contents: 'ELF' + encodeExeName('noop', 920) }],
   ['watrar', { type: 'exe', contents: 'MZ' + encodeExeName('watrar', 48) }],
@@ -86,29 +87,40 @@ export const filesystemsData = {
     }],
   ],
   'foogal.co.uk': [
+    ['/', 'dir'],
+    ['/PWN3D.txt', {
+      contents: await foogalFiles['/PWN3D.txt'].read()
+    }],
+    ['/wat.txt', {
+      contents: await foogalFiles['/wat.txt'].read()
+    }],
+    ['/boot', 'dir'],
+    ['/boot/kernel', binaries.get('kernel')],
+    ['/boot/initrd', binaries.get('initrd')],
+    ['/boot/very-important-system-file-do-not-delete.mod', binaries.get('mimikatz-payload-1')],
     ['/srv', 'dir'],
     ['/srv/index.html', {
-      contents: await foogalFiles['srv/index.html'].read()
+      contents: await foogalFiles['/srv/index.html'].read()
     }],
     ['/srv/foogal/athena.html', {
-      contents: await foogalFiles['srv/foogal/athena.html'].read()
+      contents: await foogalFiles['/srv/foogal/athena.html'].read()
     }],
     ['/srv/foogal/charly.html', {
-      contents: await foogalFiles['srv/foogal/charly.html'].read()
+      contents: await foogalFiles['/srv/foogal/charly.html'].read()
     }],
     ['/srv/foogal/admin.html', {
-      contents: await foogalFiles['srv/foogal/admin.html'].read()
+      contents: await foogalFiles['/srv/foogal/admin.html'].read()
     }],
     ['/srv/login.html', {
-      contents: await foogalFiles['srv/login.html'].read()
+      contents: await foogalFiles['/srv/login.html'].read()
     }],
-    ['srv/content', 'dir'],
-    ['srv/content/V1C71M5.txt', {
-      contents: await foogalFiles['srv/content/V1C71M5.txt'].read()
+    ['/srv/content', 'dir'],
+    ['/srv/content/V1C71M5.txt', {
+      contents: await foogalFiles['/srv/content/V1C71M5.txt'].read()
     }],
-    ['srv/content/athena', 'dir'],
-    ['srv/content/charly', 'dir'],
-    ['srv/content/vickie', 'dir'],
+    ['/srv/content/athena', 'dir'],
+    ['/srv/content/charly', 'dir'],
+    ['/srv/content/vickie', 'dir'],
   ],
   'owasp.org': [
     ['/srv', 'dir'],
@@ -192,6 +204,8 @@ export const filesystemsData = {
     }],
     ['/srv/watrar.exe', binaries.get('watrar')],
   ],
+  '101.11.111.1': [],
+  '103.203.200.162': undefined,
   '104.122.199.11': [
     ['/', 'dir'],
     ['/etc', 'dir'],
