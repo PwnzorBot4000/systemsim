@@ -103,11 +103,13 @@ export class Menu {
         <p><a href="https://freesound.org/people/JZProductions/sounds/147381/">Pencil Writing on Paper</a> by <a href="https://freesound.org/people/JZProductions/">JZProductions</a> | License: <a href="https://creativecommons.org/licenses/by/4.0/">Attribution 4.0</a></p>
         <p><a href="https://freesound.org/people/phatcorns/sounds/250104/">Computer Beep</a> by <a href="https://freesound.org/people/phatcorns/">phatcorns</a> | License: <a href="http://creativecommons.org/publicdomain/zero/1.0/">Creative Commons 0</a></p>
         <p><a href="https://freesound.org/people/Beussa/sounds/749880/">Page turned</a> by <a href="https://freesound.org/people/Beussa/">Beussa</a> | License: <a href="http://creativecommons.org/publicdomain/zero/1.0/">Creative Commons 0</a></p>
+        <p><a href="https://freesound.org/people/The_Sean_/sounds/340302/">OsFnHhKnChairs.wav</a> by <a href="https://freesound.org/people/The_Sean_/">The_Sean_</a> | License: <a href="http://creativecommons.org/publicdomain/zero/1.0/">Creative Commons 0</a></p>
         <br />
         <h3>Special thanks to:</h3>
         <br />
         <p>Ruurtjan Pul for the <a target="_blank" href="https://www.nslookup.io/dns-course/">DNS for developers course</a>, which was a catalyst for beginning my search.</p>
         <p>Team Fractal Alligator for <a target="_blank" href="https://store.steampowered.com/app/365450/Hacknet/">Hacknet</a>, which was an inspiration for this game.</p>
+        <p>Fulcrum Games et al. for <a target="_blank" href="https://store.steampowered.com/app/1812820/Bitburner/">Bitburner</a>, another great inspiration for this game.</p>
         <p>Jacob Jackson for <a target="_blank" href="https://supermaven.com/">Supermaven</a>, an excellent (and fast) AI assistant.  // &lt;-- THE ASSISTANT WROTE THIS ASDFASDFASDF HELP</p>
         <p><a target="_blank" href="https://stackoverflow.com/">Stack Overflow</a>, for obvious reasons.</p>
         <p><a target="_blank" href="https://www.jetbrains.com/">Jetbrains</a> for the powerful IDEs they provide.</p>

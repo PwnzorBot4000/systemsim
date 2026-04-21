@@ -16,6 +16,9 @@ import {ItemContainer} from "./entities/item-container.js";
 import {ConvenienceStoreConversation} from "./entities/conversation.js";
 import {AudioManager} from "./managers/audio.js";
 import {PossibleAction} from "./model.js";
+import {ConvenienceStore} from "./scenes/convenience-store.js";
+import {Outside} from "./scenes/outside.js";
+import {Room} from "./scenes/room.js";
 
 export class Game {
   // Persistent state
@@ -214,10 +217,16 @@ export class Game {
     pockets: this.pockets,
     storeroom: this.storeroom,
   };
+  scenes = {
+    'convenience-store': new ConvenienceStore(),
+    'outside': new Outside(),
+    'room': new Room(),
+  };
   inspectableObjectsMap = {
     notepad: this.notepad,
     tower: this.computer.specs,
     ...this.containers,
+    ...this.scenes,
   };
 
   constructor() {
@@ -443,7 +452,7 @@ export class Game {
           case 'inspect':
             return this.switchState('inspect-desk');
           case 'stand':
-            return this.switchState('inspect-room');
+            return this.switchState('inspect-object room');
           default:
             this.print('Invalid action. ');
             this.waitInput();
@@ -513,8 +522,9 @@ export class Game {
             return this.switchState('boot', {cls: true});
           case 'stand':
             this.print('You stand up.<br />');
+            this.playSfx('chair_stand_up.ogg');
             await sleep(600);
-            return this.switchState('inspect-room');
+            return this.switchState('inspect-object room');
           default:
             this.print('Invalid action. ');
             this.waitInput();
@@ -547,91 +557,6 @@ export class Game {
       }
       case 'boot':
         return await this.computer.executeInput();
-      case 'inspect-room':
-        switch (this.getArgv(0)) {
-          case '':
-            this.possibleActions = ['bathroom', 'bookcase', 'desk', 'kitchen', 'storeroom', 'outside'];
-            this.waitInput('Possible actions: [%actions%]<br /><br />Action: ');
-            break;
-          case 'desk':
-            return this.switchState('init');
-          case 'bathroom':
-            return this.switchState('inspect-object bathroom');
-          case 'bookcase':
-            return this.switchState('inspect-object bookcase');
-          case 'kitchen':
-            return this.switchState('inspect-object kitchen');
-          case 'storeroom':
-            return this.switchState('inspect-object storeroom');
-          case 'outside':
-            this.print('You exit the room.<br />');
-            await sleep(1000);
-            return this.switchState('outside', {cls: true});
-          default:
-            this.print('Invalid action. ');
-            this.waitInput();
-            break;
-        }
-        return;
-      case 'outside':
-        switch (this.getArgv(0)) {
-          case '':
-            this.possibleActions = ['home', 'convenience-store', 'bills-computer-shop', 'coffee-shop', 'home-depot'];
-            this.waitInput('Go where? [%actions%]<br /><br />Action: ');
-            break;
-          case 'home':
-            this.print('You return to your home.<br />');
-            await sleep(1000);
-            return this.switchState('inspect-room', {cls: true});
-          case 'convenience-store':
-            return this.switchState('convenience-store');
-          case 'bills-computer-shop':
-            this.print('You don\'t need anything from the computer shop right now.<br />');
-            this.waitInput();
-            break;
-          // return this.switchState('bills-computer-shop');
-          case 'coffee-shop':
-            this.print('You don\'t need anything from the coffee shop right now.<br />');
-            this.waitInput();
-            break;
-          // return this.switchState('coffee-shop');
-          case 'home-depot':
-            this.print('You don\'t need anything from the home depot right now.<br />');
-            this.waitInput();
-            break;
-          // return this.switchState('home-depot');
-          default:
-            this.print('Invalid action. ');
-            this.waitInput();
-            break;
-        }
-        return;
-      case 'convenience-store':
-        switch (this.getArgv(0)) {
-          case '':
-            this.possibleActions = ['talk-cashier', 'newspapers', 'outside'];
-            this.waitInput('Possible actions: [%actions%]<br /><br />Action: ');
-            break;
-          case 'newspapers':
-            this.print('You look at the digital newspaper subscription ads. The headlines are:<br />' +
-              '- The ePhone to replace all ePhones: Meet the new eGalaxy Cluster<br />' +
-              '- Ablue vault heist - Thousands of private keys stolen - Macrosoft urges users to generate new keys<br />' +
-              '- EnvyTech to invest up to $100 million in cryptocurrency - stock markets worried<br />' +
-              '- Metaspace AR: Get your own digital flower with only $6/mo!<br />');
-            await sleep(600);
-            this.waitInput();
-            break;
-          case 'outside':
-            this.print('You exit the convenience store.<br />');
-            return this.switchState('outside');
-          case 'talk-cashier':
-            return this.switchState('talk convenience-store-cashier');
-          default:
-            this.print('Invalid action. ');
-            this.waitInput();
-            break;
-        }
-        return;
     }
   }
 
