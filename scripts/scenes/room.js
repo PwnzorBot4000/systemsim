@@ -9,7 +9,7 @@ export class Room extends StateManagingObject {
   async executeInput(game) {
     switch (game.getArgv(0)) {
       case 'desk':
-        return game.switchState('init');
+        return game.switchState('inspect-object init');
       case 'bathroom':
         return game.switchState('inspect-object bathroom');
       case 'bookcase':

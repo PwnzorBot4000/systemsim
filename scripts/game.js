@@ -20,6 +20,7 @@ import {ConvenienceStore} from "./scenes/convenience-store.js";
 import {Outside} from "./scenes/outside.js";
 import {Room} from "./scenes/room.js";
 import {Desk} from "./scenes/desk.js";
+import {Init} from "./scenes/init.js";
 
 export class Game {
   // Persistent state
@@ -196,7 +197,7 @@ export class Game {
   possibleActions = [];
   previousState = undefined;
   prompt = '';
-  state = 'init';
+  state = 'inspect-object init';
   terminalBuffer = [];
   terminalState = 'exec';
   capsLockActive = false;
@@ -221,6 +222,7 @@ export class Game {
   scenes = {
     'convenience-store': new ConvenienceStore(),
     'desk': new Desk(),
+    'init': new Init(),
     'outside': new Outside(),
     'room': new Room(),
   };
@@ -441,26 +443,6 @@ export class Game {
 
   async executeState() {
     switch (this.state.split(' ')[0]) {
-      case 'init':
-        switch (this.input) {
-          case '':
-            this.print('You are sitting at your desk, in front of your home computer. It is currently shut down.<br />');
-            await this.notepad.updateNotes(this);
-            this.possibleActions = ['boot', 'inspect', 'stand'];
-            this.waitInput('Possible actions: [%actions%]<br /><br />Action: ');
-            break;
-          case 'boot':
-            return this.switchState('boot', {cls: true});
-          case 'inspect':
-            return this.switchState('inspect-object desk');
-          case 'stand':
-            return this.switchState('inspect-object room');
-          default:
-            this.print('Invalid action. ');
-            this.waitInput();
-            break;
-        }
-        return;
       case 'talk': {
         const personName = this.state.split(' ')[1];
         const conversation = this.conversationsMap[personName];

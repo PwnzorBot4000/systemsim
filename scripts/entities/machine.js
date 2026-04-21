@@ -145,7 +145,7 @@ export class Machine {
         break;
       case 'off':
         // A program has requested a shutdown.
-        return this.game.switchState('init');
+        return this.game.switchState('inspect-object init');
     }
   }
 
